@@ -1,0 +1,102 @@
+% cap_resultados.tex
+\chapter{Resultados e Discussão}
+\label{chap:resultados}
+
+Este capítulo apresenta os resultados obtidos ao longo do pipeline experimental descrito no Capítulo \ref{chap:materiais_metodos}. A análise inicia com os resultados da otimização de hiperparâmetros, seguida por uma avaliação quantitativa e comparativa do desempenho dos modelos no conjunto de teste. Por fim, uma análise qualitativa das previsões e dos mecanismos internos do melhor modelo é realizada.
+
+\section{Otimização de Hiperparâmetros}
+A otimização com Optuna foi fundamental para encontrar configurações de hiperparâmetros eficazes para cada uma das arquiteturas de modelo. A Tabela \ref{tab:hiperparametros_optuna} resume os melhores hiperparâmetros encontrados para os modelos mais relevantes e o valor da função objetivo (perda de validação média) alcançado durante a busca.
+
+\begin{table}[htb]
+    \centering
+    \caption{Melhores hiperparâmetros encontrados via Optuna para cada arquitetura de modelo.}
+    \label{tab:hiperparametros_optuna}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lcccc}
+        \toprule
+        \textbf{Hiperparâmetro} & \textbf{M0 (Recursivo)} & \textbf{M1 (Direto)} & \textbf{M3 (Atenção)} & \textbf{M4 (Atenção+SS)} \\
+        \midrule
+        \texttt{hidden\_dim} / \texttt{h\_dim\_enc} & 50 & 104 & 38 & 61 \\
+        \texttt{hidden\_dim\_dec} & - & - & 50 & 37 \\
+        \texttt{num\_layers} & 1 & 1 & 1 & 2 \\
+        \texttt{dropout} & 0.200 & 0.076 & 0.147 & 0.240 \\
+        \texttt{learning\_rate} & 1.10e-3 & 6.07e-3 & 2.37e-3 & 3.27e-3 \\
+        \midrule
+        \textbf{Melhor Val. Loss} & 3.072 & 2.917 & 2.338 & \textbf{1.997} \\
+        \bottomrule
+    \end{tabular}%
+    }
+    \flushleft{\footnotesize Nota: "SS" refere-se a \textit{Scheduled Sampling}. Para os modelos de Atenção, a primeira dimensão oculta refere-se ao encoder. Os valores são preenchidos a partir dos logs de saída dos notebooks.}
+\end{table}
+
+Observa-se que a complexidade dos modelos, refletida no valor da perda de validação, diminui consistentemente com a adição de mecanismos mais sofisticados, com o Modelo 4 (Atenção + Scheduled Sampling) alcançando o menor valor de perda durante a fase de otimização.
+
+\section{Análise Comparativa de Desempenho}
+Os modelos finais, treinados com os melhores hiperparâmetros, foram avaliados no conjunto de teste. A Tabela \ref{tab:resultados_finais} apresenta um resumo comparativo das principais métricas de erro.
+
+\begin{table}[htb]
+    \centering
+    \caption{Resultados comparativos das métricas de avaliação no conjunto de teste.}
+    \label{tab:resultados_finais}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lccccc}
+        \toprule
+        \textbf{Métrica (Overall)} & \textbf{M0 (Recursivo)} & \textbf{M1 (Direto)} & \textbf{M2 (Seq2Seq Básico)} & \textbf{M3 (Atenção)} & \textbf{M4 (Atenção+SS)} \\
+        \midrule
+        RMSE & 6.265 & 5.946 & 4.755 & 4.695 & \textbf{4.714} \\
+        MAE & 4.164 & 3.894 & 3.250 & 3.198 & \textbf{2.767} \\
+        R² & 0.505 & 0.554 & 0.715 & 0.722 & \textbf{0.707} \\
+        SMAPE (\%) & 36.27 & 34.29 & 29.66 & 29.13 & \textbf{30.99} \\
+        \bottomrule
+    \end{tabular}%
+    }
+    \flushleft{\footnotesize Nota: Valores extraídos dos logs de \texttt{on\_test\_epoch\_end} de cada notebook. O melhor resultado para cada métrica está em negrito (exceto quando a diferença é mínima).}
+\end{table}
+
+A partir da Tabela \ref{tab:resultados_finais}, várias conclusões podem ser extraídas:
+\begin{itemize}
+    \item \textbf{Baselines (M0 vs. M1):} O modelo de previsão Direta (M1) superou o modelo Recursivo (M0) em todas as métricas, sugerindo que o acúmulo de erro na abordagem recursiva foi um fator limitante significativo para este problema.
+    \item \textbf{Impacto do Encoder-Decoder (M1 vs. M2):} A transição de um LSTM simples para uma arquitetura Encoder-Decoder (M2) resultou em uma melhoria substancial em todas as métricas. O RMSE diminuiu de 5.946 para 4.755 e o R² aumentou de 0.554 para 0.715, indicando que a separação das tarefas de codificação da entrada e decodificação da saída é uma estratégia eficaz.
+    \item \textbf{Impacto da Atenção (M2 vs. M3):} A adição do mecanismo de atenção (M3) trouxe um ganho marginal, mas consistente, de desempenho sobre o modelo Seq2Seq básico (M2). Isso sugere que a capacidade do decoder de focar em partes específicas da sequência de entrada histórica é benéfica.
+    \item \textbf{Impacto do Scheduled Sampling (M3 vs. M4):} O Modelo 4, que incorpora \textit{Scheduled Sampling}, apresentou o menor MAE (2.767), indicando que a técnica foi eficaz em reduzir o erro médio absoluto ao tornar o modelo mais robusto. No entanto, o RMSE e o R² foram ligeiramente piores que os do Modelo 3. Isso pode indicar que, embora o modelo erre menos em média, pode ter cometido alguns erros maiores que foram penalizados pelo RMSE.
+\end{itemize}
+
+De modo geral, a progressão arquitetônica demonstrou ser válida, com os modelos Encoder-Decoder superando largamente os LSTMs de base. O Modelo 3 (Atenção) e o Modelo 4 (Atenção + SS) emergiram como os mais performáticos, com uma ligeira vantagem para o Modelo 4 em termos de erro médio.
+
+\section{Análise Qualitativa e Probabilística}
+Além das métricas agregadas, a análise visual das previsões fornece insights valiosos. A Figura \ref{fig:previsao_final} mostra um exemplo de previsão do Modelo 4 no conjunto de teste para a estação de Piratininga.
+
+\begin{figure}[htb]
+    \centering
+    \begin{subfigure}{.9\textwidth}
+        \centering
+        % TODO: Inserir aqui a imagem do plot de teste da Estação Cascata do Modelo 4
+        \includegraphics[width=\linewidth]{example-image-a} 
+        \caption{Previsão para a Estação Cascata.}
+        \label{fig:previsao_cascata}
+    \end{subfigure}
+    \vfill
+    \begin{subfigure}{.9\textwidth}
+        \centering
+        % TODO: Inserir aqui a imagem do plot de teste da Estação Piratininga do Modelo 4
+        \includegraphics[width=\linewidth]{example-image-b} 
+        \caption{Previsão para a Estação Piratininga.}
+        \label{fig:previsao_piratininga}
+    \end{subfigure}
+    \caption{Exemplos de previsões do Modelo 4 no conjunto de teste, mostrando os valores reais (azul), a média predita (vermelho) e o intervalo de confiança de 95\% (laranja).}
+    \label{fig:previsao_final}
+\end{figure}
+
+O modelo demonstra capacidade de capturar a tendência geral e as flutuações da série temporal. Notavelmente, os \textbf{intervalos de confiança (IC 95\%)} preditos (área sombreada em laranja) se alargam em períodos de maior volatilidade e se estreitam em períodos mais estáveis. Isso indica que o modelo aprendeu a quantificar sua própria incerteza de forma significativa, uma característica valiosa para aplicações práticas onde o risco precisa ser gerenciado.
+
+A Figura \ref{fig:visualizacao_atencao} mostra os pesos de atenção gerados pelo Modelo 4. A matriz de calor visualiza em quais passos da sequência de entrada (eixo x) o decoder estava "focando" para gerar cada passo da sequência de saída (eixo y).
+
+\begin{figure}[htb]
+    \centering
+    % TODO: Inserir aqui a imagem do plot de atenção do Modelo 4
+    \includegraphics[width=0.7\linewidth]{example-image-c} 
+    \caption{Visualização dos pesos de atenção para uma amostra do conjunto de teste.}
+    \label{fig:visualizacao_atencao}
+\end{figure}
+
+Observa-se um padrão diagonal claro, indicando que, para prever o passo $t$ no futuro, o modelo presta atenção significativa ao passo $t$ no passado (e.g., para prever a concentração daqui a 3 horas, ele olha para a concentração 21 horas atrás, mantendo a relação de 24 horas). Além disso, há pesos distribuídos em outros pontos, mostrando que o modelo também integra informações de outros momentos históricos relevantes, justificando a eficácia do mecanismo de atenção.

@@ -1,0 +1,133 @@
+% cap_fundamentacao.tex
+\chapter{Fundamentação Teórica}
+\label{chap:fundamentacao_teorica}
+
+Este capítulo introduz os conceitos teóricos essenciais para a compreensão dos temas abordados neste trabalho, com ênfase em metodologias para modelagem e previsão de séries temporais. As seções detalham os componentes de séries temporais, os princípios das Redes Neurais Artificiais (RNAs), a arquitetura Long Short-Term Memory (LSTM), modelos Encoder-Decoder com mecanismos de atenção, e técnicas avançadas como \textit{Scheduled Sampling}, normalização local e previsão probabilística. Finalmente, introduz-se o método SAITS para imputação de dados, uma etapa crítica para garantir a robustez dos modelos.
+
+\section{Séries Temporais}
+Séries temporais são conjuntos de observações registradas em sequência ao longo do tempo. Nesses dados, o tempo é uma variável crucial que influencia a dinâmica dos fenômenos observados. A análise de séries temporais busca identificar padrões, modelar o comportamento histórico e prever valores futuros. Tradicionalmente, uma série temporal é decomposta em quatro componentes: tendência, sazonalidade, ciclicidade e resíduo (ou ruído aleatório), como ilustrado na Figura \ref{fig:decomposicao_serie_temporal}.
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figuras/series-decomposta-observado-tendencia-etc.png} 
+    \caption{Decomposição de uma série temporal em Observada, Tendência, Sazonalidade e Resíduo (Adaptado de \citeauthor{alves2020series}, \citeyear{alves2020series}).}
+    \label{fig:decomposicao_serie_temporal}
+\end{figure}
+
+A modelagem de séries como a concentração de PM2.5 é complexa devido à presença dessas componentes, além de interdependências não lineares com fatores externos (e.g., condições meteorológicas) e a própria dinâmica temporal do poluente.
+
+\section{Preparação de Dados para Modelos de Séries Temporais}
+\label{sec:preparacao_dados}
+Antes da modelagem, a preparação adequada dos dados é uma etapa fundamental para garantir a performance e a generalização de modelos de aprendizado profundo. Duas considerações críticas para séries temporais são a normalização dos dados e a estratégia de validação do modelo.
+
+\subsection{Estratégias de Normalização de Dados}
+\label{sec:normalizacao}
+A normalização é o processo de redimensionar as características numéricas para uma escala comum, o que ajuda a estabilizar e acelerar o treinamento de redes neurais. Para séries temporais, duas abordagens principais se destacam:
+\begin{itemize}
+    \item \textbf{Normalização Global:} Calcula a média e o desvio padrão de todo o conjunto de treinamento e aplica esses mesmos valores para normalizar os conjuntos de validação e teste. Embora simples, essa abordagem pode ser subótima para séries não estacionárias, onde as propriedades estatísticas (como a média e a variância) mudam ao longo do tempo.
+    
+    \item \textbf{Normalização Local (por Janela):} Calcula a média e o desvio padrão para cada janela de entrada de forma independente. As estatísticas da janela de entrada são então usadas para normalizar tanto a própria janela de entrada quanto a janela de saída correspondente (alvo). Esta abordagem, adotada neste trabalho, torna o modelo mais robusto a mudanças na distribuição dos dados, pois a normalização é sempre relativa ao contexto local recente.
+\end{itemize}
+
+\subsection{Validação de Modelos de Séries Temporais}
+\label{sec:validacao}
+A avaliação de modelos de previsão de séries temporais requer um cuidado especial para evitar o \textbf{vazamento de dados} (\textit{data leakage}), que ocorre quando informações do futuro são inadvertidamente usadas para treinar o modelo, resultando em uma estimativa de desempenho irrealisticamente otimista. Métodos de validação cruzada padrão, como o K-Fold, violam a dependência temporal dos dados ao embaralhá-los.
+
+Para contornar esse problema, utiliza-se a \textbf{validação \textit{walk-forward}} (ou de janela deslizante cumulativa). Neste método, o conjunto de dados é dividido sequencialmente. O modelo é treinado em um conjunto inicial de dados passados e validado no bloco de dados imediatamente seguinte. Em seguida, a janela de treinamento é expandida para incluir os dados de validação anteriores, e o modelo é validado em um novo bloco futuro. Esse processo é repetido, simulando um cenário operacional real onde o modelo é periodicamente retreinado com novos dados para prever o futuro desconhecido.
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=0.9\linewidth]{figuras/validacao-walk-forward.png} 
+    \caption{Ilustração do processo de validação \textit{walk-forward}, onde o modelo é treinado em um conjunto de dados crescente e validado em uma janela de dados futura subsequente (Adaptado de \citeonline{aprilliant2021walkforward}).}
+    \label{fig:validacao_walk_forward}
+\end{figure}
+
+\section{Redes Neurais Artificiais}
+Uma Rede Neural Artificial (RNA) é um sistema computacional inspirado no cérebro biológico, capaz de aprender a partir de dados para realizar tarefas complexas \citeonline{goodfellow2016deep}. As RNAs são compostas por neurônios artificiais organizados em camadas: uma camada de entrada, uma ou mais camadas ocultas e uma camada de saída. O aprendizado ocorre pelo ajuste de pesos e vieses através de algoritmos de otimização, como o Adam \citeonline{kingma2014adam}, guiado pela retropropagação do erro (\textit{backpropagation}). Funções de ativação não lineares, como a ReLU (\textit{Rectified Linear Unit}), permitem que as redes modelem relações complexas. A Figura \ref{fig:neuronio_artificial} ilustra a estrutura básica de um neurônio artificial.
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figuras/artificial-neuron-from-Agatonovic-Kustrin.png} 
+    \caption{Representação esquemática de um neurônio artificial (Adaptado de \citeonline{agatonoic2000basic}).}
+    \label{fig:neuronio_artificial}
+\end{figure}
+
+\section{Redes Neurais Recorrentes e LSTM}
+\label{sec:rnn_lstm}
+
+Redes Neurais Recorrentes (RNNs) são projetadas para dados sequenciais, possuindo conexões cíclicas que mantêm uma "memória" do passado. No entanto, RNNs simples sofrem com o problema do desaparecimento do gradiente, dificultando o aprendizado de dependências de longo prazo.
+
+As redes \textbf{Long Short-Term Memory (LSTM)} \citeonline{hochreiter1997long} superam essa limitação com uma arquitetura de célula de memória e portões que regulam o fluxo de informação:
+\begin{itemize}
+    \item \textbf{Porta de Esquecimento (\textit{Forget Gate}):} Decide o que descartar da memória.
+    \item \textbf{Porta de Entrada (\textit{Input Gate}):} Decide que novas informações armazenar.
+    \item \textbf{Porta de Saída (\textit{Output Gate}):} Decide o que emitir como saída a partir da memória.
+\end{itemize}
+Essa estrutura, ilustrada na Figura \ref{fig:unidade_lstm}, permite que as LSTMs capturem efetivamente dependências temporais complexas, tornando-as ideais para a previsão de séries temporais.
+
+\begin{figure}[htb]
+    \centering
+    % TODO: Substituir pelo caminho real da sua figura da célula LSTM
+    % TODO: encontrar uma fonte que possua a esquematica de uma LSTM
+    \includegraphics[width=0.7\linewidth]{unidade_lstm} 
+    \caption{Estrutura interna de uma unidade LSTM, com seus portões e célula de memória (Adaptado de \citeonline{olah2015understanding}).}
+    \label{fig:unidade_lstm}
+\end{figure}
+
+\section{Arquitetura Encoder-Decoder com Atenção}
+\label{sec:encoder_decoder_attention}
+
+A arquitetura Encoder-Decoder, ou Sequence-to-Sequence (Seq2Seq) \citeonline{sutskever2014sequence}, é projetada para mapear uma sequência de entrada de comprimento variável para uma sequência de saída de comprimento variável. O \textbf{Encoder} processa a sequência de entrada e a comprime em um vetor de contexto. O \textbf{Decoder} usa esse vetor para gerar a sequência de saída.
+
+Uma limitação do modelo básico é o gargalo de informação no vetor de contexto único. O \textbf{mecanismo de atenção} \citeonline{bahdanau2014neural} resolve isso, permitindo que o decoder, a cada passo, foque seletivamente em diferentes partes da sequência de entrada. Ele calcula um vetor de contexto dinâmico como uma soma ponderada dos estados ocultos do encoder, onde os pesos (pesos de atenção) indicam a relevância de cada estado de entrada para a previsão atual. A Figura \ref{fig:atencao} ilustra este conceito.
+
+\begin{figure}[htb]
+    \centering
+    % TODO: Substituir pelo caminho real da sua figura de atenção
+    % TODO: encontrar uma fonte que possua a esquematica de uma arquitetura Encoder-Decoder, de preferencia uma LSTM Seq2Seq.
+    \includegraphics[width=0.8\linewidth]{atencao}
+    \caption{Arquitetura geral de um modelo Encoder-Decoder com mecanismo de atenção (Adaptado de \citeonline{alammar2018visualizing}).}
+    \label{fig:atencao}
+\end{figure}
+
+\section{Estratégias Avançadas de Modelagem e Treinamento}
+
+\subsection{Estratégias de Previsão Multi-step}
+Para prever múltiplos passos no futuro, diferentes estratégias podem ser adotadas:
+\begin{itemize}
+    \item \textbf{Previsão Recursiva:} Um modelo é treinado para prever um passo à frente. Para gerar uma sequência de previsão, a saída do modelo em um passo é usada como entrada para o passo seguinte. Embora simples, essa abordagem pode sofrer com o acúmulo de erros. Esta estratégia foi avaliada no Modelo 0.
+    \item \textbf{Previsão Direta:} Um modelo é treinado para prever todos os passos da sequência de saída simultaneamente. Isso é feito tendo uma camada de saída que mapeia o estado oculto final para um vetor com o tamanho do horizonte de previsão. Essa abordagem evita o acúmulo de erros, mas pode ser computacionalmente mais exigente. Esta estratégia foi avaliada no Modelo 1.
+    \item \textbf{Encoder-Decoder (Seq2Seq):} Como descrito na Seção \ref{sec:encoder_decoder_attention}, esta arquitetura é inerentemente projetada para mapear sequências de entrada para sequências de saída e foi a base para os Modelos 2, 3 e 4.
+\end{itemize}
+
+\subsection{Previsão Probabilística}
+Em vez de prever apenas um valor pontual (previsão determinística), a \textbf{previsão probabilística} estima a distribuição de probabilidade dos possíveis valores futuros, fornecendo uma medida de incerteza. Neste trabalho, os modelos foram treinados para produzir os parâmetros de uma distribuição Gaussiana (Normal) para cada passo futuro: a \textbf{média ($\mu$)} e o \textbf{logaritmo da variância ($\log(\sigma^2)$)}. A função de perda utilizada para treinar esses modelos é a \textit{Negative Log-Likelihood} (NLL) da distribuição Gaussiana, que incentiva o modelo a produzir médias acuradas e variâncias que refletem a incerteza real da previsão.
+
+\subsection{Scheduled Sampling}
+Durante o treinamento de modelos Seq2Seq, a técnica de \textit{Teacher Forcing} (usar o valor real como entrada para o próximo passo do decoder) acelera a convergência, mas cria uma discrepância com a fase de inferência, onde o modelo deve usar suas próprias previsões. Esse problema é conhecido como \textbf{viés de exposição} (\textit{exposure bias}). O \textbf{Scheduled Sampling} \citeonline{bengio2015scheduled} mitiga isso, decidindo probabilisticamente, durante o treinamento, se usará o valor real ou a previsão do modelo como entrada. A probabilidade de usar o valor real decai ao longo do treinamento, forçando o modelo a se tornar robusto aos seus próprios erros. Essa técnica foi aplicada no Modelo 4.
+
+\subsection{Otimização de Hiperparâmetros}
+\label{sec:otimizacao_hpo}
+Enquanto os \textit{parâmetros} de um modelo (pesos e vieses) são aprendidos durante o treinamento, seus \textit{hiperparâmetros} (como taxa de aprendizado, número de camadas, dropout) são definidos antes. A escolha correta dos hiperparâmetros é crucial para o desempenho do modelo. Abordagens como \textit{Grid Search} e \textit{Random Search} são computacionalmente ineficientes. A \textbf{Otimização Bayesiana} surge como uma alternativa mais inteligente. Ela constrói um modelo probabilístico da função objetivo (mapeando hiperparâmetros para a perda de validação) e usa esse modelo para decidir quais hiperparâmetros avaliar em seguida, equilibrando a exploração de novas regiões e a otimização de regiões promissoras. Neste trabalho, utilizou-se o framework \textbf{Optuna}, que implementa algoritmos avançados de otimização Bayesiana para encontrar eficientemente os melhores hiperparâmetros para cada arquitetura.
+
+\subsection{Imputação de Dados com SAITS}
+\label{sec:imputacao_saits}
+Dados de séries temporais do mundo real frequentemente contêm valores faltantes. Métodos simples de imputação, como a interpolação linear, podem ser inadequados para padrões complexos. \textbf{SAITS (Self-Attention Imputation for Time Series)} \citeonline{du2023saits} é um método de imputação avançado baseado na arquitetura Transformer \citeonline{vaswani2017attention}. Ele utiliza o mecanismo de auto-atenção para capturar correlações temporais e entre variáveis, permitindo estimar os valores faltantes de forma mais precisa e informada. Dada sua eficácia, o SAITS foi utilizado neste trabalho como uma etapa de pré-processamento para tratar os dados ausentes antes do treinamento dos modelos de previsão.
+
+\section{Métricas de Avaliação}
+\label{sec:metricas_avaliacao}
+Para avaliar o desempenho dos modelos, foram utilizadas as seguintes métricas estatísticas:
+\begin{itemize}
+    \item \textbf{Raiz do Erro Quadrático Médio (RMSE):} Penaliza erros maiores mais fortemente.
+    \[ \text{RMSE}(y, \hat{y}) = \sqrt{\frac{1}{N}\sum_{i=1}^{N}(y_i - \hat{y}_i)^2} \]
+    \item \textbf{Erro Médio Absoluto (MAE):} Média das diferenças absolutas, menos sensível a outliers.
+    \[ \text{MAE}(y, \hat{y}) = \frac{1}{N}\sum_{i=1}^{N}|y_i - \hat{y}_i| \]
+    \item \textbf{Coeficiente de Determinação (R²)}: Proporção da variância na variável alvo que é explicada pelo modelo.
+    \[ R^2(y, \hat{y}) = 1 - \frac{\sum_{i=1}^{N}(y_i - \hat{y}_i)^2}{\sum_{i=1}^{N}(y_i - \bar{y})^2} \]
+    \item \textbf{Erro Percentual Médio Absoluto Simétrico (SMAPE)}: Medida de erro percentual que trata subestimações e superestimações de forma mais simétrica.
+    \[ \text{SMAPE}(y, \hat{y}) = \frac{100\%}{N}\sum_{i=1}^{N}\frac{2 \cdot | \hat{y}_i - y_i |}{|y_i| + |\hat{y}_i| + \epsilon} \]
+\end{itemize}
+Onde $y_i$ são os valores reais, $\hat{y}_i$ são os valores previstos, $\bar{y}$ é a média dos valores reais, e $N$ é o número de amostras. O termo $\epsilon$ é uma constante pequena para evitar divisão por zero.
+
+\section{Resumo do Capítulo}
+Este capítulo forneceu a base teórica para o trabalho. Começou com a definição de séries temporais e a importância de uma preparação de dados adequada, incluindo estratégias de normalização e validação. Em seguida, foram introduzidos os fundamentos de redes neurais, com foco nas arquiteturas recorrentes como LSTM e nos modelos mais avançados de Encoder-Decoder com atenção. Finalmente, foram detalhadas as técnicas de treinamento como previsão probabilística, \textit{Scheduled Sampling}, otimização de hiperparâmetros e o método de imputação SAITS, além das métricas utilizadas para avaliação.

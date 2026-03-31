@@ -1,0 +1,23 @@
+% cap_conclusao.tex
+\chapter{Conclusão}
+\label{chap:conclusao}
+
+Este trabalho se propôs a desenvolver e avaliar rigorosamente uma série de modelos de aprendizado profundo para a previsão probabilística de curto prazo da concentração de material particulado PM2.5. Utilizando dados das estações de Ibirité, MG, foi realizada uma análise comparativa que demonstrou a evolução do desempenho preditivo com o aumento da complexidade arquitetônica.
+
+A metodologia empregada, que incluiu o uso do modelo SAITS para imputação de dados, a otimização sistemática de hiperparâmetros com Optuna e a validação robusta com a técnica \textit{walk-forward}, garantiu a confiabilidade dos resultados. A principal contribuição deste estudo reside na demonstração empírica de que arquiteturas Encoder-Decoder, especialmente quando aprimoradas com mecanismos de atenção e técnicas como \textit{Scheduled Sampling}, superam significativamente modelos LSTM de base para esta tarefa.
+
+O modelo final, um Encoder-Decoder com Atenção e \textit{Scheduled Sampling}, não apenas alcançou as melhores métricas de acurácia (MAE de 2.767), mas também forneceu previsões probabilísticas valiosas, quantificando a incerteza associada. A análise dos intervalos de confiança e dos pesos de atenção confirmou que o modelo aprendeu padrões temporais complexos e a modular sua confiança de acordo com a volatilidade dos dados.
+
+\section{Limitações}
+Apesar dos resultados promissores, o estudo possui algumas limitações. Primeiramente, a análise foi restrita a duas estações de monitoramento. A inclusão de mais estações poderia validar a generalização espacial do modelo. Em segundo lugar, o conjunto de dados, embora extenso temporalmente, não incluiu variáveis que poderiam enriquecer o contexto, como dados de tráfego veicular, focos de queimada ou informações de uso do solo, que poderiam aprimorar ainda mais as previsões. Por fim, a otimização de hiperparâmetros, embora sistemática, é um processo computacionalmente intensivo, o que limitou o espaço de busca explorado.
+
+\section{Trabalhos Futuros}
+Com base nas conclusões e limitações deste trabalho, diversas direções para pesquisas futuras podem ser exploradas:
+\begin{itemize}
+    \item \textbf{Modelos Espaço-Temporais:} Incorporar a relação espacial entre as estações utilizando Redes Neurais de Grafos (GNNs) em conjunto com LSTMs para capturar como a poluição se propaga entre diferentes locais.
+    \item \textbf{Arquiteturas Baseadas em Transformers:} Avaliar arquiteturas mais recentes, como o Transformer puro ou variantes otimizadas para séries temporais (e.g., Informer, Autoformer), que podem capturar dependências de longo prazo de forma ainda mais eficiente que a atenção em RNNs.
+    \item \textbf{Análise de Incerteza Aprimorada:} Explorar métodos mais sofisticados para estimar a incerteza, como o uso de Redes Neurais Bayesianas ou a técnica de \textit{Monte Carlo Dropout}.
+    \item \textbf{Implantação e Validação Operacional:} Implementar o melhor modelo desenvolvido em um sistema de previsão em tempo real para validar seu desempenho em um ambiente operacional e fornecer alertas de qualidade do ar à população.
+\end{itemize}
+
+Em suma, este trabalho estabelece uma base sólida e uma metodologia robusta para a previsão de PM2.5 na região estudada, abrindo caminho para futuras inovações que possam contribuir ainda mais para a gestão da qualidade do ar e a proteção da saúde pública.

@@ -1,0 +1,90 @@
+\documentclass[
+	a4paper,
+	12pt,
+	% --- Opções da classe ---
+	% Oneside para impressão apenas no verso. Opção twoside para impressão frente e verso.
+	oneside,
+	% --- Estilo de citação ---
+	% Opções do pacote abntex2cite:
+	% -- Citação por nome e ano
+	alf,
+	% -- Formato das referências justificado na margem
+	bibjustif
+]{tex/config/monografia}
+
+% --- PACOTES ---
+\usepackage[portuguese]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx} % Para incluir figuras
+\usepackage{lipsum} % Apenas para texto de exemplo, pode remover depois
+\usepackage{setspace} % Para controle de espaçamento (doublespacing, etc.)
+\usepackage{amsmath} % Para comandos matemáticos como \text{}
+\usepackage{booktabs} % Para tabelas com \toprule, \midrule, \bottomrule
+\usepackage{subcaption} % Para o ambiente subfigure
+\usepackage[alf,abnt-repeated-title-omit=yes,bibjustif]{abntex2cite} % Carrega o pacote de citações
+
+\graphicspath{{figuras/}} % Diz ao LaTeX para procurar imagens nesta pasta
+
+
+% --- DEFINIÇÕES DO DOCUMENTO (Informações do TCC) ---
+% (Movido de pretexto.tex para cá para centralizar a configuração)
+
+% --- Título e Autor ---
+\titulo{Modelo baseado em Attention-LSTM para previsão de concentração de PM2.5}
+\autor{Daniel Fagundes Portes Fernandes}
+\nome{Daniel}
+\ultimonome{Fernandes}
+
+% --- Curso e Grau ---
+\bacharelado
+\curso{Ciência da Computação}
+\dia{02} \mes{dezembro} \ano{2023}
+\cidade{Juiz de Fora}
+
+% --- Instituição ---
+\instituicao{Universidade Federal de Juiz de Fora} \sigla{UFJF}
+\unidadeacademica{INSTITUTO DE CIÊNCIAS EXATAS}
+\departamento{DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO}
+
+% --- Banca ---
+\orientador{Luciana Conceição Dias Campos}
+\ttorientador{Doutora em Engenharia Elétrica PUC-Rio}
+\examinadorum{} % Deixa vazio se não tiver
+\ttexaminadorum{} % Deixa vazio se não tiver
+\examinadordois{} % Deixa vazio se não tiver
+\ttexaminadordois{} % Deixa vazio se não tiver
+
+
+\begin{document}
+
+\maketitle
+
+\input{tex/pretextuais/dedicatoria.tex}
+\input{tex/pretextuais/agradecimentos.tex}
+\input{tex/pretextuais/epigrafe.tex}
+\input{tex/pretextuais/resumo_abstract.tex}
+\input{tex/pretextuais/listas.tex}
+
+
+% =========================================================================
+% ELEMENTOS TEXTUAIS (SEUS CAPÍTULOS)
+% =========================================================================
+\pagestyle{ruledheader} % Estilo de cabeçalho para o corpo do texto
+\pagenumbering{arabic} % Começa a contagem de páginas arábicas aqui
+
+\input{tex/capitulos/cap_01_introducao.tex}
+\input{tex/capitulos/cap_02_fundamentacao.tex}
+\input{tex/capitulos/cap_03_relacionados.tex}
+\input{tex/capitulos/cap_04_metodologia.tex}
+\input{tex/capitulos/cap_05_resultados.tex}
+\input{tex/capitulos/cap_06_conclusao.tex}
+
+
+% =========================================================================
+% ELEMENTOS PÓS-TEXTUAIS
+% =========================================================================
+\singlespacing
+\bibliographystyle{tex/config/abntex2-alf}
+\bibliography{referencias}
+
+\end{document}

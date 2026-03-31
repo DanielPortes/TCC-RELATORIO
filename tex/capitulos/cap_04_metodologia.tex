@@ -1,0 +1,62 @@
+% cap_metodologia.tex
+\chapter{Materiais e Métodos}
+\label{chap:materiais_metodos}
+
+Este capítulo descreve a metodologia empregada para desenvolver, treinar e avaliar os modelos de previsão. A abordagem segue um pipeline experimental rigoroso, desde a aquisição e tratamento dos dados até a análise comparativa final das arquiteturas propostas.
+
+\section{Conjunto de Dados}
+Os dados utilizados neste estudo foram obtidos da rede de monitoramento da qualidade do ar da Fundação Estadual do Meio Ambiente (FEAM) de Minas Gerais. Foram selecionadas duas estações localizadas na cidade de Ibirité: \textbf{Cascata} e \textbf{Piratininga}. Os dados compreendem medições horárias de múltiplos poluentes e variáveis meteorológicas no período de 1 de Novembro de 2015 a 1 de Janeiro de 2022. As variáveis utilizadas para a modelagem foram: PM2.5 (alvo), PM10, Monóxido de Carbono, Temperatura, Umidade Relativa e Velocidade do Vento.
+
+\section{Pipeline Experimental}
+O fluxo de trabalho foi estruturado em várias etapas sequenciais, conforme ilustrado na Figura \ref{fig:pipeline}.
+
+% \begin{figure}[htb]
+%     \centering
+%     % TODO: Substituir pelo caminho real da sua figura do pipeline
+%     % TODO" o pipeline ainda nao foi feito, fique como tarefa pendente. Fazer logo.
+%     \includegraphics[width=\linewidth]{example-image-a}
+%     \caption{Pipeline experimental do trabalho, desde a coleta de dados até a avaliação final dos modelos.}
+%     \label{fig:pipeline}
+% \end{figure}
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=\linewidth]{figuras/pipeline.png}
+    \caption{Pipeline experimental do trabalho, desde a coleta e tratamento dos dados até a avaliação comparativa final dos modelos.}
+    \label{fig:pipeline}
+\end{figure}
+
+
+\subsection{Imputação de Dados com SAITS}
+Como primeira etapa, os dados brutos foram processados para tratar valores faltantes. Conforme descrito na Seção \ref{sec:imputacao_saits}, um modelo SAITS foi treinado para cada estação utilizando todas as variáveis disponíveis. O objetivo foi criar um conjunto de dados completo e robusto, onde as lacunas foram preenchidas de forma inteligente, considerando as correlações temporais e entre as variáveis. Este conjunto de dados imputado serviu de base para todas as etapas subsequentes de treinamento e avaliação dos modelos de previsão.
+
+\subsection{Engenharia de Atributos}
+Sobre o conjunto de dados imputado, foram criados atributos adicionais para enriquecer a informação de entrada dos modelos:
+\begin{itemize}
+    \item \textbf{Atributos Temporais Cíclicos:} Foram adicionados termos de seno e cosseno para representar a hora do dia, o dia da semana e o dia do ano (Fourier Features com ordem 2), ajudando o modelo a capturar padrões sazonais.
+    \item \textbf{Atributos de Lag:} Foram criados lags da variável alvo (PM2.5) de 1 a 24 horas para fornecer ao modelo um histórico explícito recente.
+\end{itemize}
+
+\subsection{Arquiteturas dos Modelos Avaliados}
+Um conjunto de cinco modelos foi implementado e avaliado para investigar o impacto de diferentes complexidades arquitetônicas:
+\begin{itemize}
+    \item \textbf{Modelo 0 - LSTM Recursivo Probabilístico:} Um modelo LSTM base que prevê um passo de cada vez de forma recursiva.
+    \item \textbf{Modelo 1 - LSTM Direto Probabilístico:} Um modelo LSTM base que prevê todo o horizonte de 12 horas de uma só vez.
+    \item \textbf{Modelo 2 - Encoder-Decoder Básico Probabilístico:} Uma arquitetura Seq2Seq padrão sem mecanismos adicionais.
+    \item \textbf{Modelo 3 - Encoder-Decoder com Atenção Probabilístico:} Adiciona um mecanismo de atenção Bahdanau ao Modelo 2.
+    \item \textbf{Modelo 4 - Encoder-Decoder com Atenção e Scheduled Sampling Probabilístico:} Adiciona a técnica de \textit{Scheduled Sampling} ao Modelo 3 para mitigar o viés de exposição.
+\end{itemize}
+Todos os modelos foram projetados para realizar previsão probabilística, estimando a média e a variância de uma distribuição Gaussiana para cada passo de tempo futuro.
+
+\subsection{Treinamento e Otimização}
+Para cada arquitetura, um processo de duas fases foi conduzido:
+\begin{enumerate}
+    \item \textbf{Otimização de Hiperparâmetros:} Utilizou-se o framework Optuna para realizar uma busca Bayesiana pelos melhores hiperparâmetros (taxa de aprendizado, tamanho das camadas ocultas, dropout, etc.). A avaliação de cada conjunto de hiperparâmetros foi feita através de uma validação cruzada \textit{walk-forward} com 3 splits sobre o conjunto de treino/validação, garantindo uma avaliação robusta que respeita a ordem temporal dos dados.
+    \item \textbf{Treinamento Final:} Com os melhores hiperparâmetros encontrados, um modelo final para cada arquitetura foi treinado novamente utilizando a mesma metodologia \textit{walk-forward} no conjunto de treino/validação completo. O treinamento foi monitorado com \textit{Early Stopping} com paciência de 20 épocas para evitar sobreajuste.
+\end{enumerate}
+
+\subsection{Avaliação}
+Os modelos finais de cada arquitetura foram avaliados em um conjunto de teste (hold-out) separado, composto pelos 15\% de dados mais recentes, que não foram vistos durante a otimização ou treinamento. O desempenho foi comparado utilizando as métricas descritas na Seção \ref{sec:metricas_avaliacao}.
+
+\subsection{Ambiente de Implementação}
+Os modelos foram implementados em Python, utilizando o framework PyTorch e a biblioteca de alto nível PyTorch Lightning para estruturar o código de treinamento. A otimização de hiperparâmetros foi gerenciada pelo Optuna. A manipulação de dados foi realizada com Pandas e NumPy. O treinamento foi executado em uma máquina equipada com uma GPU NVIDIA GeForce RTX 3070.

@@ -1,0 +1,13 @@
+% cap_relacionados.tex
+\chapter{Trabalhos Relacionados}
+\label{chap:trabalhos_relacionados}
+
+A previsão da concentração de PM2.5 utilizando métodos de aprendizado de máquina e aprendizado profundo é uma área de pesquisa ativa. Diversos estudos têm explorado diferentes arquiteturas e abordagens para melhorar a acurácia das previsões.
+
+O trabalho de \citeonline{yang2023attention} utilizou um modelo LSTM com mecanismo de atenção, demonstrando que esta combinação melhora a precisão da previsão em comparação com modelos como ARIMA, AutoEncoder e LSTM padrão. De forma similar, \citeonline{zhao2021pm2} combinaram a Decomposição por Modos Empíricos (EMD) com LSTM, alcançando uma redução significativa no erro absoluto médio (MAE). Esses estudos corroboram a hipótese de que a personalização de arquiteturas LSTM baseadas nas características dos dados pode levar a ganhos de desempenho.
+
+Métodos tradicionais de aprendizado de máquina, como Máquinas de Vetores de Suporte (SVM) e Florestas Aleatórias, também foram aplicados com sucesso. \citeonline{song2018arima} otimizaram um modelo de regressão de vetores de suporte com um algoritmo de lobo cinzento, enquanto \citeonline{guo2019pm2} integraram parâmetros meteorológicos de GNSS em um modelo de floresta aleatória, ambos mostrando a importância da engenharia de atributos e da otimização de modelos.
+
+Estudos mais recentes exploram arquiteturas de deep learning ainda mais complexas. \citeonline{zhang2021deep} propuseram um modelo Bi-Direcional com LSTM Aninhado (BiNLSTM), que se mostrou superior ao LSTM padrão ao capturar informações de longo prazo de forma mais eficaz. \citeonline{yuan2020using} aplicaram uma rede Encoder-Decoder com atenção, similar à abordagem deste trabalho, para detecção de perturbações em séries temporais de sensoriamento remoto, destacando a versatilidade da arquitetura.
+
+O presente estudo se diferencia e contribui para a literatura existente ao realizar uma \textbf{análise comparativa sistemática} de uma progressão de modelos, desde LSTMs simples até um Encoder-Decoder com atenção e \textit{Scheduled Sampling}. Além disso, adota uma abordagem de \textbf{previsão probabilística} para quantificar a incerteza e utiliza uma técnica de imputação de dados estado da arte (\textbf{SAITS}), fornecendo uma análise metodológica abrangente e rigorosa para o contexto específico das estações de monitoramento em Minas Gerais.
