@@ -355,6 +355,14 @@
 \def\ttexaminadortres#1{\gdef\@ttexaminadortres{#1}}
 \def\examinadorquatro#1{\gdef\@examinadorquatro{#1}}
 \def\ttexaminadorquatro#1{\gdef\@ttexaminadorquatro{#1}}
+\let\@examinadorum\@empty
+\let\@ttexaminadorum\@empty
+\let\@examinadordois\@empty
+\let\@ttexaminadordois\@empty
+\let\@examinadortres\@empty
+\let\@ttexaminadortres\@empty
+\let\@examinadorquatro\@empty
+\let\@ttexaminadorquatro\@empty
 \def\instituicao#1{\gdef\@instituicao{#1}}
 \def\sigla#1{\gdef\@sigla{#1}}%
 \def\unidadeacademica#1{\gdef\@unidadeacademica{#1}}
@@ -364,43 +372,41 @@
          \sc P\'{o}s-gradua\c{c}\~{a}o em \@curso}
 \def\setcurso{%
          \sc \@diploma \space em \@curso}
+\def\membrobanca#1#2{%
+    \ifx#1\@empty
+    \else
+        {#1\ifx#2\@empty\else \\ #2\fi}\par
+        \vfill
+    \fi}
 \def\assinaturaum{%
 \begin{spacing}{1}
             % \rule{9.0cm}{0.1mm} \\
-             {\@orientador \\ \@ttorientador}\\
-             \vfill
+             \membrobanca\@orientador\@ttorientador
             % \rule{9.0cm}{0.1mm} \\
              \ifco@d
-                {\@coorientador \\ \@ttcoorientador}\\
-                \vfill
+                \membrobanca\@coorientador\@ttcoorientador
              \fi
             % \rule{9.0cm}{0.1mm} \\
-             {\@examinadorum \\ \@ttexaminadorum}\\
-             \vfill
+             \membrobanca\@examinadorum\@ttexaminadorum
              %\rule{9.0cm}{0.1mm} \\
-             {\@examinadordois \\ \@ttexaminadordois}\\
-             \vfill
+             \membrobanca\@examinadordois\@ttexaminadordois
              %\rule{9.0cm}{0.1mm} \\
-             {\@examinadortres \\ \@ttexaminadortres}\\
-             \vfill
+             \membrobanca\@examinadortres\@ttexaminadortres
              %\rule{9.0cm}{0.1mm} \\
-             {\@examinadorquatro \\ \@ttexaminadorquatro}
+             \membrobanca\@examinadorquatro\@ttexaminadorquatro
 \end{spacing}}
 \def\assinaturadois{%
  \begin{spacing}{1}
             % \rule{9.0cm}{0.1mm} \\
-             {\@orientador \\ \@ttorientador}\\
-             \vfill
+             \membrobanca\@orientador\@ttorientador
             % \rule{9.0cm}{0.1mm} \\
              \ifco@d
-                {\@coorientador \\ \@ttcoorientador}\\
-                \vfill
+                \membrobanca\@coorientador\@ttcoorientador
              \fi
              %\rule{9.0cm}{0.1mm} \\
-             {\@examinadorum \\ \@ttexaminadorum}\\
-             \vfill
+             \membrobanca\@examinadorum\@ttexaminadorum
              %\rule{9.0cm}{0.1mm} \\
-             {\@examinadordois \\ \@ttexaminadordois}
+             \membrobanca\@examinadordois\@ttexaminadordois
  \end{spacing}}
 \def\keywords#1{\gdef\@keywords{#1}}
 
@@ -572,7 +578,7 @@
            do grau de \@grau\ em \@curso.} }
   \end{raggedleft}
   \vfill
-  {\rmfamily Aprovada por:} \\
+  {\rmfamily Aprovada por:}\par
   \vfill
   \begin{flushright}
     \ifph@d
