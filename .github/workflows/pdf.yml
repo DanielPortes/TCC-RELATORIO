@@ -126,5 +126,11 @@ jobs:
         run: |
           asset_tag="${RELEASE_TAG//\//-}"
           asset="tcc-relatorio-${asset_tag}.pdf"
+          existing_asset="$(gh release view "$RELEASE_TAG" --json assets --jq ".assets[] | select(.name == \"$asset\") | .name")"
+          if [ -n "$existing_asset" ]; then
+            echo "::error::O PDF $asset ja existe no release $RELEASE_TAG. Crie uma nova tag e um novo release para preservar o historico."
+            exit 1
+          fi
+
           cp "dist/$PDF_FILE" "dist/$asset"
-          gh release upload "$RELEASE_TAG" "dist/$asset" --clobber
+          gh release upload "$RELEASE_TAG" "dist/$asset"
