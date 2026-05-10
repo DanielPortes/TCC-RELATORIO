@@ -36,6 +36,15 @@ O resultado reforça a conclusão obtida na rodada anterior, mas com protocolo m
 
 Entre os modelos neurais, a LSTM direta superou a LSTM recursiva e o Seq2Seq com L1 ponderada no MAE global. A abordagem recursiva apresentou RMSE e R2 muito próximos aos da LSTM direta, mas teve pior MAE e maior erro no horizonte final. O Seq2Seq com L1 ponderada ficou ligeiramente à frente do XGBoost em MAE nessa bateria, mas abaixo da LSTM direta e com RMSE/R2 inferiores.
 
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{curvas_validacao_lr_modelos_finais.pdf}
+    \caption{Evolução do MAE de validação e da taxa de aprendizado nos modelos neurais finais. As estrelas indicam o melhor ponto de controle selecionado por validação; os círculos indicam a última época registrada antes da parada antecipada.}
+    \label{fig:curvas_validacao_lr_modelos_finais}
+\end{figure}
+
+A Figura \ref{fig:curvas_validacao_lr_modelos_finais} complementa a tabela principal com a dinâmica de treinamento. O painel (a) mostra que o melhor ponto de controle dos modelos neurais não correspondeu à última época executada: a LSTM direta teve melhor \textit{checkpoint} na época 15 e parou na época 23; a LSTM recursiva teve melhor \textit{checkpoint} na época 14 e parou na época 22; e o Seq2Seq com L1 ponderada teve melhor \textit{checkpoint} na época 18 e parou na época 26. Esse padrão é compatível com a paciência de oito épocas usada na parada antecipada. O painel (b) mostra a agenda de taxa de aprendizado: as três primeiras épocas fazem aquecimento linear e, depois disso, a taxa decai suavemente por cosseno. A perda de validação também foi registrada nos artefatos, mas não é usada como comparação visual principal porque os modelos neurais finais não otimizam exatamente a mesma função de perda.
+
 \section{Estabilidade com Múltiplas Sementes}
 
 A Tabela \ref{tab:multi_seed_sapo} resume a sensibilidade à semente aleatória para os modelos selecionados pelo HPO \textit{walk-forward}. A média inclui a semente canônica 42 e três sementes adicionais: 7, 21 e 123.
