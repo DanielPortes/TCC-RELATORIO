@@ -2,11 +2,11 @@
 \chapter{Fundamentação Teórica}
 \label{chap:fundamentacao_teorica}
 
-Este capítulo apresenta os conceitos usados no protocolo experimental deste trabalho. O foco é a previsão horária multi-step de PM2.5 em séries temporais ambientais, com dados faltantes, variáveis exógenas conhecidas no momento da previsão, modelos recorrentes, arquiteturas encoder-decoder com atenção e um baseline tabular baseado em gradient boosting.
+Este capítulo apresenta os conceitos usados no protocolo experimental deste trabalho. O foco é a previsão horária de múltiplos passos de PM2.5 em séries temporais ambientais, com dados faltantes, variáveis exógenas conhecidas no momento da previsão, redes neurais artificiais, modelos recorrentes, arquiteturas codificador-decodificador com atenção e uma linha de base tabular baseada em impulsionamento por gradiente (\textit{gradient boosting}).
 
 \section{PM2.5 e Monitoramento da Qualidade do Ar}
 
-O material particulado fino, usualmente representado como PM2.5, corresponde a partículas com diâmetro aerodinâmico inferior ou igual a 2,5 micrômetros. Por seu tamanho reduzido, essas partículas podem penetrar profundamente no sistema respiratório e estão associadas a impactos respiratórios e cardiovasculares relevantes \cite{pope2006health,brook2010particulate}. As diretrizes globais da Organização Mundial da Saúde tratam PM2.5 e PM10 como poluentes prioritários para avaliação de qualidade do ar \cite{who2021air}.
+PM2.5 designa partículas finas com diâmetro aerodinâmico de até 2,5 micrômetros. Por seu tamanho reduzido, elas podem penetrar profundamente no sistema respiratório e estão associadas a impactos respiratórios e cardiovasculares relevantes \cite{pope2006health,brook2010particulate}. As diretrizes globais da Organização Mundial da Saúde tratam PM2.5 e PM10 como poluentes prioritários para avaliação de qualidade do ar \cite{who2021air}.
 
 Em redes de monitoramento, as concentrações de poluentes são medidas em intervalos regulares e formam séries temporais. A previsão de curto prazo busca estimar concentrações futuras a partir de medições recentes e de variáveis auxiliares. No contexto deste trabalho, a tarefa é horária: usa-se uma janela de 48 horas passadas para prever as próximas 24 horas de PM2.5 na estação Sapo.
 
@@ -20,7 +20,7 @@ A análise de séries temporais costuma separar padrões em componentes interpre
     y_t = T_t + S_t + R_t,
 \]
 
-em que \(T_t\) representa tendência ou tendência-ciclo, \(S_t\) representa sazonalidade de período conhecido e \(R_t\) representa o restante da série, incluindo ruído, mudanças abruptas e eventos raros. Para séries horárias, pode haver mais de uma sazonalidade relevante, como ciclo diário, semanal e anual. No protocolo deste TCC, essa leitura motiva o uso de atributos temporais e termos de Fourier para representar ciclos conhecidos, além de lags e proxies causais para capturar dependências temporais sem usar informação futura.
+em que \(T_t\) representa tendência ou tendência-ciclo, \(S_t\) representa sazonalidade de período conhecido e \(R_t\) representa o restante da série, incluindo ruído, mudanças abruptas e eventos raros. Para séries horárias, pode haver mais de uma sazonalidade relevante, como ciclo diário, semanal e anual. No protocolo deste TCC, essa leitura motiva o uso de atributos temporais e termos de Fourier para representar ciclos conhecidos, além de defasagens e variáveis substitutas causais para capturar dependências temporais sem usar informação futura.
 
 \begin{figure}[htbp]
     \centering
@@ -42,9 +42,9 @@ Outro conceito central é autocorrelação, isto é, a associação entre a sér
     }.
 \]
 
-Valores altos de \(\rho(1)\), \(\rho(24)\) ou \(\rho(168)\) indicam, respectivamente, persistência de curto prazo, repetição diária e repetição semanal. No diagnóstico exploratório do artefato final de Sapo, a autocorrelação observada foi aproximadamente 0,81 em 1 hora, 0,65 em 24 horas e 0,38 em 168 horas. Isso ajuda a justificar a janela histórica de 48 horas, a avaliação de lags sazonais e a presença de termos cíclicos no conjunto de atributos.
+Valores altos de \(\rho(1)\), \(\rho(24)\) ou \(\rho(168)\) indicam, respectivamente, persistência de curto prazo, repetição diária e repetição semanal. No diagnóstico exploratório do artefato final de Sapo, a autocorrelação observada foi aproximadamente 0,81 em 1 hora, 0,65 em 24 horas e 0,38 em 168 horas. Isso ajuda a justificar a janela histórica de 48 horas, a avaliação de defasagens sazonais e a presença de termos cíclicos no conjunto de atributos.
 
-Formalmente, seja $\mathbf{x}_t \in \mathbb{R}^{d}$ o vetor de atributos observado no instante $t$, $y_t \in \mathbb{R}$ a concentração de PM2.5 e $\mathbf{z}_{t+k}$ o vetor de atributos futuros conhecidos no instante de emissão da previsão, como calendário, termos de Fourier e proxies causais. Para uma janela de entrada de tamanho $L$ e horizonte $H$, o problema pode ser escrito como:
+Formalmente, seja $\mathbf{x}_t \in \mathbb{R}^{d}$ o vetor de atributos observado no instante $t$, $y_t \in \mathbb{R}$ a concentração de PM2.5 e $\mathbf{z}_{t+k}$ o vetor de atributos futuros conhecidos no instante de emissão da previsão, como calendário, termos de Fourier e variáveis substitutas causais. Para uma janela de entrada de tamanho $L$ e horizonte $H$, o problema pode ser escrito como:
 
 \[
     \hat{\mathbf{y}}_{t+1:t+H}
@@ -59,11 +59,11 @@ em que $f_{\theta}$ é o modelo treinado e $\hat{\mathbf{y}}_{t+1:t+H} = (\hat{y
 
 Em problemas de previsão, a ordem temporal dos dados deve ser preservada. Separações aleatórias, comuns em tarefas tabulares independentes, podem introduzir vazamento de informação futura em séries temporais. Por isso, avaliações fora da amostra e divisões cronológicas são recomendadas para estimar desempenho em um cenário próximo ao uso real \cite{hyndman2021forecasting,tashman2000out,bergmeir2012crossvalidation}.
 
-\subsection{Validação cruzada temporal e walk-forward}
+\subsection{Validação cruzada temporal e \textit{walk-forward}}
 
-A validação cruzada tradicional divide os dados em folds e assume exemplos aproximadamente independentes. Essa suposição não vale diretamente para séries temporais, nas quais observações vizinhas compartilham autocorrelação, sazonalidade e tendência. Em previsão, uma avaliação coerente deve respeitar a direção do tempo: o modelo só pode ser treinado com dados anteriores ao período validado. Essa preocupação é central em testes fora da amostra de forecasting \cite{tashman2000out} e motiva adaptações da validação cruzada para séries temporais \cite{bergmeir2012crossvalidation,hyndman2021forecasting}.
+A validação cruzada tradicional divide os dados em partições e assume exemplos aproximadamente independentes. Essa suposição não vale diretamente para séries temporais, nas quais observações vizinhas compartilham autocorrelação, sazonalidade e tendência. Em previsão, uma avaliação coerente deve respeitar a direção do tempo: o modelo só pode ser treinado com dados anteriores ao período validado. Essa preocupação é central em testes fora da amostra para previsão \cite{tashman2000out} e motiva adaptações da validação cruzada para séries temporais \cite{bergmeir2012crossvalidation,hyndman2021forecasting}.
 
-Uma adaptação comum é a validação cruzada temporal por janela expansiva, também chamada de \textit{walk-forward validation}. Nesse procedimento, cada fold usa uma janela de treino que termina antes do bloco de validação seguinte. A cada novo fold, a janela de treino se expande e a validação avança para um período futuro. Assim, o protocolo avalia várias origens temporais de previsão sem permitir que dados futuros influenciem o treinamento. Para \(K\) folds, a métrica de seleção pode ser resumida pela média:
+Uma adaptação comum é a validação cruzada temporal por janela expansiva, também chamada de \textit{walk-forward validation}. Nesse procedimento, cada partição usa uma janela de treino que termina antes do bloco de validação seguinte. A cada nova partição, a janela de treino se expande e a validação avança para um período futuro. Assim, o protocolo avalia várias origens temporais de previsão sem permitir que dados futuros influenciem o treinamento. Para \(K\) partições, a métrica de seleção pode ser resumida pela média:
 
 \[
     \mathcal{L}_{CV}
@@ -72,40 +72,136 @@ Uma adaptação comum é a validação cruzada temporal por janela expansiva, ta
     \mathcal{L}_{val}^{(k)}.
 \]
 
-No contexto deste TCC, a validação cruzada temporal é usada para seleção de hiperparâmetros e comparação mais robusta entre configurações. O conjunto de teste final permanece separado e só é usado depois da seleção, para estimar o desempenho fora da amostra. A Figura~\ref{fig:validacao_cruzada_temporal_walk_forward} ilustra esse protocolo para uma janela expansiva com três folds e teste final reservado.
+No contexto deste TCC, a validação cruzada temporal é usada para seleção de hiperparâmetros dentro do bloco de desenvolvimento anterior ao teste. Ela não substitui o teste cronológico externo: o conjunto de teste final permanece separado e só é usado depois da seleção, para estimar o desempenho fora da amostra. A Figura~\ref{fig:validacao_cruzada_temporal_walk_forward} ilustra esse protocolo para uma janela expansiva com três partições e teste final reservado.
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\linewidth]{validacao_cruzada_temporal_walk_forward.pdf}
-    \caption[Validação cruzada temporal por janela expansiva]{Validação cruzada temporal por janela expansiva, ou \textit{walk-forward validation}. Cada fold treina com dados passados e valida no bloco temporal seguinte; o teste final permanece reservado para avaliação fora da amostra. Elaboração própria com base em \citeonline{tashman2000out}, \citeonline{bergmeir2012crossvalidation} e \citeonline{hyndman2021forecasting}.}
+    \caption[Validação cruzada temporal por janela expansiva]{Validação cruzada temporal por janela expansiva, ou \textit{walk-forward validation}. Cada partição treina com dados passados e valida no bloco temporal seguinte dentro do bloco de desenvolvimento; o teste final permanece reservado para avaliação fora da amostra. Elaboração própria com base em \citeonline{tashman2000out}, \citeonline{bergmeir2012crossvalidation} e \citeonline{hyndman2021forecasting}.}
     \label{fig:validacao_cruzada_temporal_walk_forward}
 \end{figure}
 
-\section{Previsão Multi-step}
+\section{Previsão de Múltiplos Passos}
 
-Na previsão multi-step, o objetivo é estimar mais de um instante futuro. Para uma entrada $\mathbf{x}_{t-47:t}$ e um horizonte de 24 horas, o modelo deve produzir $\hat{y}_{t+1:t+24}$. Revisões recentes de previsão com deep learning descrevem arquiteturas de encoder e decoder tanto para previsão um-passo quanto para previsão multi-horizonte \cite{lim2021survey,benidis2022deep}. Três estratégias são especialmente relevantes:
+Na previsão de múltiplos passos, o objetivo é estimar mais de um instante futuro. Para uma entrada $\mathbf{x}_{t-47:t}$ e um horizonte de 24 horas, o modelo deve produzir $\hat{y}_{t+1:t+24}$. Revisões recentes de previsão com aprendizado profundo descrevem arquiteturas de codificador e decodificador tanto para previsão um-passo quanto para previsão multi-horizonte \cite{lim2021survey,benidis2022deep}. Três estratégias são especialmente relevantes:
 
 \begin{itemize}
     \item \textbf{Previsão recursiva:} o modelo aprende uma função de um passo $\hat{y}_{t+1}=g_{\theta}(\mathbf{x}_{t-L+1:t})$ e realimenta suas próprias saídas para obter $\hat{y}_{t+2}, \ldots, \hat{y}_{t+H}$. A estratégia é simples, mas pode acumular erros ao longo do horizonte.
     \item \textbf{Previsão direta:} o modelo aprende diretamente $\hat{\mathbf{y}}_{t+1:t+H}=g_{\theta}(\mathbf{x}_{t-L+1:t})$. Isso reduz a realimentação de erro, mas exige aprender a estrutura conjunta do horizonte.
-    \item \textbf{Encoder-decoder:} uma rede codifica a janela de entrada e outra gera a sequência futura, possivelmente condicionada por variáveis conhecidas no horizonte. Essa formulação é natural para tarefas sequência-para-sequência.
+    \item \textbf{Codificador-decodificador:} uma rede codifica a janela de entrada e outra gera a sequência futura, possivelmente condicionada por variáveis conhecidas no horizonte. Essa formulação é natural para tarefas sequência-para-sequência.
 \end{itemize}
 
-Este trabalho compara essas alternativas por meio de LSTM recursiva, LSTM direta, Seq2Seq básico e Seq2Seq com atenção. Também é avaliado um baseline XGBoost multi-output que prevê o horizonte completo de forma tabular. A comparação é necessária porque a literatura de forecasting não sustenta uma única arquitetura universalmente dominante; revisões de RNNs para séries temporais ressaltam que não existem "no silver bullets" em previsão \cite{hewamalage2021rnn}.
+Este trabalho compara essas alternativas por meio de LSTM recursiva, LSTM direta, Seq2Seq básico e Seq2Seq com atenção. Também é avaliada uma linha de base XGBoost com saída múltipla, que prevê o horizonte completo de forma tabular. A comparação é necessária porque a literatura de previsão não sustenta uma única arquitetura universalmente dominante; revisões de RNNs para séries temporais ressaltam que não existem ``\textit{no silver bullets}'' em previsão \cite{hewamalage2021rnn}.
 
 \section{Dados Faltantes, Imputação e Vazamento Temporal}
 
 Dados ambientais reais frequentemente contêm lacunas por falhas de sensor, manutenção, comunicação ou filtragem de leituras inconsistentes. A ausência de dados deve ser tratada com cuidado porque pode afetar tanto o treinamento quanto a avaliação. A literatura de dados faltantes diferencia o valor não observado do valor realmente medido; tratá-los como equivalentes pode distorcer inferências e métricas \cite{rubin1976inference}.
 
-Imputação é o processo de preencher lacunas com estimativas. Métodos simples, como interpolação linear, preservam a estrutura temporal local e são transparentes; métodos multivariados, como MICE e MissForest, exploram relações entre variáveis \cite{vanbuuren2011mice,stekhoven2012missforest}. Métodos baseados em atenção, como SAITS, também foram propostos para imputação em séries temporais \cite{du2023saits}. Neste TCC, entretanto, SAITS não é o método central: o contrato final usa imputação linear e registra uma máscara para impedir que valores imputados do alvo sejam tratados como observações reais na loss e nas métricas.
+Imputação é o processo de preencher lacunas com estimativas. Métodos simples, como interpolação linear, preservam a estrutura temporal local e são transparentes; métodos multivariados, como MICE e MissForest, exploram relações entre variáveis \cite{vanbuuren2011mice,stekhoven2012missforest}. Métodos baseados em atenção, como SAITS, também foram propostos para imputação em séries temporais \cite{du2023saits}. Neste TCC, entretanto, SAITS não é o método central: o contrato final usa imputação linear e registra uma máscara para impedir que valores imputados do alvo sejam tratados como observações reais na função de perda e nas métricas.
 
-Outro risco é o vazamento temporal. A imputação, a normalização e a criação de atributos precisam ser ajustadas sem usar estatísticas futuras indisponíveis no instante de previsão. Por isso, o protocolo deste trabalho usa divisão cronológica, estatísticas de normalização calculadas no treino e features futuras apenas quando são conhecidas causalmente, como calendário e proxies de PM10 defasados.
+Outro risco é o vazamento temporal. A imputação, a normalização e a criação de atributos precisam ser ajustadas sem usar estatísticas futuras indisponíveis no instante de previsão. Por isso, o protocolo deste trabalho usa divisão cronológica, estatísticas de normalização calculadas no treino e atributos futuros apenas quando são conhecidos causalmente, como calendário e variáveis substitutas de PM10 defasadas.
 
-\section{Janelas Deslizantes, Lags e Variáveis Exógenas}
+\section{Janelas e Variáveis Exógenas}
 
-Modelos supervisionados de séries temporais costumam converter uma sequência contínua em pares de entrada e saída por janelas deslizantes. No caso deste trabalho, cada amostra contém 48 horas de histórico e 24 valores futuros de PM2.5 como alvo. A sobreposição entre janelas aumenta o número de exemplos, mas exige cuidado para manter o split temporal e evitar que uma janela de treino alcance o período de validação ou teste.
+Modelos supervisionados de séries temporais costumam converter uma sequência contínua em pares de entrada e saída por janelas deslizantes. No caso deste trabalho, cada amostra contém 48 horas de histórico e 24 valores futuros de PM2.5 como alvo. A sobreposição entre janelas aumenta o número de exemplos, mas exige cuidado para manter a divisão temporal e evitar que uma janela de treino alcance o período de validação ou teste.
 
-Lags explícitos e variáveis exógenas podem aumentar a informação disponível para o modelo. No entanto, uma variável exógena só pode entrar no decoder se estiver disponível no momento em que a previsão seria feita. Atributos de calendário e termos de Fourier são conhecidos antecipadamente. Já PM10 futuro não deve ser usado diretamente; por isso, o contrato final usa proxies causais, como $PM10(t-24)$ e a tendência $PM10(t-24)-PM10(t-27)$, que usam apenas medições anteriores ao início do horizonte.
+Defasagens explícitas e variáveis exógenas podem aumentar a informação disponível para o modelo. No entanto, uma variável exógena só pode entrar no decodificador se estiver disponível no momento em que a previsão seria feita. Atributos de calendário e termos de Fourier são conhecidos antecipadamente. Já PM10 futuro não deve ser usado diretamente; por isso, o contrato final usa variáveis substitutas causais, como $PM10(t-24)$ e a tendência $PM10(t-24)-PM10(t-27)$, que usam apenas medições anteriores ao início do horizonte.
+
+\section{Redes Neurais e Aprendizado Profundo}
+\label{sec:redes_neurais_deep_learning}
+
+Redes neurais artificiais são modelos paramétricos compostos por unidades simples conectadas por pesos. A inspiração histórica vem de modelos computacionais do neurônio biológico, como o neurônio lógico de \citeonline{mcculloch1943logical} e o perceptron de \citeonline{rosenblatt1958perceptron}. Essa relação, porém, deve ser entendida como uma analogia didática. Redes neurais usadas em aprendizado de máquina não simulam de forma completa a fisiologia de neurônios reais; elas usam uma abstração matemática capaz de combinar entradas, ajustar pesos e produzir saídas.
+
+Em um neurônio biológico, dendritos recebem sinais, o corpo celular integra parte dessas informações e o axônio transmite sinais para outras células. Em um neurônio artificial, a operação análoga é representada por entradas numéricas, pesos, viés e uma função de ativação. A Figura~\ref{fig:neuronio_biologico_artificial} apresenta essa comparação conceitual.
+
+\begin{figure}[htbp]
+    \centering
+    \resizebox{0.98\linewidth}{!}{%
+    \begin{tikzpicture}[
+        >=Latex,
+        font=\small,
+        input/.style={circle, draw=blue!70!black, fill=blue!10, minimum size=0.62cm, thick},
+        block/.style={circle, minimum size=1.75cm, thick, align=center},
+        labelbox/.style={align=center, text=black},
+        flow/.style={->, thick, draw=black!75}
+    ]
+        \node[font=\bfseries] at (1.8, 3.15) {(a) Neurônio biológico};
+        \draw[blue!70!black, very thick, fill=blue!8] (1.55,0.65) circle (0.62);
+        \draw[orange!80!black, thick, fill=orange!18] (1.72,0.72) circle (0.18);
+
+        \foreach \ang/\len in {150/1.95,180/1.75,215/1.65,105/1.65,70/1.45} {
+            \draw[blue!70!black, very thick] (1.55,0.65) -- ++(\ang:\len);
+            \draw[blue!70!black, thick] ($(1.55,0.65)+(\ang:\len)$) -- ++({\ang+22}:0.42);
+            \draw[blue!70!black, thick] ($(1.55,0.65)+(\ang:\len)$) -- ++({\ang-22}:0.38);
+        }
+        \node[labelbox] at (-0.20,2.2) {dendritos\\recebem sinais};
+        \draw[-, thin] (0.30,1.93) -- (0.87,1.33);
+
+        \draw[black!70, very thick] (2.17,0.65) .. controls (2.75,0.82) and (3.35,0.44) .. (4.05,0.62);
+        \foreach \x/\y/\r in {2.65/0.73/8,3.10/0.64/-5,3.55/0.56/8} {
+            \draw[blue!55!black, thick, fill=blue!13, rotate around={\r:(\x,\y)}] (\x,\y) ellipse (0.30 and 0.13);
+        }
+        \draw[blue!70!black, very thick] (4.05,0.62) -- (4.58,1.05);
+        \draw[blue!70!black, very thick] (4.05,0.62) -- (4.68,0.62);
+        \draw[blue!70!black, very thick] (4.05,0.62) -- (4.58,0.17);
+        \foreach \x/\y in {4.58/1.05,4.68/0.62,4.58/0.17} {
+            \fill[blue!70!black] (\x,\y) circle (0.06);
+        }
+
+        \node[labelbox] at (1.55,-0.45) {corpo celular\\(soma)};
+        \draw[-, thin] (1.55,-0.12) -- (1.55,0.18);
+        \node[labelbox] at (3.15,1.72) {axônio};
+        \draw[-, thin] (3.15,1.42) -- (3.10,0.68);
+        \node[labelbox] at (4.62,1.72) {terminais\\axônicos};
+        \draw[-, thin] (4.45,1.40) -- (4.55,1.02);
+
+        \node[font=\bfseries] at (10.0, 3.15) {(b) Neurônio artificial};
+        \foreach \name/\y/\txt in {xone/2.05/x_1,xtwo/1.35/x_2,xthree/0.65/x_3,xdots/-0.05/x_d} {
+            \node[input] (\name) at (6.75,\y) {$\txt$};
+        }
+        \node[block, draw=orange!80!black, fill=orange!12] (soma) at (9.20,1.00) {$a=\sum_j w_jx_j+b$\\[-1mm]\scriptsize soma + viés};
+        \node[block, draw=green!55!black, fill=green!12] (ativacao) at (11.95,1.00) {$h=\phi(a)$\\[-1mm]\scriptsize função de ativação};
+        \node[labelbox] (saida) at (14.00,1.00) {saída\\$h$};
+
+        \foreach \from in {xone,xtwo,xthree,xdots} {
+            \draw[flow] (\from.east) -- (soma.west);
+        }
+        \draw[flow] (soma.east) -- (ativacao.west);
+        \draw[flow] (ativacao.east) -- (saida.west);
+
+        \node[labelbox] at (6.75,-0.75) {entradas};
+        \node[labelbox] at (7.80,2.45) {pesos $w_j$};
+    \end{tikzpicture}%
+    }
+    \caption[Comparação conceitual entre neurônio biológico e neurônio artificial]{Comparação conceitual entre neurônio biológico e neurônio artificial. A analogia é estrutural e didática, não uma equivalência fisiológica. Elaboração própria com base na descrição anatômica do \citeonline{seerTrainingNerveTissue2026} e nos modelos de neurônio artificial de \citeonline{mcculloch1943logical}, \citeonline{rosenblatt1958perceptron} e \citeonline{goodfellow2016deep}.}
+    \label{fig:neuronio_biologico_artificial}
+\end{figure}
+
+Formalmente, para um vetor de entrada $\mathbf{x}=(x_1,\ldots,x_d)$, um neurônio artificial calcula uma soma ponderada e aplica uma função de ativação:
+
+\[
+    a = \sum_{j=1}^{d} w_jx_j + b,
+    \quad
+    h = \phi(a).
+\]
+
+Nessa expressão, $w_j$ são pesos, $b$ é o viés, $a$ é a ativação antes da não linearidade e $\phi$ é uma função de ativação, como sigmoide, tangente hiperbólica ou ReLU. Os pesos e vieses são parâmetros aprendidos a partir dos dados. A função de ativação é importante porque introduz não linearidade; sem ela, uma composição de camadas lineares continuaria equivalente a uma única transformação linear.
+
+Uma rede neural organiza vários neurônios em camadas. A saída de uma camada alimenta a camada seguinte, permitindo que o modelo componha transformações simples em representações mais complexas. De forma resumida, uma camada pode ser escrita como:
+
+\[
+    \mathbf{h}^{(\ell)}
+    =
+    \phi\left(
+        W^{(\ell)}\mathbf{h}^{(\ell-1)}
+        +
+        \mathbf{b}^{(\ell)}
+    \right),
+\]
+
+em que \(W^{(\ell)}\) e \(\mathbf{b}^{(\ell)}\) são os parâmetros da camada \(\ell\). O treinamento ajusta esses parâmetros para minimizar uma função de perda nos exemplos observados. Em tarefas de regressão, como a previsão de PM2.5 deste trabalho, essa perda mede a distância entre os valores previstos e observados.
+
+Aprendizado profundo, ou \textit{deep learning}, refere-se ao treinamento de redes neurais com múltiplas camadas e representações sucessivas dos dados \cite{goodfellow2016deep,lecun2015deep}. Em séries temporais, essa ideia é útil porque o modelo pode aprender relações não lineares entre medições recentes, variáveis exógenas, padrões cíclicos e o horizonte previsto. As arquiteturas recorrentes e codificador-decodificador discutidas nas seções seguintes são casos específicos de redes profundas voltadas a sequências: elas compartilham parâmetros ao longo do tempo, mantêm estados internos e produzem previsões para um ou mais passos futuros.
 
 \section{Redes Neurais Recorrentes e LSTM}
 \label{sec:rnn_lstm}
@@ -139,15 +235,15 @@ Neste trabalho, a LSTM aparece em duas estratégias. Na LSTM recursiva, o modelo
 \section{Seq2Seq e Atenção}
 \label{sec:encoder_decoder_attention}
 
-Modelos Sequence-to-Sequence, ou Seq2Seq, foram propostos para mapear uma sequência de entrada em uma sequência de saída. \citeonline{sutskever2014sequence} descrevem a proposta como uma abordagem "end-to-end" para aprendizado de sequências, em que um encoder transforma a entrada em representação latente e um decoder gera a sequência de saída. Em séries temporais, essa estrutura é útil porque o decoder pode produzir um horizonte completo e receber variáveis conhecidas para cada passo futuro.
+Modelos Sequence-to-Sequence, ou Seq2Seq, foram propostos para mapear uma sequência de entrada em uma sequência de saída. \citeonline{sutskever2014sequence} descrevem a proposta como uma abordagem ``\textit{end-to-end}'' para aprendizado de sequências, em que um codificador transforma a entrada em representação latente e um decodificador gera a sequência de saída. Em séries temporais, essa estrutura é útil porque o decodificador pode produzir um horizonte completo e receber variáveis conhecidas para cada passo futuro.
 
-Sejam $\mathbf{h}_j$ os estados do encoder para os $L$ passos da janela de entrada. Uma formulação simplificada do encoder é:
+Sejam $\mathbf{h}_j$ os estados do codificador para os $L$ passos da janela de entrada. Uma formulação simplificada do codificador é:
 
 \[
     \mathbf{h}_j = Enc_{\theta}(\mathbf{x}_{t-L+j}, \mathbf{h}_{j-1}), \quad j=1,\ldots,L.
 \]
 
-Sem atenção, o decoder depende principalmente de um vetor de contexto, frequentemente associado ao último estado do encoder. A atenção reduz esse gargalo. O próprio trabalho de \citeonline{bahdanau2014neural} caracteriza o "fixed-length vector" como uma limitação em tarefas sequência-para-sequência. Com atenção aditiva, para cada passo futuro $k$, calculam-se escores, pesos normalizados e um contexto:
+Sem atenção, o decodificador depende principalmente de um vetor de contexto, frequentemente associado ao último estado do codificador. A atenção reduz esse gargalo. O próprio trabalho de \citeonline{bahdanau2014neural} caracteriza o ``\textit{fixed-length vector}'' como uma limitação em tarefas sequência-para-sequência. Com atenção aditiva, para cada passo futuro $k$, calculam-se escores, pesos normalizados e um contexto:
 
 \[
 \begin{aligned}
@@ -157,7 +253,7 @@ Sem atenção, o decoder depende principalmente de um vetor de contexto, frequen
 \end{aligned}
 \]
 
-O decoder atualiza seu estado e produz a previsão:
+O decodificador atualiza seu estado e produz a previsão:
 
 \[
 \begin{aligned}
@@ -166,9 +262,9 @@ O decoder atualiza seu estado e produz a previsão:
 \end{aligned}
 \]
 
-Nesse caso, $\tilde{y}_{t+k-1}$ representa o valor real anterior durante teacher forcing ou a previsão anterior durante inferência. Variações de atenção global e local também foram propostas, incluindo mecanismos do tipo Luong \cite{luong2015effective}. Para séries temporais multivariadas, arquiteturas como DA-RNN combinam atenção sobre variáveis de entrada e atenção temporal \cite{qin2017darnn}.
+Nesse caso, $\tilde{y}_{t+k-1}$ representa o valor real anterior durante \textit{teacher forcing} ou a previsão anterior durante inferência. Variações de atenção global e local também foram propostas, incluindo mecanismos do tipo Luong \cite{luong2015effective}. Para séries temporais multivariadas, arquiteturas como DA-RNN combinam atenção sobre variáveis de entrada e atenção temporal \cite{qin2017darnn}.
 
-A escolha de Seq2Seq neste TCC não se apoia na ideia de que ele seja sempre estado da arte. A justificativa é mais específica: a tarefa é naturalmente multi-horizonte, o decoder pode ser condicionado por atributos futuros conhecidos e trabalhos de forecasting adotam estruturas recorrentes sequência-para-sequência para prever múltiplos passos. Por exemplo, \citeonline{wen2017mqrnn} exploram a natureza temporal de "Sequence-to-Sequence Neural Networks" em previsão multi-horizonte, enquanto DeepAR e Temporal Fusion Transformer exemplificam linhas modernas de deep forecasting com decoders autoregressivos, covariáveis e previsão multi-horizonte \cite{salinas2020deepar,lim2021tft}. A Figura~\ref{fig:seq2seq_attention_propria} sintetiza a arquitetura avaliada neste trabalho.
+A escolha de Seq2Seq neste TCC não se apoia na ideia de que ele seja sempre estado da arte. A justificativa é mais específica: a tarefa é naturalmente multi-horizonte, o decodificador pode ser condicionado por atributos futuros conhecidos e trabalhos de previsão adotam estruturas recorrentes sequência-para-sequência para prever múltiplos passos. Por exemplo, \citeonline{wen2017mqrnn} exploram a natureza temporal de ``\textit{Sequence-to-Sequence Neural Networks}'' em previsão multi-horizonte, enquanto DeepAR e Temporal Fusion Transformer exemplificam linhas modernas de previsão profunda com decodificadores autoregressivos, covariáveis e previsão multi-horizonte \cite{salinas2020deepar,lim2021tft}. A Figura~\ref{fig:seq2seq_attention_propria} sintetiza a arquitetura avaliada neste trabalho.
 
 \begin{figure}[htbp]
     \centering
@@ -177,13 +273,13 @@ A escolha de Seq2Seq neste TCC não se apoia na ideia de que ele seja sempre est
     \label{fig:seq2seq_attention_propria}
 \end{figure}
 
-No TCC, a atenção é tratada como uma família de mecanismos avaliados, não como garantia de superioridade. A interpretação dos resultados considera que pesos de atenção podem ser pouco informativos quando ficam quase uniformes ou quando o ganho de desempenho não aparece no holdout.
+No TCC, a atenção é tratada como uma família de mecanismos avaliados, não como garantia de superioridade. A interpretação dos resultados considera que pesos de atenção podem ser pouco informativos quando ficam quase uniformes ou quando o ganho de desempenho não aparece no teste externo.
 
-\section{Teacher Forcing e Scheduled Sampling}
+\section{\textit{Teacher Forcing} e \textit{Scheduled Sampling}}
 
-Em modelos com decoder autoregressivo, o treinamento pode usar \textit{teacher forcing}: em vez de alimentar a previsão anterior do próprio modelo, usa-se o valor observado anterior como entrada do próximo passo. Isso acelera o treinamento, mas cria diferença entre treino e inferência, já que em produção o valor real futuro não está disponível. \citeonline{bengio2015scheduled} descrevem esse problema como discrepância entre treinamento e inferência, pois o token anterior verdadeiro está disponível no treino, mas é substituído por uma saída gerada pelo próprio modelo na inferência.
+Em modelos com decodificador autoregressivo, o treinamento pode usar \textit{teacher forcing}: em vez de alimentar a previsão anterior do próprio modelo, usa-se o valor observado anterior como entrada do próximo passo. Isso acelera o treinamento, mas cria diferença entre treino e inferência, já que em produção o valor real futuro não está disponível. \citeonline{bengio2015scheduled} descrevem esse problema como discrepância entre treinamento e inferência, pois o item anterior verdadeiro está disponível no treino, mas é substituído por uma saída gerada pelo próprio modelo na inferência.
 
-Seja \(p_{TF}\) a probabilidade de usar o valor real anterior no decoder. Em cada passo futuro \(k\), pode-se sortear \(b_{i,k}\sim\text{Bernoulli}(p_{TF})\) e definir a entrada autoregressiva como:
+Seja \(p_{TF}\) a probabilidade de usar o valor real anterior no decodificador. Em cada passo futuro \(k\), pode-se sortear \(b_{i,k}\sim\text{Bernoulli}(p_{TF})\) e definir a entrada autoregressiva como:
 
 \[
     \tilde{y}_{t+k-1}
@@ -193,26 +289,26 @@ Seja \(p_{TF}\) a probabilidade de usar o valor real anterior no decoder. Em cad
     (1-b_{i,k})\hat{y}_{t+k-1}.
 \]
 
-Quando \(p_{TF}=1\), o modelo opera em teacher forcing puro; quando \(p_{TF}=0\), ele treina de modo equivalente à inferência autoregressiva, sempre realimentando suas próprias previsões. O \textit{scheduled sampling} clássico propõe variar \(p_{TF}\) ao longo do treinamento, geralmente reduzindo essa probabilidade para deslocar gradualmente o decoder de um regime totalmente guiado para um regime menos guiado e mais próximo da inferência \cite{bengio2015scheduled}.
+Quando \(p_{TF}=1\), o modelo opera em \textit{teacher forcing} puro; quando \(p_{TF}=0\), ele treina de modo equivalente à inferência autoregressiva, sempre realimentando suas próprias previsões. O \textit{scheduled sampling} clássico propõe variar \(p_{TF}\) ao longo do treinamento, geralmente reduzindo essa probabilidade para deslocar gradualmente o decodificador de um regime totalmente guiado para um regime menos guiado e mais próximo da inferência \cite{bengio2015scheduled}.
 
-Para previsão de séries temporais contínuas, entretanto, há uma motivação adicional para testar a direção oposta. \citeonline{teutsch2022flipped} argumentam que o scheduled sampling clássico, herdado de tarefas de NLP, pode não ser a estratégia mais adequada para forecasting e propõem currículos de \textit{Increasing Teacher Forcing}, denominados \textit{Flipped Classroom}. Nessa família, o treinamento começa mais próximo de \textit{free running}, com baixo \(p_{TF}\), e aumenta gradualmente a presença de teacher forcing. Em experimentos com sistemas dinâmicos, os autores relataram ganhos de aproximadamente 15\% a 80\% em NRMSE em previsão multi-step em relação ao melhor baseline de teacher forcing ou free running, embora limitem a conclusão ao escopo experimental avaliado.
+Para previsão de séries temporais contínuas, entretanto, há uma motivação adicional para testar a direção oposta. \citeonline{teutsch2022flipped} argumentam que o \textit{scheduled sampling} clássico, herdado de tarefas de NLP, pode não ser a estratégia mais adequada para previsão e propõem currículos de \textit{Increasing Teacher Forcing}, denominados \textit{Flipped Classroom}. Nessa família, o treinamento começa mais próximo de \textit{free running}, com baixo \(p_{TF}\), e aumenta gradualmente a presença de \textit{teacher forcing}. Em experimentos com sistemas dinâmicos, os autores relataram ganhos de aproximadamente 15\% a 80\% em NRMSE em previsão de múltiplos passos em relação à melhor linha de base de \textit{teacher forcing} ou \textit{free running}, embora limitem a conclusão ao escopo experimental avaliado.
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\linewidth]{teacher_forcing_scheduled_sampling.pdf}
-    \caption[Teacher forcing, scheduled sampling e agenda crescente]{Comparação entre teacher forcing, inferência autoregressiva, scheduled sampling clássico e agenda crescente de teacher forcing. Elaboração própria com base em \citeonline{bengio2015scheduled} e \citeonline{teutsch2022flipped}.}
+    \caption[\textit{Teacher forcing}, \textit{scheduled sampling} e agenda crescente]{Comparação entre \textit{teacher forcing}, inferência autoregressiva, \textit{scheduled sampling} clássico e agenda crescente de \textit{teacher forcing}. Elaboração própria com base em \citeonline{bengio2015scheduled} e \citeonline{teutsch2022flipped}.}
     \label{fig:teacher_forcing_scheduled_sampling}
 \end{figure}
 
-A Figura \ref{fig:teacher_forcing_scheduled_sampling} resume essa diferença. A notação é importante: neste TCC, \(p_{TF}\) sempre significa probabilidade de usar o valor real anterior. Assim, uma agenda decrescente de \(p_{TF}\) aumenta o uso das próprias previsões do modelo e corresponde à intuição original do scheduled sampling; já uma agenda crescente de \(p_{TF}\) aumenta a dependência de teacher forcing e se aproxima da hipótese de \textit{Increasing Teacher Forcing}. A inclusão dessa agenda crescente nas ablações do Seq2Seq foi motivada por essa literatura recente, mas, nos experimentos consolidados de Sapo, ela não produziu ganho determinístico suficiente para alterar o protocolo final. Por isso, no benchmark principal, a técnica é tratada como ablação fundamentada de treinamento, não como componente responsável pelo melhor resultado.
+A Figura \ref{fig:teacher_forcing_scheduled_sampling} resume essa diferença. A notação é importante: neste TCC, \(p_{TF}\) sempre significa probabilidade de usar o valor real anterior. Assim, uma agenda decrescente de \(p_{TF}\) aumenta o uso das próprias previsões do modelo e corresponde à intuição original do \textit{scheduled sampling}; já uma agenda crescente de \(p_{TF}\) aumenta a dependência de \textit{teacher forcing} e se aproxima da hipótese de \textit{Increasing Teacher Forcing}. A inclusão dessa agenda crescente nas ablações do Seq2Seq foi motivada por essa literatura recente, mas, nos experimentos consolidados de Sapo, ela não produziu ganho determinístico suficiente para alterar o protocolo final. Por isso, na comparação principal, a técnica é tratada como ablação fundamentada de treinamento, não como componente responsável pelo melhor resultado.
 
 \clearpage
 
-\section{Gradient Boosting e XGBoost}
+\section{Impulsionamento por Gradiente e XGBoost}
 
-Modelos de árvores com boosting constroem um preditor aditivo por meio de várias árvores fracas, ajustadas sequencialmente para corrigir erros residuais. O XGBoost é uma implementação eficiente de gradient boosting com regularização, paralelização e recursos práticos para dados tabulares \cite{chen2016xgboost}. Por lidar bem com atributos defasados e variáveis derivadas, ele é um baseline forte para previsão de séries temporais transformadas em matriz supervisionada.
+Modelos de árvores com impulsionamento (\textit{boosting}) constroem um preditor aditivo por meio de várias árvores fracas, ajustadas sequencialmente para corrigir erros residuais. O XGBoost é uma implementação eficiente de impulsionamento por gradiente (\textit{gradient boosting}) com regularização, paralelização e recursos práticos para dados tabulares \cite{chen2016xgboost}. Por lidar bem com atributos defasados e variáveis derivadas, ele é uma linha de base forte para previsão de séries temporais transformadas em matriz supervisionada.
 
-No boosting aditivo, a predição após $K$ árvores pode ser escrita como:
+No impulsionamento aditivo, a predição após $K$ árvores pode ser escrita como:
 
 \[
     \hat{y}_i^{(K)} = \sum_{k=1}^{K} f_k(\mathbf{u}_i), \quad f_k \in \mathcal{F},
@@ -230,21 +326,21 @@ em que $\mathbf{u}_i$ é o vetor tabular de atributos da janela. O objetivo regu
     \Omega(f_k)=\gamma T_k + \frac{1}{2}\lambda\lVert\mathbf{w}_k\rVert_2^2.
 \]
 
-Nessa expressão, $T_k$ é o número de folhas da árvore e $\mathbf{w}_k$ são os pesos das folhas. A regularização penaliza árvores excessivamente complexas e ajuda a controlar sobreajuste. No protocolo deste TCC, o XGBoost é usado em versão multi-output para prever os 24 passos do horizonte; a Figura~\ref{fig:xgboost_multioutput_propria} ilustra essa conversão tabular.
+Nessa expressão, $T_k$ é o número de folhas da árvore e $\mathbf{w}_k$ são os pesos das folhas. A regularização penaliza árvores excessivamente complexas e ajuda a controlar sobreajuste. No protocolo deste TCC, o XGBoost é usado em versão com saída múltipla para prever os 24 passos do horizonte; a Figura~\ref{fig:xgboost_multioutput_propria} ilustra essa conversão tabular.
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.90\textwidth]{diagrama_xgboost_multioutput_proprio.pdf}
-    \caption{Conversão de uma janela temporal em matriz tabular para XGBoost multi-output. Elaboração própria com base em \citeonline{chen2016xgboost}.}
+    \caption{Conversão de uma janela temporal em matriz tabular para XGBoost com saída múltipla. Elaboração própria com base em \citeonline{chen2016xgboost}.}
     \label{fig:xgboost_multioutput_propria}
 \end{figure}
 
-A avaliação final ocorre no mesmo holdout dos modelos neurais, mas o treinamento tem uma ressalva: o baseline tabular exige janelas com horizonte completo observado, enquanto os modelos neurais usam máscara ponto a ponto para ignorar alvos imputados.
+A avaliação final ocorre no mesmo teste externo dos modelos neurais, mas o treinamento tem uma ressalva: a linha de base tabular exige janelas com horizonte completo observado, enquanto os modelos neurais usam máscara ponto a ponto para ignorar alvos imputados.
 
-\section{Treinamento, Loss e HPO}
+\section{Treinamento, Função de Perda e HPO}
 \label{sec:otimizacao_hpo}
 
-Parâmetros são aprendidos pelo modelo durante o treinamento; hiperparâmetros, como taxa de aprendizado, número de camadas, tamanho do estado oculto e dropout, são definidos antes ou buscados por procedimento externo. Neste trabalho, redes neurais são treinadas com otimizadores baseados em gradiente, como Adam \cite{kingma2014adam}, e usam monitoramento em validação para seleção de checkpoint.
+Parâmetros são aprendidos pelo modelo durante o treinamento; hiperparâmetros, como taxa de aprendizado, número de camadas, tamanho do estado oculto e \textit{dropout}, são definidos antes ou buscados por procedimento externo. Neste trabalho, redes neurais são treinadas com otimizadores baseados em gradiente, como Adam \cite{kingma2014adam}, e usam monitoramento em validação para seleção de ponto de controle.
 
 Também são usadas funções de perda robustas ou ponderadas. A perda de Huber combina comportamento quadrático para erros pequenos e linear para erros grandes, reduzindo a sensibilidade a outliers em comparação com o erro quadrático puro \cite{huber1964robust}. Para erro $e=y-\hat{y}$, ela é definida por:
 
@@ -256,7 +352,7 @@ Também são usadas funções de perda robustas ou ponderadas. A perda de Huber 
     \end{cases}
 \]
 
-Como o dataset contém valores imputados, a loss observada usa uma máscara $m_{i,k}$ que vale 1 quando o alvo do exemplo $i$ e horizonte $k$ foi observado e 0 quando foi imputado:
+Como o conjunto de dados contém valores imputados, a função de perda observada usa uma máscara $m_{i,k}$ que vale 1 quando o alvo do exemplo $i$ e horizonte $k$ foi observado e 0 quando foi imputado:
 
 \[
     \mathcal{J}(\theta)
@@ -276,7 +372,7 @@ A variante \texttt{weighted\_l1}, discutida nos resultados, altera explicitament
 
 Essa formulação não é regularização L1 dos parâmetros; é uma perda absoluta ponderada no espaço das previsões. Por isso, a melhora em picos ou cauda deve ser interpretada como consequência de uma mudança de objetivo, e não como simples ganho arquitetural.
 
-A busca de hiperparâmetros do resultado final foi conduzida com Optuna, framework de otimização com definição dinâmica de espaços de busca, estratégias de amostragem e poda de tentativas pouco promissoras \cite{akiba2019optuna}. Formalmente, seja $\lambda \in \Lambda$ um vetor de hiperparâmetros no espaço de busca $\Lambda$ e seja $A(D_{treino};\lambda)$ o algoritmo de treinamento com essa configuração. O objetivo da HPO é selecionar a configuração com menor erro de validação:
+A busca de hiperparâmetros do resultado final foi conduzida com Optuna, ferramenta de otimização com definição dinâmica de espaços de busca, estratégias de amostragem e poda de tentativas pouco promissoras \cite{akiba2019optuna}. Formalmente, seja $\lambda \in \Lambda$ um vetor de hiperparâmetros no espaço de busca $\Lambda$ e seja $A(D_{treino};\lambda)$ o algoritmo de treinamento com essa configuração. Em uma validação simples, o objetivo da HPO seria selecionar a configuração com menor erro de validação:
 
 \[
     \lambda^{*}
@@ -285,14 +381,16 @@ A busca de hiperparâmetros do resultado final foi conduzida com Optuna, framewo
     \mathcal{L}_{val}\left(A(D_{treino};\lambda), D_{val}\right).
 \]
 
-No Optuna, cada tentativa, ou \textit{trial}, escolhe um ponto $\lambda$ do espaço de busca, treina o modelo com esse ponto e retorna uma métrica objetivo. O conjunto de tentativas forma um \textit{study}. A cada trial, o amostrador usa o histórico de configurações já avaliadas para propor novos hiperparâmetros. No caso padrão de otimização mono-objetivo, o Optuna usa o \texttt{TPESampler} como amostrador padrão \cite{optunaDocsEfficient2026}. O TPE, ou Tree-structured Parzen Estimator, separa os valores de hiperparâmetros associados aos melhores resultados dos demais, ajusta modelos probabilísticos para esses dois grupos e tende a escolher novos valores que maximizem a razão entre regiões promissoras e não promissoras \cite{optunaDocsTPE2026}.
+No protocolo final, esse termo de validação é substituído pela média das partições temporais, isto é, pela métrica \(\mathcal{L}_{CV}\) da validação \textit{walk-forward}. Assim, a escolha de \(\lambda^{*}\) usa várias origens temporais dentro do desenvolvimento, sem consultar o teste final.
 
-A poda, ou \textit{pruning}, é uma forma de parada antecipada no nível da HPO. Em vez de treinar todas as configurações até o orçamento máximo, o treinamento reporta valores intermediários de validação; o pruner decide se uma trial deve continuar ou ser interrompida. Nas redes neurais deste TCC, o recurso usado pelo pruner é a época de treinamento e a métrica monitorada é o MAE de validação. A escolha principal foi o \texttt{HyperbandPruner}, que combina múltiplas instâncias de Successive Halving, chamadas de \textit{brackets}, para distribuir orçamento entre muitas configurações baratas e poucas configurações que recebem mais épocas \cite{li2018hyperband,optunaDocsHyperband2026}. Essa escolha segue a própria documentação do Optuna, que indica o \texttt{HyperbandPruner} como a combinação recomendada com \texttt{TPESampler} em seus resultados de benchmark para tarefas mono-objetivo \cite{optunaDocsEfficient2026}. O orçamento usado é controlado e limitado, adequado para comparação experimental de TCC, mas não deve ser interpretado como garantia de ótimo global.
+No Optuna, cada tentativa, ou \textit{trial}, escolhe um ponto $\lambda$ do espaço de busca, treina o modelo com esse ponto e retorna uma métrica objetivo. O conjunto de tentativas forma um estudo (\textit{study}). A cada tentativa, o amostrador usa o histórico de configurações já avaliadas para propor novos hiperparâmetros. No caso padrão de otimização mono-objetivo, o Optuna usa o \texttt{TPESampler} como amostrador padrão \cite{optunaDocsEfficient2026}. O TPE, ou \textit{Tree-structured Parzen Estimator}, separa os valores de hiperparâmetros associados aos melhores resultados dos demais, ajusta modelos probabilísticos para esses dois grupos e tende a escolher novos valores que maximizem a razão entre regiões promissoras e não promissoras \cite{optunaDocsTPE2026}.
+
+A poda, ou \textit{pruning}, é uma forma de parada antecipada no nível da HPO. Em vez de treinar todas as configurações até o orçamento máximo, o treinamento reporta valores intermediários de validação; o mecanismo de poda decide se uma tentativa deve continuar ou ser interrompida. Nas redes neurais deste TCC, o recurso usado pelo mecanismo de poda é a época de treinamento e a métrica monitorada é o MAE de validação. A escolha principal foi o \texttt{HyperbandPruner}, que combina múltiplas instâncias de \textit{Successive Halving}, chamadas de chaves (\textit{brackets}), para distribuir orçamento entre muitas configurações baratas e poucas configurações que recebem mais épocas \cite{li2018hyperband,optunaDocsHyperband2026}. Essa escolha segue a própria documentação do Optuna, que indica o \texttt{HyperbandPruner} como a combinação recomendada com \texttt{TPESampler} em seus resultados de referência para tarefas mono-objetivo \cite{optunaDocsEfficient2026}. O orçamento usado é controlado e limitado, adequado para comparação experimental de TCC, mas não deve ser interpretado como garantia de ótimo global.
 
 \section{Métricas de Avaliação}
 \label{sec:metricas_avaliacao}
 
-A avaliação de modelos de regressão multi-step deve combinar métricas globais e métricas por horizonte. O erro médio absoluto (MAE) mede a magnitude média dos erros e é menos sensível a valores extremos que o erro quadrático:
+A avaliação de modelos de regressão de múltiplos passos deve combinar métricas globais e métricas por horizonte. O erro médio absoluto (MAE) mede a magnitude média dos erros e é menos sensível a valores extremos que o erro quadrático:
 
 \[
     \text{MAE}(y, \hat{y}) =
@@ -324,4 +422,4 @@ Além dessas métricas, este TCC analisa MAE por horizonte, viés médio, percen
 
 \section{Resumo do Capítulo}
 
-Este capítulo definiu a base teórica do estudo: PM2.5 como série temporal ambiental, componentes temporais, autocorrelação, previsão multi-step, tratamento de dados faltantes sem vazamento, janelas supervisionadas, variáveis exógenas causalmente disponíveis, LSTM, Seq2Seq com atenção, scheduled sampling, XGBoost, HPO e métricas. A formulação matemática deixa explícito o contrato de previsão 48 para 24 horas e a distinção entre arquiteturas recorrentes, encoder-decoder e baseline tabular.
+Este capítulo definiu a base teórica do estudo: PM2.5 como série temporal ambiental, componentes temporais, autocorrelação, previsão de múltiplos passos, tratamento de dados faltantes sem vazamento, janelas supervisionadas, variáveis exógenas causalmente disponíveis, redes neurais artificiais, aprendizado profundo, LSTM, Seq2Seq com atenção, \textit{scheduled sampling}, XGBoost, HPO e métricas. A formulação matemática deixa explícito o contrato de previsão 48 para 24 horas e a distinção entre arquiteturas recorrentes, codificador-decodificador e linha de base tabular.

@@ -6,48 +6,48 @@ A poluição atmosférica por material particulado fino (\textit{Particulate Mat
 
 Nesse contexto, prever a concentração horária de PM2.5 com antecedência útil pode apoiar alertas, análise ambiental e planejamento operacional em regiões monitoradas. A tarefa, entretanto, é tecnicamente desafiadora. Séries ambientais reais combinam autocorrelação, sazonalidade, picos raros, mudanças de regime, ruído instrumental e lacunas de medição. Além disso, decisões aparentemente auxiliares, como imputação, normalização, criação de janelas, escolha do conjunto de atributos e separação temporal entre treino e teste, podem alterar substancialmente a conclusão experimental. Por isso, uma comparação entre modelos de previsão só é defensável quando essas escolhas são explicitadas e mantidas sob um protocolo comum.
 
-A literatura recente tem explorado modelos de aprendizado profundo para previsão de PM2.5, incluindo redes recorrentes, LSTM e arquiteturas encoder-decoder com atenção \cite{yang2023attention,zhao2021pm2,zhang2021deep}. Essas abordagens são atrativas porque conseguem modelar dependências temporais e relações não lineares. Ainda assim, em muitos estudos a comparação entre modelos mistura mudanças de arquitetura com mudanças de dados, horizonte de previsão, atributos disponíveis, imputação e procedimento de validação. Essa mistura dificulta responder se o ganho observado vem da arquitetura, do pré-processamento ou de outra decisão do pipeline.
+A literatura recente tem explorado modelos de aprendizado profundo para previsão de PM2.5, incluindo redes recorrentes, LSTM e arquiteturas com codificador, decodificador e atenção \cite{yang2023attention,zhao2021pm2,zhang2021deep}. Essas abordagens são atrativas porque conseguem modelar dependências temporais e relações não lineares. Ainda assim, em muitos estudos a comparação entre modelos mistura mudanças de arquitetura com mudanças de dados, horizonte de previsão, atributos disponíveis, imputação e procedimento de validação. Essa mistura dificulta responder se o ganho observado vem da arquitetura, do pré-processamento ou de outra decisão do fluxo experimental.
 
-Este trabalho parte desse problema metodológico. Em vez de apresentar a criação de um novo modelo como contribuição central, o TCC desenvolve um estudo experimental rastreável para previsão horária de PM2.5 na estação Sapo, no conjunto CMD. A tarefa principal usa as 48 horas anteriores para prever as 24 horas seguintes, com divisão cronológica em treino, validação e teste na proporção 70/15/15. O protocolo final combina o alvo PM2.5 e o poluente PM10 com atributos temporais, termos de Fourier, indicadores de ausência e duas variáveis causais derivadas de PM10: um valor recente disponível antes da emissão da previsão e uma tendência calculada sem olhar o futuro. Essas variáveis representam informação disponível no momento da previsão, evitando uso indevido de dados futuros.
+Este trabalho parte desse problema metodológico. Em vez de apresentar a criação de um novo modelo como contribuição central, o TCC desenvolve um estudo experimental rastreável para previsão horária de PM2.5 na estação Sapo, no conjunto CMD. A tarefa principal usa as 48 horas anteriores para prever as 24 horas seguintes, com divisão cronológica externa em treino, validação e teste na proporção 70/15/15. A seleção de hiperparâmetros é feita por validação temporal \textit{walk-forward} dentro do bloco de desenvolvimento anterior ao teste, mantendo o teste final reservado para avaliação fora da amostra. O protocolo final combina o alvo PM2.5 e o poluente PM10 com atributos temporais, termos de Fourier, indicadores de ausência e duas variáveis causais derivadas de PM10: um valor recente disponível antes da emissão da previsão e uma tendência calculada sem olhar o futuro. Essas variáveis representam informação disponível no momento da previsão, evitando uso indevido de dados futuros.
 
-O estudo compara modelos sequenciais e um baseline tabular sob o mesmo contrato experimental. São avaliadas LSTM recursiva, LSTM direta, Seq2Seq básico, Seq2Seq com atenção e XGBoost multi-output. Além da comparação principal, o trabalho discute ablações metodológicas e variantes internas do Seq2Seq, incluindo estratégias de decoder, uso de variáveis futuras causalmente disponíveis, funções de perda voltadas a picos e comportamento da atenção. A interpretação dos resultados distingue erro médio global, desempenho por horizonte e comportamento em regimes de maior concentração, pois modelos com melhor MAE podem produzir curvas mais suavizadas e subestimar eventos altos.
+O estudo compara modelos sequenciais e uma linha de base tabular sob o mesmo contrato experimental. São avaliadas LSTM recursiva, LSTM direta, Seq2Seq básico, Seq2Seq com atenção e XGBoost com saída múltipla. Além da comparação principal, o trabalho discute ablações metodológicas e variantes internas do Seq2Seq, incluindo estratégias de decodificação, uso de variáveis futuras causalmente disponíveis, funções de perda voltadas a picos e comportamento da atenção. A interpretação dos resultados distingue erro médio global, desempenho por horizonte e comportamento em regimes de maior concentração, pois modelos com melhor MAE podem produzir curvas mais suavizadas e subestimar eventos altos.
 
 \section{Problema de Pesquisa e Contribuições}
 
 A pergunta central deste trabalho pode ser formulada da seguinte forma:
 
 \begin{quote}
-Em uma tarefa horária de previsão de PM2.5 na estação Sapo, com entrada de 48 horas, horizonte de 24 horas e split temporal fixo, como diferentes escolhas de modelagem --- arquiteturas sequenciais, baseline tabular, imputação, variáveis exógenas e estratégias de treinamento --- afetam o desempenho preditivo e os erros por horizonte?
+Em uma tarefa horária de previsão de PM2.5 na estação Sapo, com entrada de 48 horas, horizonte de 24 horas e teste temporal externo fixo, como diferentes escolhas de modelagem --- arquiteturas sequenciais, linha de base tabular, imputação, variáveis exógenas e estratégias de treinamento --- afetam o desempenho preditivo e os erros por horizonte?
 \end{quote}
 
 Para responder a essa pergunta, o trabalho é estruturado como um estudo experimental comparável. As principais contribuições são:
 
 \begin{enumerate}
-    \item Definir um protocolo rastreável de previsão horária de PM2.5 para a estação Sapo, com tarefa multi-step de entrada de 48 horas e horizonte de 24 horas.
-    \item Consolidar um protocolo de dados com PM2.5, PM10, atributos temporais, indicadores de ausência e proxies causais de PM10 disponíveis para o horizonte de previsão, reduzindo risco de vazamento de informação futura.
-    \item Comparar LSTM direta, LSTM recursiva, Seq2Seq básico, Seq2Seq com atenção e XGBoost multi-output sob o mesmo holdout temporal de teste.
+    \item Definir um protocolo rastreável de previsão horária de PM2.5 para a estação Sapo, com tarefa de múltiplos passos, entrada de 48 horas e horizonte de 24 horas.
+    \item Consolidar um protocolo de dados com PM2.5, PM10, atributos temporais, indicadores de ausência e variáveis substitutas causais de PM10 disponíveis para o horizonte de previsão, reduzindo risco de vazamento de informação futura.
+    \item Comparar LSTM direta, LSTM recursiva, Seq2Seq básico, Seq2Seq com atenção e XGBoost com saída múltipla sob o mesmo teste temporal externo.
     \item Avaliar os resultados por métricas globais, métricas por horizonte e comportamento em picos/cauda, separando desempenho médio de resposta a eventos de maior concentração.
-    \item Documentar resultados negativos e trade-offs de modelagem, especialmente no uso de atenção, perdas ponderadas e estratégias voltadas a picos.
+    \item Documentar resultados negativos e compromissos de modelagem, especialmente no uso de atenção, perdas ponderadas e estratégias voltadas a picos.
 \end{enumerate}
 
 \section{Objetivos}
 
 \subsection{Objetivo Geral}
 
-Avaliar, sob um protocolo experimental rastreável e comparável, o desempenho de modelos de aprendizado de máquina e aprendizado profundo para previsão horária multi-step de PM2.5 na estação Sapo, distinguindo erro médio global, erros por horizonte e comportamento em regimes de maior concentração.
+Avaliar, sob um protocolo experimental rastreável e comparável, o desempenho de modelos de aprendizado de máquina e aprendizado profundo para previsão horária de múltiplos passos de PM2.5 na estação Sapo, distinguindo erro médio global, erros por horizonte e comportamento em regimes de maior concentração.
 
 \subsection{Objetivos Específicos}
 
 \begin{enumerate}
-    \item Construir uma base horária para a estação Sapo com PM2.5, PM10, atributos temporais, termos de Fourier, indicadores de ausência e proxies causais de PM10.
-    \item Definir a tarefa de previsão \texttt{48 -> 24} com split cronológico \texttt{70/15/15}.
-    \item Descrever o pré-processamento com imputação, normalização e máscaras para impedir que valores imputados do alvo distorçam loss e métricas observadas.
-    \item Comparar LSTM direta, LSTM recursiva, Seq2Seq básico, Seq2Seq com atenção e XGBoost multi-output no holdout de teste.
+    \item Construir uma base horária para a estação Sapo com PM2.5, PM10, atributos temporais, termos de Fourier, indicadores de ausência e variáveis substitutas causais de PM10.
+    \item Definir a tarefa de previsão \texttt{48 -> 24} com divisão cronológica externa \texttt{70/15/15} e seleção de hiperparâmetros por \textit{walk-forward}.
+    \item Descrever o pré-processamento com imputação, normalização e máscaras para impedir que valores imputados do alvo distorçam a função de perda e as métricas observadas.
+    \item Comparar LSTM direta, LSTM recursiva, Seq2Seq básico, Seq2Seq com atenção e XGBoost com saída múltipla no teste externo.
     \item Avaliar os modelos por MAE, RMSE, MAPE, R2, métricas por horizonte e métricas de cauda/picos.
-    \item Discutir ablações relevantes de imputação, uso causal de PM10, funções de perda, desenho do decoder, attention e busca de hiperparâmetros.
+    \item Discutir ablações relevantes de imputação, uso causal de PM10, funções de perda, desenho do decodificador, atenção e busca de hiperparâmetros.
     \item Identificar limitações do protocolo e caminhos de extensão para múltiplas estações, avaliação de eventos extremos e modelos espaço-temporais.
 \end{enumerate}
 
 \section{Organização do Trabalho}
 
-Este documento está estruturado em seis capítulos. O Capítulo \ref{chap:introducao} apresenta a motivação, o problema de pesquisa, as contribuições e os objetivos. O Capítulo \ref{chap:fundamentacao_teorica} reúne os conceitos necessários sobre PM2.5, séries temporais, dados faltantes, modelos recorrentes, Seq2Seq, atenção, baseline tabular e métricas de avaliação. O Capítulo \ref{chap:trabalhos_relacionados} posiciona o trabalho na literatura de previsão de qualidade do ar e discute lacunas de comparabilidade experimental. O Capítulo \ref{chap:materiais_metodos} descreve o protocolo experimental, o contrato de dados, os modelos, o treinamento e as métricas. O Capítulo \ref{chap:resultados} apresenta os resultados principais, as análises por horizonte e as ablações auxiliares. Por fim, o Capítulo \ref{chap:conclusao} sintetiza as conclusões, limitações e possibilidades de continuidade.
+Este documento está estruturado em seis capítulos. O Capítulo \ref{chap:introducao} apresenta a motivação, o problema de pesquisa, as contribuições e os objetivos. O Capítulo \ref{chap:fundamentacao_teorica} reúne os conceitos necessários sobre PM2.5, séries temporais, dados faltantes, modelos recorrentes, Seq2Seq, atenção, linha de base tabular e métricas de avaliação. O Capítulo \ref{chap:trabalhos_relacionados} posiciona o trabalho na literatura de previsão de qualidade do ar e discute lacunas de comparabilidade experimental. O Capítulo \ref{chap:materiais_metodos} descreve o protocolo experimental, o contrato de dados, os modelos, o treinamento e as métricas. O Capítulo \ref{chap:resultados} apresenta os resultados principais, as análises por horizonte e as ablações auxiliares. Por fim, o Capítulo \ref{chap:conclusao} sintetiza as conclusões, limitações e possibilidades de continuidade.
