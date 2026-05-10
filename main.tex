@@ -10,7 +10,7 @@
 	alf,
 	% -- Formato das referências justificado na margem
 	bibjustif
-]{tex/config/monografia}
+]{monografia}
 
 % --- PACOTES ---
 \usepackage[portuguese]{babel}
@@ -20,9 +20,13 @@
 \usepackage{setspace} % Para controle de espaçamento (doublespacing, etc.)
 \usepackage{amsmath} % Para comandos matemáticos como \text{}
 \usepackage{amssymb} % Para símbolos como \mathbb
+\usepackage{array} % Para colunas de tabela com alinhamento controlado
 \usepackage{booktabs} % Para tabelas com \toprule, \midrule, \bottomrule
 \usepackage{subcaption} % Para o ambiente subfigure
+\usepackage{tikz} % Para diagramas vetoriais
+\usepackage[hidelinks,breaklinks=true,plainpages=false,pdfpagelabels,hypertexnames=false]{hyperref} % Links internos e externos sem caixas/colorização
 \usepackage[alf,abnt-repeated-title-omit=yes,bibjustif]{abntex2cite} % Carrega o pacote de citações
+\usetikzlibrary{arrows.meta,calc,positioning}
 
 \graphicspath{{figuras/}} % Diz ao LaTeX para procurar imagens nesta pasta
 
@@ -35,6 +39,15 @@
 \autor{Daniel Fagundes Portes Fernandes}
 \nome{Daniel}
 \ultimonome{Fernandes}
+
+\hypersetup{
+	pdftitle={Estudo experimental de modelos para previsão horária de PM2.5},
+	pdfauthor={Daniel Fagundes Portes Fernandes},
+	pdfsubject={Trabalho de Conclusão de Curso},
+	pdfkeywords={PM2.5, previsão de séries temporais, aprendizado profundo, qualidade do ar},
+	bookmarksnumbered=true,
+	bookmarksopen=true
+}
 
 % --- Curso e Grau ---
 \bacharelado
@@ -86,6 +99,9 @@
 % =========================================================================
 \singlespacing
 \bibliographystyle{tex/config/abntex2-alf}
+\begingroup
+\hbadness=10000
 \bibliography{referencias}
+\endgroup
 
 \end{document}

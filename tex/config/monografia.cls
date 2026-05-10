@@ -573,8 +573,8 @@
   \vspace{1.8em}
 
   \begin{raggedleft}
-  { \MakeUppercase{\@tipo\ submetida ao corpo docente do \@unidadeacademica\ da \@instituicao, como
-           parte integrante dos requisitos necess\'arios para a obten\c{c}\~ao
+ { \small\MakeUppercase{\@tipo\ submetida ao corpo docente do \@unidadeacademica\ da \@instituicao,}\\
+           \MakeUppercase{como parte integrante dos requisitos necess\'arios para a obten\c{c}\~ao
            do grau de \@grau\ em \@curso.} }
   \end{raggedleft}
   \vfill
