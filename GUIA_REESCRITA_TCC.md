@@ -6,30 +6,27 @@ A regra principal é: `TCC-wsl` é a fonte técnica atual; `TCC-RELATORIO` ainda
 
 ## 0. Estado Atual Consolidado - Não Esquecer na Reescrita
 
-Esta seção tem prioridade sobre textos antigos do relatório. O projeto evoluiu depois do benchmark inicial Sapo 2016-2020 com KNN e sem HPO. O TCC deve deixar essa evolução clara: houve um benchmark fixo inicial, mas o melhor resultado atual vem do contrato `clean_pm10_decoder_proxy` com HPO.
+Esta seção tem prioridade sobre textos antigos do relatório. O projeto evoluiu depois do benchmark inicial Sapo 2016-2020 com KNN e sem HPO. O TCC deve deixar essa evolução clara: houve um benchmark fixo inicial, depois uma rodada com HPO simples em 2026-05-09, e o melhor resultado atual vem da suite de 2026-05-10 com contrato `clean_pm10_decoder_proxy`, HPO walk-forward e multi-seed.
 
 ### Vencedores Atuais
 
 | Pergunta | Resposta atual |
 | --- | --- |
-| Melhor modelo global por MAE/RMSE/R2 | `lstm_direct_clean_pm10_hpo` |
-| Melhor baseline tabular | `xgboost_clean_pm10_hpo` |
-| Melhor Seq2Seq attention individual | `weighted_l1_hpo_mae` |
-| Melhor combinação Seq2Seq por predição | `blend_hpo70_tiny30`, com ressalva de ensemble |
-| Melhor variante para picos/cauda, não MAE global | `weighted_l1_lag24_only` e variantes `weighted_l1_*` mais agressivas |
+| Melhor modelo por MAE no seed canônico | `cv_hpo_lstm_direct_clean_pm10` |
+| Melhor modelo por MAE médio multi-seed | `cv_hpo_lstm_direct_clean_pm10` |
+| Melhor RMSE/R2 médio multi-seed | `cv_hpo_lstm_recursive_clean_pm10`, com viés positivo |
+| Melhor baseline tabular final | `cv_hpo_xgboost_clean_pm10` |
+| Melhor Seq2Seq attention final | `cv_hpo_weighted_l1_clean_pm10` |
+| Melhor variante para picos/cauda, não MAE global | LSTM recursiva e Seq2Seq weighted L1 |
 
 Números principais atuais no dataset `clean_pm10_decoder_proxy`:
 
 | Modelo/variante | MAE | RMSE | R2 | MAPE | Peak35 MAE | p99 previsto | Observação |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| `lstm_direct_clean_pm10_hpo` | 2.7807 | 3.8861 | 0.5023 | 22.84 | 13.6841 | 28.92 | Vencedor global por erro médio. |
-| `blend_hpo70_tiny30` | 2.8311 | 3.9071 | 0.4969 | 23.58 | 12.3516 | 30.90 | Melhor predição Seq2Seq por ensemble; não é modelo único. |
-| `weighted_l1_hpo_mae` | 2.8358 | 3.9026 | 0.4981 | 23.54 | 12.4871 | 30.60 | Melhor Seq2Seq attention individual. |
-| `weighted_l1_lag24_only` | 2.8579 | 3.9341 | 0.4899 | 24.21 | 11.9571 | 31.48 | Melhorou picos e cauda, mas perdeu MAE global. |
-| `xgboost_clean_pm10_hpo` | 2.8655 | 3.9340 | 0.4900 | 23.88 | 13.0208 | 29.97 | Baseline tabular forte, mas não é mais o vencedor global atual. |
-| `seq2seq_attention_clean_pm10_hpo` | 2.8811 | 3.9859 | 0.4764 | 23.79 | 14.7027 | 29.13 | Atenção com Huber/HPO; abaixo do weighted L1. |
-| `seq2seq_basic_clean_pm10_hpo` | 2.9553 | 4.0967 | 0.4469 | 23.99 | 12.9806 | 30.65 | Inferior ao attention e ao XGBoost. |
-| `lstm_recursive_clean_pm10_hpo` | 2.9818 | 3.9363 | 0.4894 | 25.45 | 10.9772 | 31.94 | Bom em pico, mas com viés positivo e pior MAE. |
+| `cv_hpo_lstm_direct_clean_pm10` | 2.7713 | 3.8346 | 0.5154 | 23.01 | 13.6112 | 28.57 | Vencedor por MAE no seed canônico. |
+| `cv_hpo_weighted_l1_clean_pm10` | 2.8658 | 3.9641 | 0.4821 | 23.90 | 12.3697 | 31.57 | Melhor Seq2Seq final; melhora cauda, não vence MAE. |
+| `cv_hpo_xgboost_clean_pm10` | 2.8786 | 3.9793 | 0.4781 | 23.80 | 12.2583 | 30.73 | Baseline tabular forte; melhor H1. |
+| `cv_hpo_lstm_recursive_clean_pm10` | 2.8876 | 3.8380 | 0.5146 | 24.39 | 12.0392 | 30.49 | Bom em RMSE/R2 e picos, mas com MAE e viés piores. |
 
 Leitura obrigatória dos plots contra métricas:
 
@@ -154,8 +151,12 @@ Use estes arquivos antes de escrever qualquer capítulo técnico:
 | Fonte | Uso |
 | --- | --- |
 | `../TCC-wsl/AGENTS.md` | Memória técnica consolidada do projeto, incluindo o contrato `clean_pm10_decoder_proxy` e vencedores atuais. |
-| `../TCC-wsl/runtime/reports/sapo_clean_pm10_hpo_all_models_20260509/sapo_clean_pm10_hpo_vs_reference.csv` | Tabela principal atual com HPO para LSTM direct, LSTM recursive, Seq2Seq basic, Seq2Seq attention e XGBoost. |
-| `../TCC-wsl/runtime/reports/sapo_clean_pm10_hpo_all_models_20260509/sapo_clean_pm10_hpo_vs_reference.json` | Versão estruturada da tabela principal atual. |
+| `../TCC-wsl/runtime/reports/sapo_final_pre_delivery_suite_20260510/cv_hpo_summary.csv` | Tabela principal atual com HPO walk-forward. |
+| `../TCC-wsl/runtime/reports/sapo_final_pre_delivery_suite_20260510/multi_seed_aggregate.csv` | Estabilidade multi-seed dos modelos selecionados. |
+| `../TCC-wsl/runtime/reports/sapo_final_pre_delivery_suite_20260510/naive_baselines.csv` | Baselines ingênuos. |
+| `../TCC-wsl/runtime/reports/sapo_final_pre_delivery_suite_20260510/pm10_causal_ablation.csv` | Ablação PM10 causal. |
+| `../TCC-wsl/runtime/reports/sapo_final_pre_delivery_suite_20260510/mask_imputation_ablation.csv` | Ablação máscara/imputação. |
+| `../TCC-wsl/runtime/reports/sapo_clean_pm10_hpo_all_models_20260509/sapo_clean_pm10_hpo_vs_reference.csv` | Tabela histórica com HPO simples; não usar como resultado final se conflitar com 2026-05-10. |
 | `../TCC-wsl/runtime/reports/sapo_clean_pm10_hpo_all_models_20260509/datasets/sapo_clean_pm10_decoder_proxy.parquet` | Dataset final do contrato `clean_pm10_decoder_proxy`. |
 | `../TCC-wsl/runtime/reports/sapo_clean_pm10_hpo_all_models_20260509/sapo_clean_pm10_dataset_summary.json` | Resumo do dataset atual, incluindo período, linhas e missingness. |
 | `../TCC-wsl/docs/generated/eda_outras_usinas/dashboard` | EDA comparativa de outras estações/usinas usada para fundamentar a escolha de Sapo. |
@@ -189,20 +190,18 @@ A tabela principal do TCC deve partir do contrato `clean_pm10_decoder_proxy` com
 
 | Modelo | MAE | RMSE | MAPE | R2 | H1 MAE | H24 MAE |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| `lstm_direct_clean_pm10_hpo` | 2.7807 | 3.8861 | 22.84 | 0.5023 | 2.6605 | 2.8906 |
-| `xgboost_clean_pm10_hpo` | 2.8655 | 3.9340 | 23.88 | 0.4900 | 2.4486 | 3.0129 |
-| `seq2seq_attention_clean_pm10_hpo` | 2.8811 | 3.9859 | 23.79 | 0.4764 | 2.7155 | 2.9743 |
-| `seq2seq_basic_clean_pm10_hpo` | 2.9553 | 4.0967 | 23.99 | 0.4469 | 2.6519 | 3.1514 |
-| `lstm_recursive_clean_pm10_hpo` | 2.9818 | 3.9363 | 25.45 | 0.4894 | 2.7567 | 3.2312 |
+| `cv_hpo_lstm_direct_clean_pm10` | 2.7713 | 3.8346 | 23.01 | 0.5154 | 2.6725 | 2.8670 |
+| `cv_hpo_weighted_l1_clean_pm10` | 2.8658 | 3.9641 | 23.90 | 0.4821 | 2.7631 | 2.9695 |
+| `cv_hpo_xgboost_clean_pm10` | 2.8786 | 3.9793 | 23.80 | 0.4781 | 2.5618 | 3.0273 |
+| `cv_hpo_lstm_recursive_clean_pm10` | 2.8876 | 3.8380 | 24.39 | 0.5146 | 2.7380 | 3.1492 |
 
 Esses valores devem ser conferidos diretamente no CSV oficial no momento da escrita final. A interpretação esperada é:
 
-- `lstm_direct_clean_pm10_hpo` é o vencedor global atual em MAE, RMSE e R2;
-- XGBoost continua sendo baseline tabular forte, mas não é mais o vencedor global no estado atual;
-- `seq2seq_attention_clean_pm10_hpo` fica próximo do XGBoost, mas abaixo do LSTM direct;
-- `seq2seq_basic` funciona como baseline encoder-decoder simples, mas não é o melhor;
-- `lstm_recursive` tem comportamento interessante em picos, mas perde em MAE e apresenta viés positivo;
-- a comparação atual inclui HPO para DL e XGBoost; não misturar com o benchmark fixo sem HPO como se o orçamento experimental fosse igual.
+- `cv_hpo_lstm_direct_clean_pm10` é o vencedor atual por MAE no seed canônico e na média multi-seed;
+- XGBoost continua sendo baseline tabular forte, mas o HPO walk-forward final dele teve apenas quatro trials completos;
+- `cv_hpo_weighted_l1_clean_pm10` fica competitivo e melhora amplitude/picos, mas abaixo da LSTM direta em MAE;
+- `cv_hpo_lstm_recursive_clean_pm10` tem comportamento interessante em RMSE/R2 e picos, mas perde em MAE e apresenta viés positivo;
+- a comparação atual inclui HPO walk-forward, multi-seed, baselines ingênuos e ablações de PM10/máscara; não misturar com o benchmark fixo sem HPO como se o orçamento experimental fosse igual.
 
 ### 4.1 Resultado Específico do Seq2Seq Attention
 
@@ -210,13 +209,10 @@ Além da tabela principal, o TCC deve registrar que a melhor versão individual 
 
 | Variante Seq2Seq | MAE | RMSE | R2 | Peak35 MAE | p99 previsto | Interpretação |
 | --- | ---: | ---: | ---: | ---: | ---: | --- |
-| `weighted_l1_hpo_mae` | 2.8358 | 3.9026 | 0.4981 | 12.4871 | 30.60 | Melhor Seq2Seq attention individual; supera XGBoost em MAE, mas não supera LSTM direct. |
-| `weighted_l1_lag24_only` | 2.8579 | 3.9341 | 0.4899 | 11.9571 | 31.48 | Melhor trade-off para picos/cauda, com perda pequena no MAE global. |
-| `weighted_l1_seed_21` | 2.8428 | 3.9413 | 0.4881 | 12.6911 | 30.70 | Confirma robustez parcial do melhor ponto. |
-| `weighted_l1_seed_123` | 2.8392 | 3.9141 | 0.4951 | 12.8550 | 30.16 | Confirma robustez parcial do melhor ponto. |
-| `weighted_l1_seed_7` | 2.8958 | 3.9690 | 0.4808 | 12.9048 | 30.61 | Mostra sensibilidade a seed. |
+| `cv_hpo_weighted_l1_clean_pm10` seed 42 | 2.8658 | 3.9641 | 0.4821 | 12.3697 | 31.57 | Resultado final selecionado por walk-forward. |
+| `cv_hpo_weighted_l1_clean_pm10` média multi-seed | 2.8646 | 3.9617 | 0.4827 | 13.1103 | 30.49 | Competitivo, mas não supera LSTM direct em MAE. |
 
-O resultado por sementes do `weighted_l1` deve ser tratado com cuidado: média de MAE `2.8534` e desvio `0.0284`. Isso é competitivo e levemente melhor que XGBoost, mas não é uma vitória enorme nem totalmente imune à seed.
+O resultado por sementes do `weighted_l1` deve ser tratado com cuidado: média de MAE `2.8646` e desvio `0.0201`. Isso é competitivo, mas não é uma vitória sobre a LSTM direta.
 
 ## 5. Eixos Experimentais do TCC
 
