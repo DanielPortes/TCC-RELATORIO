@@ -296,7 +296,19 @@ A avaliação final ocorre no mesmo teste externo dos modelos neurais, mas o tre
 \section{Treinamento, Função de Perda e HPO}
 \label{sec:otimizacao_hpo}
 
-Parâmetros são aprendidos pelo modelo durante o treinamento; hiperparâmetros, como taxa de aprendizado, número de camadas, tamanho do estado oculto e \textit{dropout}, são definidos antes ou buscados por procedimento externo. Neste trabalho, redes neurais são treinadas com otimizadores baseados em gradiente, como Adam \cite{kingma2014adam}, e usam monitoramento em validação para seleção de ponto de controle.
+Parâmetros são aprendidos pelo modelo durante o treinamento; hiperparâmetros, como taxa de aprendizado, número de camadas, tamanho do estado oculto e \textit{dropout}, são definidos antes ou buscados por procedimento externo. Neste trabalho, redes neurais são treinadas com otimizadores baseados em gradiente, como Adam e AdamW \cite{kingma2014adam,loshchilov2019decoupled}, e usam monitoramento em validação para seleção de ponto de controle.
+
+A taxa de aprendizado controla o tamanho do passo aplicado aos parâmetros a cada atualização por gradiente. Ela pode ser mantida constante ou seguir uma agenda ao longo das épocas. Nos modelos neurais deste TCC, a taxa informada como hiperparâmetro corresponde ao valor nominal ou máximo, denotado por \(\eta_{\max}\), e não a um valor fixo usado em todas as épocas. A agenda usada combina aquecimento linear (\textit{linear warm-up}) e decaimento cosseno, estratégia relacionada ao uso de agendas cossenoidais em treinamento de redes neurais \cite{loshchilov2017sgdr}. Com \(E_w\) épocas de aquecimento, \(E\) épocas máximas e \(\eta_{\min}=0{,}01\eta_{\max}\), a forma idealizada é:
+
+\[
+    \eta_t =
+    \begin{cases}
+        \eta_{\max}\left(10^{-5} + (1-10^{-5})\frac{t}{E_w}\right), & 0 \leq t \leq E_w,\\
+        \eta_{\min} + \frac{1}{2}(\eta_{\max}-\eta_{\min})\left[1+\cos\left(\pi\frac{t-E_w}{E-E_w}\right)\right], & E_w < t \leq E.
+    \end{cases}
+\]
+
+Assim, as primeiras épocas usam passos muito pequenos e aumentam gradualmente a taxa até \(\eta_{\max}\). Depois do aquecimento, a taxa decai suavemente até 1\% do valor nominal. Essa variação ocorre por época durante o treinamento. A etapa de validação, por sua vez, não aplica retropropagação nem atualiza os pesos; ela avalia o modelo no fim das épocas e fornece métricas para parada antecipada, escolha de ponto de controle e poda de tentativas na HPO. Portanto, a validação influencia a seleção e a interrupção de treinamentos, mas não ajusta diretamente a taxa de aprendizado como ocorreria em uma agenda dependente da métrica de validação.
 
 Também são usadas funções de perda robustas ou ponderadas. A perda de Huber combina comportamento quadrático para erros pequenos e linear para erros grandes, reduzindo a sensibilidade a outliers em comparação com o erro quadrático puro \cite{huber1964robust}. Para erro $e=y-\hat{y}$, ela é definida por:
 

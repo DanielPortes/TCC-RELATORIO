@@ -191,6 +191,8 @@ O resultado principal usa busca de hiperparâmetros com validação temporal \te
 
 Nas redes neurais, cada tentativa reiniciou o modelo em cada partição e agregou a métrica de validação ao fim das partições. O estudo do Optuna usou o amostrador padrão \texttt{TPESampler} e o \texttt{HyperbandPruner}, com \texttt{min\_resource}=1, \texttt{max\_resource}=18 e fator de redução 3. Assim, tentativas pouco promissoras podiam ser interrompidas antes de consumir todo o orçamento de épocas. Essa escolha segue a recomendação da documentação do Optuna para a combinação entre \texttt{TPESampler} e \texttt{HyperbandPruner} \cite{optunaDocsEfficient2026,optunaDocsHyperband2026}. Para o XGBoost, a busca minimizou o MAE médio nas partições, com parada antecipada (\textit{early stopping}) nativa do XGBoost e \texttt{MedianPruner} \cite{optunaDocsMedian2026}. A Tabela \ref{tab:hpo_espaco_busca} organiza o espaço de busca por grupo de hiperparâmetros; a Tabela \ref{tab:hpo_melhores_hiperparametros} apresenta a configuração selecionada.
 
+Nos modelos neurais, a taxa de aprendizado apresentada nas tabelas é a taxa nominal \(\eta_{\max}\) escolhida pela HPO. As execuções finais usaram AdamW com agenda ativa por época: três épocas de aquecimento linear, saindo de \(10^{-5}\eta_{\max}\) até \(\eta_{\max}\), seguidas de decaimento cosseno até \(0{,}01\eta_{\max}\) no fim do orçamento. A agenda é reiniciada em cada partição da HPO e em cada treinamento final. A validação ao fim das épocas monitora MAE para poda, parada antecipada e escolha do melhor \textit{checkpoint}, mas não recalcula a taxa de aprendizado com base no valor da métrica.
+
 \begin{table}[htb]
     \centering
     \caption{Espaço de busca de hiperparâmetros na comparação principal.}
@@ -201,7 +203,7 @@ Nas redes neurais, cada tentativa reiniciou o modelo em cada partição e agrego
         \toprule
         \textbf{Grupo} & \textbf{Hiperparâmetro} & \textbf{Valores avaliados} \\
         \midrule
-        Redes neurais & Taxa de aprendizado & 0{,}0003; 0{,}0005; 0{,}0008; 0{,}0012; 0{,}0018; 0{,}0025; 0{,}0035; 0{,}005; 0{,}007 \\
+        Redes neurais & Taxa nominal de aprendizado & 0{,}0003; 0{,}0005; 0{,}0008; 0{,}0012; 0{,}0018; 0{,}0025; 0{,}0035; 0{,}005; 0{,}007 \\
         Redes neurais & Decaimento de pesos & 0; $10^{-7}$; $5 \times 10^{-7}$; $10^{-6}$; $5 \times 10^{-6}$; $10^{-5}$; $5 \times 10^{-5}$; $10^{-4}$ \\
         Redes neurais & Taxa de \textit{dropout} & 0{,}00; 0{,}05; 0{,}10; 0{,}15; 0{,}20; 0{,}25; 0{,}30 \\
         Redes neurais & Profundidade e perda & número de camadas 1; 2; 3; $\delta$ da Huber em 0{,}5; 0{,}75; 1{,}0; 1{,}5; 2{,}0 \\
@@ -224,9 +226,9 @@ Nas redes neurais, cada tentativa reiniciou o modelo em cada partição e agrego
         \toprule
         \textbf{Modelo} & \textbf{Arquitetura selecionada} & \textbf{Treinamento e regularização} \\
         \midrule
-        LSTM direta & dimensão oculta 256; 3 camadas; agregação por média & taxa de aprendizado 0{,}007; decaimento de pesos $5 \times 10^{-5}$; \textit{dropout} 0{,}20; $\delta$ da Huber 2{,}0 \\
-        LSTM recursiva & dimensão oculta 128; 2 camadas & taxa de aprendizado 0{,}0035; decaimento de pesos 0; \textit{dropout} 0{,}20; $\delta$ da Huber 1{,}0 \\
-        Seq2Seq L1 ponderada & codificador 96; decodificador 96; 1 camada; atenção de entrada 96; representação de horizonte 24 & taxa de aprendizado 0{,}007; decaimento de pesos $10^{-6}$; \textit{dropout} 0{,}30; pesos 1{,}20/1{,}10; fator de subestimação 1{,}50 \\
+        LSTM direta & dimensão oculta 256; 3 camadas; agregação por média & taxa nominal de aprendizado 0{,}007; decaimento de pesos $5 \times 10^{-5}$; \textit{dropout} 0{,}20; $\delta$ da Huber 2{,}0 \\
+        LSTM recursiva & dimensão oculta 128; 2 camadas & taxa nominal de aprendizado 0{,}0035; decaimento de pesos 0; \textit{dropout} 0{,}20; $\delta$ da Huber 1{,}0 \\
+        Seq2Seq L1 ponderada & codificador 96; decodificador 96; 1 camada; atenção de entrada 96; representação de horizonte 24 & taxa nominal de aprendizado 0{,}007; decaimento de pesos $10^{-6}$; \textit{dropout} 0{,}30; pesos 1{,}20/1{,}10; fator de subestimação 1{,}50 \\
         XGBoost com saída múltipla & 480 árvores; profundidade máxima 2; \texttt{max\_bin}=64 & taxa de aprendizado 0{,}02563; \textit{subsample}=0{,}7611; \textit{colsample}=0{,}9073; $\lambda=7{,}7542$; parada antecipada=10 rodadas \\
         \bottomrule
     \end{tabular}
