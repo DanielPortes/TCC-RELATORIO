@@ -13,7 +13,7 @@
     "diagnostics_json_values": "{\"attention_entropy_norm\": 0.9659149443049385, \"attention_lag24_aligned_mass\": 0.02087556100783564, \"attention_lag48_aligned_mass\": 0.020901803845685647, \"attention_last6_mass\": 0.1321397456787534, \"attention_last_step_mass\": 0.022761003438875778, \"attention_max_weight\": 0.051726378274511965, \"attention_top3_mass\": 0.13950807943399995}"
   },
   {
-    "modelo": "Seq2Seq weighted L1",
+    "modelo": "Seq2Seq L1 ponderada",
     "samples": 5177.0,
     "attention_entropy_norm": 0.9890423116197811,
     "attention_max_weight": 0.03472793847322464,
