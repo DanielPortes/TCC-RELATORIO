@@ -112,20 +112,25 @@ Defasagens explícitas e variáveis exógenas podem aumentar a informação disp
 
 Redes neurais artificiais são modelos paramétricos compostos por unidades simples conectadas por pesos. A inspiração histórica vem de modelos computacionais do neurônio biológico, como o neurônio lógico de \citeonline{mcculloch1943logical} e o perceptron de \citeonline{rosenblatt1958perceptron}. Essa relação, porém, deve ser entendida como uma analogia didática. Redes neurais usadas em aprendizado de máquina não simulam de forma completa a fisiologia de neurônios reais; elas usam uma abstração matemática capaz de combinar entradas, ajustar pesos e produzir saídas.
 
-Em um neurônio biológico, dendritos recebem sinais, o corpo celular integra parte dessas informações e o axônio transmite sinais para outras células. Em um neurônio artificial, a operação análoga é representada por entradas numéricas, pesos, viés e uma função de ativação. As Figuras~\ref{fig:neuronio_biologico} e~\ref{fig:neuronio_artificial_perceptron} apresentam essa relação de forma visual.
+Em um neurônio biológico, dendritos recebem sinais, o corpo celular integra parte dessas informações e o axônio transmite sinais para outras células. Em um neurônio artificial, a operação análoga é representada por entradas numéricas, pesos, viés e uma função de ativação. A Figura~\ref{fig:neuronio_biologico_artificial} apresenta essa relação de forma visual.
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.82\linewidth,trim=100 500 320 520,clip]{neuronio-biologico-wikimedia-ptbr.png}
-    \caption[Diagrama de um neurônio biológico]{Diagrama de um neurônio biológico com rótulos em português do Brasil. Fonte: \citeonline{vasconcelos2008neuronPt}, imagem CC BY-SA/GFDL disponibilizada no Wikimedia Commons.}
-    \label{fig:neuronio_biologico}
-\end{figure}
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.70\linewidth]{neuronio-artificial-perceptron-wikimedia.png}
-    \caption[Modelo de neurônio artificial do tipo perceptron]{Modelo de neurônio artificial do tipo perceptron. A figura explicita entradas \(x_i\), pesos \(w_i\), soma ponderada e aplicação da função de ativação \(\varphi\), produzindo a saída \(o\). Fonte: \citeonline{thoma2014perceptronUnit}, imagem CC0 disponibilizada no Wikimedia Commons.}
-    \label{fig:neuronio_artificial_perceptron}
+    \begin{subfigure}[t]{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth,trim=100 500 320 520,clip]{neuronio-biologico-wikimedia-ptbr.png}
+        \caption{Neurônio biológico.}
+        \label{fig:neuronio_biologico}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.48\linewidth}
+        \centering
+        \includegraphics[width=0.86\linewidth]{neuronio-artificial-perceptron-wikimedia.png}
+        \caption{Neurônio artificial.}
+        \label{fig:neuronio_artificial_perceptron}
+    \end{subfigure}
+    \caption[Comparação visual entre neurônio biológico e neurônio artificial]{Comparação visual entre neurônio biológico e neurônio artificial. A imagem do neurônio biológico possui rótulos em português do Brasil e foi obtida de \citeonline{vasconcelos2008neuronPt}; a imagem do perceptron explicita entradas \(x_i\), pesos \(w_i\), soma ponderada, função de ativação \(\varphi\) e saída \(o\), conforme \citeonline{thoma2014perceptronUnit}.}
+    \label{fig:neuronio_biologico_artificial}
 \end{figure}
 
 Formalmente, para um vetor de entrada $\mathbf{x}=(x_1,\ldots,x_d)$, um neurônio artificial calcula uma soma ponderada e aplica uma função de ativação:
