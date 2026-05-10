@@ -59,6 +59,28 @@ em que $f_{\theta}$ é o modelo treinado e $\hat{\mathbf{y}}_{t+1:t+H} = (\hat{y
 
 Em problemas de previsão, a ordem temporal dos dados deve ser preservada. Separações aleatórias, comuns em tarefas tabulares independentes, podem introduzir vazamento de informação futura em séries temporais. Por isso, avaliações fora da amostra e divisões cronológicas são recomendadas para estimar desempenho em um cenário próximo ao uso real \cite{hyndman2021forecasting,tashman2000out,bergmeir2012crossvalidation}.
 
+\subsection{Validação cruzada temporal e walk-forward}
+
+A validação cruzada tradicional divide os dados em folds e assume exemplos aproximadamente independentes. Essa suposição não vale diretamente para séries temporais, nas quais observações vizinhas compartilham autocorrelação, sazonalidade e tendência. Em previsão, uma avaliação coerente deve respeitar a direção do tempo: o modelo só pode ser treinado com dados anteriores ao período validado. Essa preocupação é central em testes fora da amostra de forecasting \cite{tashman2000out} e motiva adaptações da validação cruzada para séries temporais \cite{bergmeir2012crossvalidation,hyndman2021forecasting}.
+
+Uma adaptação comum é a validação cruzada temporal por janela expansiva, também chamada de \textit{walk-forward validation}. Nesse procedimento, cada fold usa uma janela de treino que termina antes do bloco de validação seguinte. A cada novo fold, a janela de treino se expande e a validação avança para um período futuro. Assim, o protocolo avalia várias origens temporais de previsão sem permitir que dados futuros influenciem o treinamento. Para \(K\) folds, a métrica de seleção pode ser resumida pela média:
+
+\[
+    \mathcal{L}_{CV}
+    =
+    \frac{1}{K}\sum_{k=1}^{K}
+    \mathcal{L}_{val}^{(k)}.
+\]
+
+No contexto deste TCC, a validação cruzada temporal é usada para seleção de hiperparâmetros e comparação mais robusta entre configurações. O conjunto de teste final permanece separado e só é usado depois da seleção, para estimar o desempenho fora da amostra. A Figura~\ref{fig:validacao_cruzada_temporal_walk_forward} ilustra esse protocolo para uma janela expansiva com três folds e teste final reservado.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{validacao_cruzada_temporal_walk_forward.pdf}
+    \caption[Validação cruzada temporal por janela expansiva]{Validação cruzada temporal por janela expansiva, ou \textit{walk-forward validation}. Cada fold treina com dados passados e valida no bloco temporal seguinte; o teste final permanece reservado para avaliação fora da amostra. Elaboração própria com base em \citeonline{tashman2000out}, \citeonline{bergmeir2012crossvalidation} e \citeonline{hyndman2021forecasting}.}
+    \label{fig:validacao_cruzada_temporal_walk_forward}
+\end{figure}
+
 \section{Previsão Multi-step}
 
 Na previsão multi-step, o objetivo é estimar mais de um instante futuro. Para uma entrada $\mathbf{x}_{t-47:t}$ e um horizonte de 24 horas, o modelo deve produzir $\hat{y}_{t+1:t+24}$. Revisões recentes de previsão com deep learning descrevem arquiteturas de encoder e decoder tanto para previsão um-passo quanto para previsão multi-horizonte \cite{lim2021survey,benidis2022deep}. Três estratégias são especialmente relevantes:

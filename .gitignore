@@ -10,6 +10,9 @@ Thumbs.db
 
 # LaTeX build artifacts
 out/
+dist/
+.texmf-config/
+.texmf-var/
 *.aux
 *.bbl
 *.bcf

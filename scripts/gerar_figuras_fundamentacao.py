@@ -301,6 +301,138 @@ def draw_teacher_forcing_scheduled_sampling() -> None:
     _save(fig, "teacher_forcing_scheduled_sampling")
 
 
+def draw_walk_forward_validation() -> None:
+    folds = [
+        ("Fold 1", [("Treino", 0, 1), ("Validação", 1, 2)]),
+        ("Fold 2", [("Treino", 0, 2), ("Validação", 2, 3)]),
+        ("Fold 3", [("Treino", 0, 3), ("Validação", 3, 4)]),
+    ]
+    test_span = (4, 5)
+    colors = {
+        "Treino": (COLORS["blue"], COLORS["blue_light"]),
+        "Validação": (COLORS["amber"], COLORS["amber_light"]),
+        "Teste final": (COLORS["green"], COLORS["green_light"]),
+    }
+
+    fig, ax = plt.subplots(figsize=(11.5, 4.9))
+    ax.set_xlim(-0.18, 5.05)
+    ax.set_ylim(-0.2, 3.65)
+    ax.axis("off")
+
+    ax.text(
+        2.5,
+        3.48,
+        "Validação cruzada temporal por janela expansiva",
+        ha="center",
+        va="top",
+        fontsize=15,
+        weight="bold",
+        color=COLORS["ink"],
+    )
+    ax.text(
+        2.5,
+        3.22,
+        "Cada fold treina apenas com o passado e valida no bloco cronologicamente seguinte",
+        ha="center",
+        va="top",
+        fontsize=10.5,
+        color=COLORS["muted"],
+    )
+
+    year_labels = ["2016", "2017", "2018", "2019", "2020"]
+    for x, label in enumerate(year_labels):
+        ax.text(x + 0.5, 2.9, label, ha="center", va="center", fontsize=10.5, color=COLORS["ink"])
+        ax.plot([x, x], [0.35, 2.75], color="#e2e8f0", linewidth=0.8, zorder=0)
+    ax.plot([5, 5], [0.35, 2.75], color="#e2e8f0", linewidth=0.8, zorder=0)
+    ax.annotate(
+        "",
+        xy=(5.0, 2.68),
+        xytext=(0, 2.68),
+        arrowprops={"arrowstyle": "-|>", "lw": 1.5, "color": COLORS["line"]},
+    )
+    ax.text(5.02, 2.68, "tempo", va="center", ha="left", fontsize=10, color=COLORS["line"])
+
+    row_y = [2.15, 1.45, 0.75]
+    bar_h = 0.38
+    for y, (fold_label, spans) in zip(row_y, folds):
+        ax.text(-0.06, y + bar_h / 2, fold_label, ha="right", va="center", fontsize=10.5, weight="bold", color=COLORS["ink"])
+        for label, start, end in spans:
+            edge, face = colors[label]
+            rect = FancyBboxPatch(
+                (start + 0.03, y),
+                end - start - 0.06,
+                bar_h,
+                boxstyle="round,pad=0.01,rounding_size=0.025",
+                linewidth=1.2,
+                edgecolor=edge,
+                facecolor=face,
+            )
+            ax.add_patch(rect)
+            ax.text(
+                (start + end) / 2,
+                y + bar_h / 2,
+                label,
+                ha="center",
+                va="center",
+                fontsize=9.7,
+                color=edge,
+                weight="bold",
+            )
+
+        edge, face = colors["Teste final"]
+        rect = FancyBboxPatch(
+            (test_span[0] + 0.03, y),
+            test_span[1] - test_span[0] - 0.06,
+            bar_h,
+            boxstyle="round,pad=0.01,rounding_size=0.025",
+            linewidth=1.2,
+            edgecolor=edge,
+            facecolor=face,
+            alpha=0.9,
+        )
+        ax.add_patch(rect)
+        ax.text(
+            sum(test_span) / 2,
+            y + bar_h / 2,
+            "Teste\nfinal",
+            ha="center",
+            va="center",
+            fontsize=9.4,
+            color=edge,
+            weight="bold",
+            linespacing=0.9,
+        )
+
+    legend_y = 0.18
+    legend_items = [("Treino", 0.55), ("Validação", 1.75), ("Teste final", 3.12)]
+    for label, x in legend_items:
+        edge, face = colors[label]
+        ax.add_patch(
+            FancyBboxPatch(
+                (x, legend_y),
+                0.28,
+                0.16,
+                boxstyle="round,pad=0.01,rounding_size=0.02",
+                linewidth=1.0,
+                edgecolor=edge,
+                facecolor=face,
+            )
+        )
+        ax.text(x + 0.34, legend_y + 0.08, label, ha="left", va="center", fontsize=9.5, color=COLORS["ink"])
+
+    ax.text(
+        2.5,
+        -0.08,
+        "O teste final permanece reservado e não participa da escolha de hiperparâmetros.",
+        ha="center",
+        va="center",
+        fontsize=9.5,
+        color=COLORS["muted"],
+    )
+    _save(fig, "validacao_cruzada_temporal_walk_forward")
+
+
 if __name__ == "__main__":
     draw_time_series_components()
+    draw_walk_forward_validation()
     draw_teacher_forcing_scheduled_sampling()

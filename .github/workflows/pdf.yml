@@ -1,0 +1,129 @@
+name: Build PDF
+
+on:
+  push:
+    paths:
+      - main.tex
+      - monografia.cls
+      - pretexto.tex
+      - hifenizacao.tex
+      - "**/*.bib"
+      - tex/**
+      - figuras/**
+      - .github/texlive-packages.txt
+      - .github/workflows/pdf.yml
+  pull_request:
+    paths:
+      - main.tex
+      - monografia.cls
+      - pretexto.tex
+      - hifenizacao.tex
+      - "**/*.bib"
+      - tex/**
+      - figuras/**
+      - .github/texlive-packages.txt
+      - .github/workflows/pdf.yml
+  release:
+    types:
+      - published
+  workflow_dispatch:
+
+concurrency:
+  group: pdf-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'release' }}
+
+permissions:
+  contents: read
+
+env:
+  PDF_FILE: tcc-relatorio.pdf
+  SOURCE_TEX: main.tex
+
+jobs:
+  build:
+    name: Compile thesis PDF
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    env:
+      TEXINPUTS: ".:tex/config//:"
+      TEXMFCONFIG: ${{ github.workspace }}/.texmf-config
+      TEXMFVAR: ${{ github.workspace }}/.texmf-var
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Restore LaTeX build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            *.aux
+            *.bbl
+            *.bcf
+            *.blg
+            *.fdb_latexmk
+            *.fls
+            *.lof
+            *.log
+            *.lot
+            *.out
+            *.run.xml
+            *.synctex.gz
+            *.toc
+            .texmf-config
+            .texmf-var
+          key: latex-build-${{ runner.os }}-${{ hashFiles('main.tex', 'monografia.cls', 'pretexto.tex', 'hifenizacao.tex', '**/*.bib', 'tex/**', 'figuras/**', '.github/texlive-packages.txt') }}
+          restore-keys: |
+            latex-build-${{ runner.os }}-
+
+      - name: Setup cached TeX Live
+        uses: zauguin/install-texlive@v4
+        with:
+          package_file: .github/texlive-packages.txt
+          cache: true
+
+      - name: Compile PDF
+        run: |
+          latexmk -pdf -interaction=nonstopmode -halt-on-error -file-line-error "$SOURCE_TEX"
+          mkdir -p dist
+          cp "${SOURCE_TEX%.tex}.pdf" "dist/$PDF_FILE"
+          test -s "dist/$PDF_FILE"
+
+      - name: Upload PDF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tcc-relatorio-pdf
+          path: dist/${{ env.PDF_FILE }}
+          if-no-files-found: error
+          retention-days: 30
+
+  release:
+    name: Attach PDF to release
+    needs: build
+    if: github.event_name == 'release' && github.event.action == 'published'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: read
+      contents: write
+
+    steps:
+      - name: Download PDF artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: tcc-relatorio-pdf
+          path: dist
+
+      - name: Upload PDF to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          asset_tag="${RELEASE_TAG//\//-}"
+          asset="tcc-relatorio-${asset_tag}.pdf"
+          cp "dist/$PDF_FILE" "dist/$asset"
+          gh release upload "$RELEASE_TAG" "dist/$asset" --clobber
