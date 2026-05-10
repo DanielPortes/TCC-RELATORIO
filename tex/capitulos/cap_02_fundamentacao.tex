@@ -112,69 +112,20 @@ Defasagens explícitas e variáveis exógenas podem aumentar a informação disp
 
 Redes neurais artificiais são modelos paramétricos compostos por unidades simples conectadas por pesos. A inspiração histórica vem de modelos computacionais do neurônio biológico, como o neurônio lógico de \citeonline{mcculloch1943logical} e o perceptron de \citeonline{rosenblatt1958perceptron}. Essa relação, porém, deve ser entendida como uma analogia didática. Redes neurais usadas em aprendizado de máquina não simulam de forma completa a fisiologia de neurônios reais; elas usam uma abstração matemática capaz de combinar entradas, ajustar pesos e produzir saídas.
 
-Em um neurônio biológico, dendritos recebem sinais, o corpo celular integra parte dessas informações e o axônio transmite sinais para outras células. Em um neurônio artificial, a operação análoga é representada por entradas numéricas, pesos, viés e uma função de ativação. A Figura~\ref{fig:neuronio_biologico_artificial} apresenta essa comparação conceitual.
+Em um neurônio biológico, dendritos recebem sinais, o corpo celular integra parte dessas informações e o axônio transmite sinais para outras células. Em um neurônio artificial, a operação análoga é representada por entradas numéricas, pesos, viés e uma função de ativação. As Figuras~\ref{fig:neuronio_biologico} e~\ref{fig:neuronio_artificial_perceptron} apresentam essa relação de forma visual.
 
 \begin{figure}[htbp]
     \centering
-    \resizebox{0.98\linewidth}{!}{%
-    \begin{tikzpicture}[
-        >=Latex,
-        font=\small,
-        input/.style={circle, draw=blue!70!black, fill=blue!10, minimum size=0.62cm, thick},
-        block/.style={circle, minimum size=1.75cm, thick, align=center},
-        labelbox/.style={align=center, text=black},
-        flow/.style={->, thick, draw=black!75}
-    ]
-        \node[font=\bfseries] at (1.8, 3.15) {(a) Neurônio biológico};
-        \draw[blue!70!black, very thick, fill=blue!8] (1.55,0.65) circle (0.62);
-        \draw[orange!80!black, thick, fill=orange!18] (1.72,0.72) circle (0.18);
+    \includegraphics[width=0.82\linewidth,trim=100 500 320 520,clip]{neuronio-biologico-wikimedia-ptbr.png}
+    \caption[Diagrama de um neurônio biológico]{Diagrama de um neurônio biológico com rótulos em português do Brasil. Fonte: \citeonline{vasconcelos2008neuronPt}, imagem CC BY-SA/GFDL disponibilizada no Wikimedia Commons.}
+    \label{fig:neuronio_biologico}
+\end{figure}
 
-        \foreach \ang/\len in {150/1.95,180/1.75,215/1.65,105/1.65,70/1.45} {
-            \draw[blue!70!black, very thick] (1.55,0.65) -- ++(\ang:\len);
-            \draw[blue!70!black, thick] ($(1.55,0.65)+(\ang:\len)$) -- ++({\ang+22}:0.42);
-            \draw[blue!70!black, thick] ($(1.55,0.65)+(\ang:\len)$) -- ++({\ang-22}:0.38);
-        }
-        \node[labelbox] at (-0.20,2.2) {dendritos\\recebem sinais};
-        \draw[-, thin] (0.30,1.93) -- (0.87,1.33);
-
-        \draw[black!70, very thick] (2.17,0.65) .. controls (2.75,0.82) and (3.35,0.44) .. (4.05,0.62);
-        \foreach \x/\y/\r in {2.65/0.73/8,3.10/0.64/-5,3.55/0.56/8} {
-            \draw[blue!55!black, thick, fill=blue!13, rotate around={\r:(\x,\y)}] (\x,\y) ellipse (0.30 and 0.13);
-        }
-        \draw[blue!70!black, very thick] (4.05,0.62) -- (4.58,1.05);
-        \draw[blue!70!black, very thick] (4.05,0.62) -- (4.68,0.62);
-        \draw[blue!70!black, very thick] (4.05,0.62) -- (4.58,0.17);
-        \foreach \x/\y in {4.58/1.05,4.68/0.62,4.58/0.17} {
-            \fill[blue!70!black] (\x,\y) circle (0.06);
-        }
-
-        \node[labelbox] at (1.55,-0.45) {corpo celular\\(soma)};
-        \draw[-, thin] (1.55,-0.12) -- (1.55,0.18);
-        \node[labelbox] at (3.15,1.72) {axônio};
-        \draw[-, thin] (3.15,1.42) -- (3.10,0.68);
-        \node[labelbox] at (4.62,1.72) {terminais\\axônicos};
-        \draw[-, thin] (4.45,1.40) -- (4.55,1.02);
-
-        \node[font=\bfseries] at (10.0, 3.15) {(b) Neurônio artificial};
-        \foreach \name/\y/\txt in {xone/2.05/x_1,xtwo/1.35/x_2,xthree/0.65/x_3,xdots/-0.05/x_d} {
-            \node[input] (\name) at (6.75,\y) {$\txt$};
-        }
-        \node[block, draw=orange!80!black, fill=orange!12] (soma) at (9.20,1.00) {$a=\sum_j w_jx_j+b$\\[-1mm]\scriptsize soma + viés};
-        \node[block, draw=green!55!black, fill=green!12] (ativacao) at (11.95,1.00) {$h=\phi(a)$\\[-1mm]\scriptsize função de ativação};
-        \node[labelbox] (saida) at (14.00,1.00) {saída\\$h$};
-
-        \foreach \from in {xone,xtwo,xthree,xdots} {
-            \draw[flow] (\from.east) -- (soma.west);
-        }
-        \draw[flow] (soma.east) -- (ativacao.west);
-        \draw[flow] (ativacao.east) -- (saida.west);
-
-        \node[labelbox] at (6.75,-0.75) {entradas};
-        \node[labelbox] at (7.80,2.45) {pesos $w_j$};
-    \end{tikzpicture}%
-    }
-    \caption[Comparação conceitual entre neurônio biológico e neurônio artificial]{Comparação conceitual entre neurônio biológico e neurônio artificial. A analogia é estrutural e didática, não uma equivalência fisiológica. Elaboração própria com base na descrição anatômica do \citeonline{seerTrainingNerveTissue2026} e nos modelos de neurônio artificial de \citeonline{mcculloch1943logical}, \citeonline{rosenblatt1958perceptron} e \citeonline{goodfellow2016deep}.}
-    \label{fig:neuronio_biologico_artificial}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.70\linewidth]{neuronio-artificial-perceptron-wikimedia.png}
+    \caption[Modelo de neurônio artificial do tipo perceptron]{Modelo de neurônio artificial do tipo perceptron. A figura explicita entradas \(x_i\), pesos \(w_i\), soma ponderada e aplicação da função de ativação \(\varphi\), produzindo a saída \(o\). Fonte: \citeonline{thoma2014perceptronUnit}, imagem CC0 disponibilizada no Wikimedia Commons.}
+    \label{fig:neuronio_artificial_perceptron}
 \end{figure}
 
 Formalmente, para um vetor de entrada $\mathbf{x}=(x_1,\ldots,x_d)$, um neurônio artificial calcula uma soma ponderada e aplica uma função de ativação:
