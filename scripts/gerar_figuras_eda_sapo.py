@@ -36,6 +36,11 @@ TIMELINES = {
         / "runtime/reports/sapo_final_pre_delivery_suite_20260510/artifacts/cv_hpo_lstm_recursive_clean_pm10/test_outputs/test_predictions_timeline.csv",
         "#B279A2",
     ),
+    "Seq2Seq básico": (
+        TECH_ROOT
+        / "runtime/reports/sapo_clean_pm10_hpo_all_models_20260509/artifacts/seq2seq_basic_clean_pm10_hpo/test_outputs/test_predictions_timeline.csv",
+        "#E45756",
+    ),
     "Seq2Seq L1 ponderada": (
         TECH_ROOT
         / "runtime/reports/sapo_final_pre_delivery_suite_20260510/artifacts/cv_hpo_weighted_l1_clean_pm10/test_outputs/test_predictions_timeline.csv",
@@ -381,7 +386,8 @@ def plot_prediction_panels() -> None:
     end = peak_time + pd.Timedelta(days=5)
     grid = pd.date_range(start=start, end=end, freq="h")
 
-    fig, axes = plt.subplots(len(series), 1, figsize=(11.4, 8.7), sharex=True, sharey=True)
+    fig_height = 1.95 * len(series) + 0.9
+    fig, axes = plt.subplots(len(series), 1, figsize=(11.4, fig_height), sharex=True, sharey=True)
     for ax, (name, (df, color)) in zip(axes, series.items()):
         window = df.loc[(df.index >= start) & (df.index <= end)].reindex(grid)
         ax.plot(window.index, window["y_true"], color="#202020", linewidth=1.55, label="Observado")

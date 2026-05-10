@@ -147,12 +147,12 @@ A Tabela \ref{tab:cauda_sapo} mostra métricas associadas à amplitude e aos reg
     }
 \end{table}
 
-Essas métricas mostram um compromisso importante. A LSTM direta vence em erro médio, mas apresenta razão entre desvios-padrão de 0,7391 e p99 previsto de 28,57, abaixo do p99 observado de 34,00. Isso sugere uma previsão mais suave e com subestimação de parte dos eventos altos. A LSTM recursiva, o XGBoost e o Seq2Seq com L1 ponderada preservam mais amplitude, mas não superam a LSTM direta no MAE global. Portanto, a escolha do modelo depende do objetivo: minimizar erro médio favorece a LSTM direta; priorizar resposta a eventos altos exige olhar para modelos e perdas que preservam mais amplitude. A Figura \ref{fig:predito_observado_pico_sapo} reapresenta uma janela do teste em painéis separados por modelo, com escala vertical comum e interrupções nos trechos sem horários observados. Essa organização evita que as curvas disputem o mesmo eixo visual e deixa explícito que as quebras na linha observada correspondem a lacunas da própria série de teste.
+Essas métricas mostram um compromisso importante. A LSTM direta vence em erro médio, mas apresenta razão entre desvios-padrão de 0,7391 e p99 previsto de 28,57, abaixo do p99 observado de 34,00. Isso sugere uma previsão mais suave e com subestimação de parte dos eventos altos. A LSTM recursiva, o XGBoost e o Seq2Seq com L1 ponderada preservam mais amplitude, mas não superam a LSTM direta no MAE global. Portanto, a escolha do modelo depende do objetivo: minimizar erro médio favorece a LSTM direta; priorizar resposta a eventos altos exige olhar para modelos e perdas que preservam mais amplitude. A Figura \ref{fig:predito_observado_pico_sapo} reapresenta uma janela do teste em painéis separados por modelo, com escala vertical comum e interrupções nos trechos sem horários observados. O Seq2Seq básico é incluído apenas como referência visual da bateria HPO anterior no mesmo teste externo, pois não foi reexecutado na suíte final com validação \textit{walk-forward}. Essa organização evita que as curvas disputem o mesmo eixo visual e deixa explícito que as quebras na linha observada correspondem a lacunas da própria série de teste.
 
 \begin{figure}[htb]
     \centering
     \includegraphics[width=\linewidth]{predito_observado_pico_sapo.png}
-    \caption{Predições agregadas no teste em uma janela com evento de maior concentração, separadas por modelo e com interrupções nas lacunas temporais.}
+    \caption{Predições agregadas no teste em uma janela com evento de maior concentração, separadas por modelo e com interrupções nas lacunas temporais. O Seq2Seq básico é mostrado como referência visual da bateria HPO anterior no mesmo teste externo.}
     \label{fig:predito_observado_pico_sapo}
 \end{figure}
 
