@@ -36,11 +36,6 @@ TIMELINES = {
         / "runtime/reports/sapo_final_pre_delivery_suite_20260510/artifacts/cv_hpo_lstm_recursive_clean_pm10/test_outputs/test_predictions_timeline.csv",
         "#B279A2",
     ),
-    "Seq2Seq básico": (
-        TECH_ROOT
-        / "runtime/reports/sapo_clean_pm10_hpo_all_models_20260509/artifacts/seq2seq_basic_clean_pm10_hpo/test_outputs/test_predictions_timeline.csv",
-        "#E45756",
-    ),
     "Seq2Seq L1 ponderada": (
         TECH_ROOT
         / "runtime/reports/sapo_final_pre_delivery_suite_20260510/artifacts/cv_hpo_weighted_l1_clean_pm10/test_outputs/test_predictions_timeline.csv",
@@ -75,6 +70,8 @@ HORIZON_FILES = {
         "#F58518",
     ),
 }
+# TODO(resultados): incluir Seq2Seq básico e Seq2Seq com atenção nas figuras
+# quando forem reexecutados no mesmo protocolo final dos demais modelos.
 
 COLORS = {
     "train": "#2563eb",
