@@ -2,12 +2,60 @@
 \chapter{Trabalhos Relacionados}
 \label{chap:trabalhos_relacionados}
 
-A previsão da concentração de PM2.5 utilizando métodos de aprendizado de máquina e aprendizado profundo é uma área de pesquisa ativa. Diversos estudos têm explorado diferentes arquiteturas e abordagens para melhorar a acurácia das previsões.
+Este capítulo posiciona o trabalho em relação à literatura de previsão de PM2.5 e de avaliação experimental em séries temporais. A discussão não busca listar arquiteturas de forma exaustiva; ela destaca estudos que justificam as decisões metodológicas do TCC: uso de modelos recorrentes, atenção, baselines tabulares, tratamento de dados faltantes, previsão multi-horizonte e protocolo temporal comparável.
 
-O trabalho de \citeonline{yang2023attention} utilizou um modelo LSTM com mecanismo de atenção, demonstrando que esta combinação melhora a precisão da previsão em comparação com modelos como ARIMA, AutoEncoder e LSTM padrão. De forma similar, \citeonline{zhao2021pm2} combinaram a Decomposição por Modos Empíricos (EMD) com LSTM, alcançando uma redução significativa no erro absoluto médio (MAE). Esses estudos corroboram a hipótese de que a personalização de arquiteturas LSTM baseadas nas características dos dados pode levar a ganhos de desempenho.
+\section{Referências Estruturantes em Forecasting}
 
-Métodos tradicionais de aprendizado de máquina, como Máquinas de Vetores de Suporte (SVM) e Florestas Aleatórias, também foram aplicados com sucesso. \citeonline{song2018arima} otimizaram um modelo de regressão de vetores de suporte com um algoritmo de lobo cinzento, enquanto \citeonline{guo2019pm2} integraram parâmetros meteorológicos de GNSS em um modelo de floresta aleatória, ambos mostrando a importância da engenharia de atributos e da otimização de modelos.
+A primeira base do trabalho é a literatura de avaliação de previsão. \citeonline{hyndman2021forecasting} sistematizam conceitos de forecasting, métricas e validação fora da amostra; \citeonline{tashman2000out} discutem testes fora da amostra como parte central da avaliação preditiva; e \citeonline{bergmeir2012crossvalidation} analisam cuidados na validação cruzada para séries temporais. Essas referências sustentam a decisão de usar split cronológico, validação separada e teste final em holdout.
 
-Estudos mais recentes exploram arquiteturas de deep learning ainda mais complexas. \citeonline{zhang2021deep} propuseram um modelo Bi-Direcional com LSTM Aninhado (BiNLSTM), que se mostrou superior ao LSTM padrão ao capturar informações de longo prazo de forma mais eficaz. \citeonline{yuan2020using} aplicaram uma rede Encoder-Decoder com atenção, similar à abordagem deste trabalho, para detecção de perturbações em séries temporais de sensoriamento remoto, destacando a versatilidade da arquitetura.
+A segunda base é a literatura de deep learning para séries temporais. \citeonline{lim2021survey} revisam desenhos de encoder e decoder para previsão um-passo e multi-horizonte. \citeonline{benidis2022deep} caracterizam modelos profundos como "methods of choice" em várias aplicações de séries temporais, especialmente quando há muitos dados, covariáveis e relações não lineares. Já \citeonline{hewamalage2021rnn} revisam RNNs para forecasting e alertam que não há "no silver bullets". Esse conjunto de referências é importante para equilibrar a defesa: redes recorrentes e Seq2Seq são opções bem fundamentadas, mas sua superioridade depende do protocolo, do dataset e do objetivo.
 
-O presente estudo se diferencia e contribui para a literatura existente ao realizar uma \textbf{análise comparativa sistemática} de uma progressão de modelos, desde LSTMs simples até um Encoder-Decoder com atenção e \textit{Scheduled Sampling}. Além disso, adota uma abordagem de \textbf{previsão probabilística} para quantificar a incerteza e utiliza uma técnica de imputação de dados estado da arte (\textbf{SAITS}), fornecendo uma análise metodológica abrangente e rigorosa para o contexto específico das estações de monitoramento em Minas Gerais.
+No contexto deste TCC, essas referências funcionam como base transversal. Elas justificam a formulação supervisionada por janelas, a comparação entre estratégias direta, recursiva e encoder-decoder, o uso de covariáveis conhecidas no futuro e a necessidade de comparar modelos neurais contra baselines tabulares fortes.
+
+\section{Previsão de PM2.5 com Aprendizado de Máquina}
+
+A previsão de PM2.5 tem sido estudada com modelos estatísticos, métodos tabulares e redes neurais. Uma revisão recente de arquiteturas de deep learning para previsão de PM2.5 destaca a "lack of unified and standardized frameworks" na área \cite{pm25_review_2024}. Essa limitação é central para este TCC: antes de comparar arquiteturas, é necessário fixar estação, recorte temporal, tarefa, split, features e critério de seleção.
+
+Modelos clássicos e tabulares continuam relevantes. Trabalhos com SVM, florestas aleatórias e combinações estatísticas mostram que engenharia de atributos e otimização podem produzir resultados competitivos em qualidade do ar \cite{song2018arima,guo2019pm2}. No Brasil, \citeonline{zanobini2024curitiba} avaliaram Random Forest e LSTM para material particulado em Curitiba usando dados meteorológicos, fluxo veicular e sensores ópticos, reforçando a relevância de modelos tabulares e recorrentes em contextos urbanos nacionais.
+
+Neste trabalho, essa linha é representada pelo XGBoost multi-output. Ele não é tratado como modelo simples de descarte, mas como baseline forte. Essa escolha é importante porque conclusões sobre deep learning só são defensáveis quando comparadas com baselines tabulares bem ajustados sob o mesmo holdout.
+
+\section{Deep Learning para Qualidade do Ar}
+
+Modelos recorrentes são frequentes em previsão de PM2.5 porque conseguem explorar dependências temporais. \citeonline{zhao2021pm2} combinaram decomposição por modos empíricos e LSTM para previsão de PM2.5, enquanto \citeonline{tran2023optimized_lstm} investigaram previsão horária de PM2.5 com LSTM otimizada. Estudos como esses sustentam o uso de LSTM como arquitetura base para previsão de curto prazo.
+
+Arquiteturas híbridas com atenção também aparecem na literatura. \citeonline{li2020urban} propuseram uma abordagem CNN-LSTM com atenção para PM2.5 urbano, combinando extração de padrões e dependência temporal. \citeonline{yang2023attention} avaliaram uma LSTM com mecanismo de atenção para concentração horária de PM2.5, comparando-a com modelos como ARIMA, autoencoder e LSTM padrão. Esses trabalhos motivam a avaliação de atenção no presente TCC, mas não implicam que atenção vencerá em qualquer contrato de dados.
+
+O presente estudo se diferencia por comparar LSTM direta, LSTM recursiva, Seq2Seq básico, Seq2Seq com atenção e XGBoost sob o mesmo holdout temporal. A contribuição não é propor uma arquitetura inédita, mas medir de forma controlada como escolhas de arquitetura, variáveis causais e função de perda mudam erro médio, erro por horizonte e comportamento em picos.
+
+\section{Seq2Seq, Multi-horizon Forecasting e Atenção}
+
+Modelos encoder-decoder com atenção foram inicialmente popularizados em tarefas de tradução e transdução de sequências \cite{sutskever2014sequence,bahdanau2014neural,luong2015effective}. A ideia se transfere naturalmente para séries temporais quando a entrada é uma sequência histórica e a saída é uma sequência futura. Nesse cenário, a arquitetura Seq2Seq não é escolhida por ser uma novidade isolada, mas porque a tarefa 48 para 24 horas tem estrutura sequência-para-sequência.
+
+Há trabalhos de forecasting que reforçam esse enquadramento. \citeonline{wen2017mqrnn} propõem um forecaster recorrente multi-horizonte e explicitamente exploram a natureza temporal de "Sequence-to-Sequence Neural Networks". \citeonline{salinas2020deepar} usam uma rede recorrente autoregressiva para previsão probabilística em múltiplas séries relacionadas, mostrando a força de decoders recorrentes em forecasting. \citeonline{lim2021tft} propõem o Temporal Fusion Transformer para previsão multi-horizonte com entradas estáticas, entradas observadas no passado e entradas futuras conhecidas. Embora o TFT use outra família arquitetural, ele reforça a importância de distinguir covariáveis futuras conhecidas de variáveis observáveis apenas no passado.
+
+Arquiteturas baseadas em Transformer também são uma linha moderna importante em séries temporais. Além do TFT, trabalhos como Informer, Autoformer e PatchTST propõem adaptações para previsão de sequências longas e previsão multi-horizonte \cite{zhou2021informer,wu2021autoformer,nie2023patchtst}. Esses estudos justificam reconhecer Transformers como alternativa relevante ao desenho recorrente. Ao mesmo tempo, a literatura recente também mostra que a superioridade de Transformers em forecasting não é automática: \citeonline{zeng2023transformers} questionam sua efetividade em alguns benchmarks de longo horizonte e mostram que baselines lineares podem ser competitivos. Portanto, neste TCC, a escolha por LSTM, Seq2Seq e XGBoost é tratada como recorte experimental controlado, não como negação da relevância de arquiteturas mais recentes.
+
+Extensões específicas para séries multivariadas também foram estudadas. DA-RNN, por exemplo, usa atenção de entrada para selecionar variáveis relevantes e atenção temporal para selecionar instantes relevantes da sequência \cite{qin2017darnn}. Essa linha de pesquisa é relevante para dados ambientais porque diferentes variáveis podem ter importância distinta ao longo do tempo.
+
+Assim, a defesa do Seq2Seq neste TCC deve ser precisa: a literatura justifica incluí-lo como arquitetura natural e competitiva para previsão multi-horizonte, especialmente quando há decoder com covariáveis futuras conhecidas; ela não garante vitória sobre LSTM direta ou XGBoost em uma estação específica. Por isso, o resultado final trata a atenção empiricamente, incluindo o caso em que pesos de atenção ficam quase uniformes ou quando o ganho aparece apenas em regimes de pico/cauda.
+
+\section{Dados Faltantes em Séries Ambientais}
+
+Lacunas são comuns em monitoramento ambiental e podem distorcer treinamento e avaliação. A literatura de dados faltantes mostra que imputação não deve ser confundida com observação real \cite{rubin1976inference}. Métodos como MICE e MissForest estimam valores faltantes usando relações multivariadas \cite{vanbuuren2011mice,stekhoven2012missforest}, enquanto abordagens recentes baseadas em atenção, como SAITS, exploram dependências temporais e entre variáveis \cite{du2023saits}.
+
+O protocolo final deste trabalho adota uma posição conservadora: usa imputação linear para manter a série operacionalmente completa, mas preserva uma máscara do alvo observado para impedir que valores imputados de PM2.5 entrem como verdade na loss e nas métricas. Assim, a imputação resolve a continuidade das janelas, enquanto a avaliação permanece vinculada a medições observadas.
+
+\section{Protocolos de Avaliação Temporal}
+
+Comparações em séries temporais são sensíveis ao split e ao orçamento experimental. \citeonline{tashman2000out} discutem testes fora da amostra como base para avaliação de previsão, e \citeonline{bergmeir2012crossvalidation} analisam cuidados no uso de validação cruzada em séries temporais. Em qualidade do ar, a revisão de \citeonline{pm25_review_2024} também aponta a necessidade de padronizar dataset, método e experimento para tornar resultados mais comparáveis.
+
+Esse problema aparece diretamente no desenvolvimento deste TCC. Resultados antigos, obtidos sem HPO ou com outro conjunto de variáveis, não são comparáveis como se fossem parte da mesma tabela final. Por isso, o relatório final separa o benchmark histórico dos resultados consolidados no protocolo final, com split cronológico 70/15/15, PM10 causal e tarefa 48 para 24 horas.
+
+\section{Posicionamento deste TCC}
+
+À luz dos trabalhos relacionados, este TCC ocupa uma posição experimental e metodológica. Ele não afirma que uma arquitetura de atenção é universalmente superior, nem que um modelo tabular deve ser descartado. Em vez disso, fixa um protocolo rastreável para a estação Sapo e compara famílias de modelos sob o mesmo contrato causal de entrada.
+
+A diferenciação principal está em quatro pontos. Primeiro, a tarefa é explicitamente multi-step e horária, com entrada de 48 horas e horizonte de 24 horas. Segundo, o split é cronológico e os artefatos usados nos resultados são rastreáveis. Terceiro, o alvo imputado é excluído da loss e das métricas quando a máscara de observado está disponível. Quarto, a análise distingue erro médio global de comportamento por horizonte, suavização visual e resposta a eventos de maior concentração.
+
+Com isso, o trabalho complementa estudos que propõem arquiteturas específicas para PM2.5 ao mostrar que, em um contrato de dados real e fixo, a conclusão depende tanto do protocolo experimental quanto da arquitetura escolhida. Esse posicionamento fortalece a defesa porque evita uma promessa excessiva de estado da arte universal e concentra a contribuição na comparação controlada e reprodutível.

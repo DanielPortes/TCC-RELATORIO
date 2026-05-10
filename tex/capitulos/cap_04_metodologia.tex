@@ -2,61 +2,241 @@
 \chapter{Materiais e Métodos}
 \label{chap:materiais_metodos}
 
-Este capítulo descreve a metodologia empregada para desenvolver, treinar e avaliar os modelos de previsão. A abordagem segue um pipeline experimental rigoroso, desde a aquisição e tratamento dos dados até a análise comparativa final das arquiteturas propostas.
+Este capítulo descreve o protocolo experimental utilizado na comparação dos modelos. A metodologia foi definida para preservar a ordem temporal dos dados, evitar vazamento de informação futura e permitir comparação direta entre arquiteturas sob o mesmo contrato de entrada, saída e avaliação.
 
-\section{Conjunto de Dados}
-Os dados utilizados neste estudo foram obtidos da rede de monitoramento da qualidade do ar da Fundação Estadual do Meio Ambiente (FEAM) de Minas Gerais. Foram selecionadas duas estações localizadas na cidade de Ibirité: \textbf{Cascata} e \textbf{Piratininga}. Os dados compreendem medições horárias de múltiplos poluentes e variáveis meteorológicas no período de 1 de Novembro de 2015 a 1 de Janeiro de 2022. As variáveis utilizadas para a modelagem foram: PM2.5 (alvo), PM10, Monóxido de Carbono, Temperatura, Umidade Relativa e Velocidade do Vento.
+\section{Fonte de Dados e Escopo}
 
-\section{Pipeline Experimental}
-O fluxo de trabalho foi estruturado em várias etapas sequenciais, conforme ilustrado na Figura \ref{fig:pipeline}.
+O estudo utiliza medições horárias da estação Sapo, pertencente ao conjunto CMD usado neste trabalho. A variável-alvo é a concentração de PM2.5, e o principal poluente auxiliar mantido no contrato final é PM10. Embora a fonte bruta contenha outras variáveis meteorológicas e gases, essas colunas foram removidas do contrato principal porque apresentavam alta esparsidade na estação Sapo e prejudicavam a coerência do dataset final.
 
-% \begin{figure}[htb]
-%     \centering
-%     % TODO: Substituir pelo caminho real da sua figura do pipeline
-%     % TODO" o pipeline ainda nao foi feito, fique como tarefa pendente. Fazer logo.
-%     \includegraphics[width=\linewidth]{example-image-a}
-%     \caption{Pipeline experimental do trabalho, desde a coleta de dados até a avaliação final dos modelos.}
-%     \label{fig:pipeline}
-% \end{figure}
+O conjunto consolidado usado nos resultados principais contém 34.991 registros horários, de 2017-01-04 00:30:00 a 2020-12-31 22:30:00. Esse período corresponde ao recorte efetivamente disponível após preparação, criação dos proxies causais de PM10 e remoção das primeiras janelas necessárias para a formulação supervisionada.
+
+\begin{table}[htb]
+    \centering
+    \caption{Resumo do contrato experimental principal.}
+    \label{tab:contrato_experimental}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{ll}
+        \toprule
+        \textbf{Item} & \textbf{Definição} \\
+        \midrule
+        Estação & Sapo / CMD \\
+        Poluente-alvo & PM2.5 horário \\
+        Período do artefato & 2017-01-04 00:30:00 a 2020-12-31 22:30:00 \\
+        Número de linhas & 34.991 \\
+        Tarefa & 48 horas passadas para prever as próximas 24 horas \\
+        Split & Cronológico por proporção 70/15/15 \\
+        Imputação & Linear no contrato final, com máscaras de valores originalmente ausentes \\
+        Variáveis principais & PM2.5, PM10, flags de ausência, tempo/Fourier e proxies causais de PM10 \\
+        Avaliação final & Holdout de teste, sem embaralhamento temporal \\
+        \bottomrule
+    \end{tabular}%
+    }
+\end{table}
+
+\section{Análise Exploratória e Escolha da Estação}
+
+A escolha da estação Sapo foi precedida por uma análise exploratória comparativa sobre 38 estações/usinas com PM2.5. Essa etapa combinou critérios de cobertura do alvo, continuidade temporal, presença de PM10 pareado, frequência de eventos altos e equilíbrio dos splits cronológicos. O objetivo dessa triagem não foi escolher uma estação apenas por conveniência, mas selecionar um recorte com volume suficiente, variável auxiliar causalmente útil e incidência mínima de eventos de cauda para sustentar a comparação entre modelos.
+
+Nesse diagnóstico, Sapo apareceu como uma das candidatas mais fortes: ficou em segundo lugar no ranking por PM2.5 puro e também em segundo lugar no ranking que inclui contexto de PM10. A estação Rio Doce/Estação Principal obteve score ligeiramente maior, mas teve menor frequência de eventos PM2.5 \(\geq 35\) no diagnóstico preliminar (0,19\%, contra 1,16\% em Sapo) e não pertence ao mesmo foco CMD adotado neste trabalho. Assim, Sapo foi mantida como estação principal por combinar aderência ao escopo, cobertura de PM2.5 de 83,47\% no diagnóstico comparativo, cobertura pareada PM10 de 74,27\% e correlação absoluta PM10--PM2.5 de 0,58.
+
+A decisão também foi reforçada por testes preliminares de modelagem. Em uma comparação exploratória com a mesma tarefa 48 para 24 horas e um Seq2Seq com atenção, Sapo obteve o menor MAE entre as estações testadas: 3,03 em Sapo, contra 3,13 em Barra Longa/Centro, 3,96 em Aeroporto CMD e 5,17 em Ibirité/Cascata. Esses números não substituem o benchmark final, pois pertencem a uma etapa anterior e menos refinada do projeto, mas mostram que a escolha de Sapo não se apoiou apenas em cobertura de dados. Ela também foi a estação com melhor desempenho inicial entre os recortes avaliados. Testes auxiliares posteriores em Rio Doce e Barra Longa foram usados para investigar portabilidade do protocolo e comportamento do PM10 causal, mas não substituem Sapo como eixo principal deste TCC.
 
 \begin{figure}[htb]
     \centering
-    \includegraphics[width=\linewidth]{figuras/pipeline.png}
-    \caption{Pipeline experimental do trabalho, desde a coleta e tratamento dos dados até a avaliação comparativa final dos modelos.}
-    \label{fig:pipeline}
+    \includegraphics[width=\linewidth]{eda_ranking_estacoes_pm25_pm10.pdf}
+    \caption{Ranking preliminar das estações por previsibilidade de PM2.5 com contexto de PM10.}
+    \label{fig:eda_ranking_estacoes_pm25_pm10}
 \end{figure}
 
+Após a escolha da estação, a EDA foi refeita sobre o conjunto final usado no benchmark. A Figura \ref{fig:eda_sapo_cobertura_lacunas} mostra que a série não é integralmente contínua: há meses com cobertura elevada, mas também lacunas longas, principalmente na validação. A maior lacuna original de PM2.5 ocorre de 2019-12-11 13:30 a 2020-01-28 18:30, com 48,25 dias, seguida por lacunas de 14,38 dias e 10,83 dias no treino. Por outro lado, ainda existem trechos observados contínuos suficientes para análise de janelas; os maiores blocos contínuos identificados têm cerca de 8,54 dias no treino e 8,13 dias no teste. Esse padrão fundamenta duas decisões metodológicas: manter a série em grade horária regular por interpolação e preservar máscaras de ausência para que valores originalmente imputados não sejam tratados como verdade observada na loss nem nas métricas.
 
-\subsection{Imputação de Dados com SAITS}
-Como primeira etapa, os dados brutos foram processados para tratar valores faltantes. Conforme descrito na Seção \ref{sec:imputacao_saits}, um modelo SAITS foi treinado para cada estação utilizando todas as variáveis disponíveis. O objetivo foi criar um conjunto de dados completo e robusto, onde as lacunas foram preenchidas de forma inteligente, considerando as correlações temporais e entre as variáveis. Este conjunto de dados imputado serviu de base para todas as etapas subsequentes de treinamento e avaliação dos modelos de previsão.
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=\linewidth]{eda_sapo_cobertura_lacunas.pdf}
+    \caption{Cobertura mensal e maiores lacunas originais de PM2.5 no artefato Sapo.}
+    \label{fig:eda_sapo_cobertura_lacunas}
+\end{figure}
 
-\subsection{Engenharia de Atributos}
-Sobre o conjunto de dados imputado, foram criados atributos adicionais para enriquecer a informação de entrada dos modelos:
-\begin{itemize}
-    \item \textbf{Atributos Temporais Cíclicos:} Foram adicionados termos de seno e cosseno para representar a hora do dia, o dia da semana e o dia do ano (Fourier Features com ordem 2), ajudando o modelo a capturar padrões sazonais.
-    \item \textbf{Atributos de Lag:} Foram criados lags da variável alvo (PM2.5) de 1 a 24 horas para fornecer ao modelo um histórico explícito recente.
-\end{itemize}
+A Tabela \ref{tab:eda_sapo_splits} resume a cobertura e a distribuição observada por split. O teste apresenta a maior cobertura observada de PM2.5 (93,37\%), enquanto a validação concentra a maior proporção de ausências (31,73\%). A distribuição também mostra que os eventos altos são raros em todas as partições: 1,57\% dos pontos observados no treino, 1,45\% na validação e 0,96\% no teste ficam em PM2.5 \(\geq 35\). Essa raridade justifica a análise de cauda no Capítulo \ref{chap:resultados}, pois o MAE global sozinho tende a privilegiar o regime mais frequente e pode esconder suavização em eventos de maior concentração.
 
-\subsection{Arquiteturas dos Modelos Avaliados}
-Um conjunto de cinco modelos foi implementado e avaliado para investigar o impacto de diferentes complexidades arquitetônicas:
-\begin{itemize}
-    \item \textbf{Modelo 0 - LSTM Recursivo Probabilístico:} Um modelo LSTM base que prevê um passo de cada vez de forma recursiva.
-    \item \textbf{Modelo 1 - LSTM Direto Probabilístico:} Um modelo LSTM base que prevê todo o horizonte de 12 horas de uma só vez.
-    \item \textbf{Modelo 2 - Encoder-Decoder Básico Probabilístico:} Uma arquitetura Seq2Seq padrão sem mecanismos adicionais.
-    \item \textbf{Modelo 3 - Encoder-Decoder com Atenção Probabilístico:} Adiciona um mecanismo de atenção Bahdanau ao Modelo 2.
-    \item \textbf{Modelo 4 - Encoder-Decoder com Atenção e Scheduled Sampling Probabilístico:} Adiciona a técnica de \textit{Scheduled Sampling} ao Modelo 3 para mitigar o viés de exposição.
-\end{itemize}
-Todos os modelos foram projetados para realizar previsão probabilística, estimando a média e a variância de uma distribuição Gaussiana para cada passo de tempo futuro.
+\begin{table}[htb]
+    \centering
+    \caption{Resumo exploratório do artefato Sapo por split.}
+    \label{tab:eda_sapo_splits}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lrrrrrr}
+        \toprule
+        \textbf{Partição} & \textbf{Cob. PM2.5} & \textbf{Cob. PM10} & \textbf{Mediana PM2.5} & \textbf{p95} & \textbf{p99} & \textbf{PM2.5 \(\geq 35\)} \\
+        \midrule
+        Treino & 80,70\% & 81,33\% & 9,00 & 24,00 & 40,00 & 1,57\% \\
+        Validação & 68,27\% & 64,50\% & 12,00 & 25,00 & 37,00 & 1,45\% \\
+        Teste & 93,37\% & 92,11\% & 12,00 & 24,00 & 34,00 & 0,96\% \\
+        \bottomrule
+    \end{tabular}%
+    }
+\end{table}
 
-\subsection{Treinamento e Otimização}
-Para cada arquitetura, um processo de duas fases foi conduzido:
-\begin{enumerate}
-    \item \textbf{Otimização de Hiperparâmetros:} Utilizou-se o framework Optuna para realizar uma busca Bayesiana pelos melhores hiperparâmetros (taxa de aprendizado, tamanho das camadas ocultas, dropout, etc.). A avaliação de cada conjunto de hiperparâmetros foi feita através de uma validação cruzada \textit{walk-forward} com 3 splits sobre o conjunto de treino/validação, garantindo uma avaliação robusta que respeita a ordem temporal dos dados.
-    \item \textbf{Treinamento Final:} Com os melhores hiperparâmetros encontrados, um modelo final para cada arquitetura foi treinado novamente utilizando a mesma metodologia \textit{walk-forward} no conjunto de treino/validação completo. O treinamento foi monitorado com \textit{Early Stopping} com paciência de 20 épocas para evitar sobreajuste.
-\end{enumerate}
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=0.95\linewidth]{eda_sapo_distribuicao_pm25.pdf}
+    \caption{Distribuição observada de PM2.5 e frequência de eventos altos por split.}
+    \label{fig:eda_sapo_distribuicao_pm25}
+\end{figure}
 
-\subsection{Avaliação}
-Os modelos finais de cada arquitetura foram avaliados em um conjunto de teste (hold-out) separado, composto pelos 15\% de dados mais recentes, que não foram vistos durante a otimização ou treinamento. O desempenho foi comparado utilizando as métricas descritas na Seção \ref{sec:metricas_avaliacao}.
+\clearpage
 
-\subsection{Ambiente de Implementação}
-Os modelos foram implementados em Python, utilizando o framework PyTorch e a biblioteca de alto nível PyTorch Lightning para estruturar o código de treinamento. A otimização de hiperparâmetros foi gerenciada pelo Optuna. A manipulação de dados foi realizada com Pandas e NumPy. O treinamento foi executado em uma máquina equipada com uma GPU NVIDIA GeForce RTX 3070.
+\section{Formulação da Tarefa}
+
+A tarefa de previsão é multi-step: para cada janela válida, os modelos recebem as 48 horas anteriores e produzem uma previsão para as 24 horas seguintes. Formalmente, para um instante inicial \(t\), a entrada contém observações de \(t-47\) até \(t\), e a saída corresponde aos horizontes \(t+1\) até \(t+24\). Essa formulação foi mantida para todos os modelos do benchmark principal e está resumida na Figura \ref{fig:tarefa_48_24_sapo}.
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=0.95\linewidth]{tarefa_48_24_sapo.png}
+    \caption{Formulação da tarefa multi-step do protocolo Sapo.}
+    \label{fig:tarefa_48_24_sapo}
+\end{figure}
+
+O split principal é cronológico e usa 70\% dos timestamps para treino, 15\% para validação e 15\% para teste. A Tabela \ref{tab:split_temporal_sapo} apresenta os limites reais do artefato final, e a Figura \ref{fig:split_70_15_15_sapo} mostra a mesma divisão na linha do tempo. O conjunto de teste contém os horários mais recentes e só é usado para avaliação final.
+
+\begin{table}[htb]
+    \centering
+    \caption{Split cronológico do conjunto final de Sapo.}
+    \label{tab:split_temporal_sapo}
+    \begin{tabular}{lrrl}
+        \toprule
+        \textbf{Partição} & \textbf{Proporção} & \textbf{Timestamps} & \textbf{Intervalo} \\
+        \midrule
+        Treino & 70\% & 24.495 & 2017-01-04 00:30 a 2019-10-21 14:30 \\
+        Validação & 15\% & 5.248 & 2019-10-21 15:30 a 2020-05-27 06:30 \\
+        Teste & 15\% & 5.248 & 2020-05-27 07:30 a 2020-12-31 22:30 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=\linewidth]{split_70_15_15_sapo.png}
+    \caption{Linha temporal do split cronológico usado no artefato Sapo.}
+    \label{fig:split_70_15_15_sapo}
+\end{figure}
+
+\section{Pré-processamento}
+
+O pré-processamento foi desenhado para reduzir vazamento temporal. A imputação é ajustada sobre o trecho de treino e aplicada ao restante do período respeitando a separação temporal. No contrato final, usa-se interpolação linear no bloco de treino; para o bloco posterior ao fim do treino, a transformação não usa âncoras futuras e propaga o último estado imputado disponível. Para cada variável imputada, é mantida uma flag \texttt{\_\_miss}, que indica se o valor original estava ausente.
+
+O alvo PM2.5 também possui uma máscara de observação. Quando essa máscara está disponível, pontos do alvo originalmente imputados são excluídos da função de perda e das métricas observadas. Assim, o modelo pode receber uma série regularizada para formar janelas, mas não é recompensado por prever como ``verdade'' um valor que foi produzido pelo próprio pré-processamento.
+
+A normalização é calculada com estatísticas do conjunto de treino. No treinamento dos modelos neurais, médias e desvios são computados por estação e aplicados às janelas de treino, validação e teste. Essa decisão evita que informação agregada dos períodos de validação e teste entre no ajuste de escala do modelo.
+
+\section{Engenharia de Atributos}
+
+O conjunto final de atributos foi mantido enxuto. O encoder recebe PM2.5, PM10, flags de ausência e atributos temporais. O decoder dos modelos que aceitam entradas futuras recebe apenas variáveis conhecidas causalmente no momento da previsão: termos temporais/Fourier e proxies ex-ante derivados de PM10. A Tabela \ref{tab:variaveis_contrato} resume os grupos de variáveis.
+
+\begin{table}[htb]
+    \centering
+    \caption{Variáveis do protocolo final.}
+    \label{tab:variaveis_contrato}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lll}
+        \toprule
+        \textbf{Grupo} & \textbf{Variáveis} & \textbf{Uso} \\
+        \midrule
+        Alvo e histórico & \texttt{PM2.5} & Entrada histórica e alvo da previsão \\
+        Poluente auxiliar & \texttt{PM10} & Entrada histórica no encoder \\
+        Missingness & \texttt{PM2.5\_\_miss}, \texttt{PM10\_\_miss} & Indicar valores originalmente ausentes \\
+        Tempo & \texttt{hour}, \texttt{day\_of\_week}, \texttt{month} & Sazonalidade discreta \\
+        Fourier & termos seno/cosseno de 6h, 12h, 24h, 168h e 8760h & Sazonalidade cíclica \\
+        Proxy PM10 & \texttt{PM10\_proxy\_exante} & PM10 do mesmo horário no dia anterior, isto é, PM10(t-24) \\
+        Tendência PM10 & \texttt{PM10\_trend\_exante} & Diferença causal PM10(t-24) - PM10(t-27) \\
+        \bottomrule
+    \end{tabular}%
+    }
+\end{table}
+
+O uso de PM10 no decoder não assume conhecimento futuro de PM10 observado. A variável \texttt{PM10\_proxy\_exante} usa o valor defasado em 24 horas, e \texttt{PM10\_trend\_exante} usa a diferença entre valores também defasados. Portanto, ambas podem ser calculadas no instante de emissão da previsão. Variáveis meteorológicas e gases muito esparsos foram excluídos do contrato principal; sua reintrodução deve ser tratada apenas como nova ablação, não como parte do benchmark final.
+
+\section{Modelos Avaliados}
+
+Foram comparadas quatro famílias de modelos neurais e um baseline tabular. A Tabela \ref{tab:modelos_metodologia} resume o papel de cada modelo no desenho experimental.
+
+\begin{table}[htb]
+    \centering
+    \caption{Modelos avaliados no benchmark principal.}
+    \label{tab:modelos_metodologia}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lll}
+        \toprule
+        \textbf{Modelo} & \textbf{Descrição} & \textbf{Papel na comparação} \\
+        \midrule
+        LSTM recursiva & Prevê passo a passo, realimentando a trajetória prevista & Baseline sequencial recursivo \\
+        LSTM direta & Produz os 24 horizontes de uma vez & Modelo sequencial direto \\
+        Seq2Seq básico & Encoder-decoder recorrente sem atenção explícita & Baseline encoder-decoder \\
+        Seq2Seq com atenção & Encoder-decoder com mecanismo de atenção & Variante central para análise de attention \\
+        XGBoost multi-output & Árvores com saída multi-horizonte & Baseline tabular forte \\
+        \bottomrule
+    \end{tabular}%
+    }
+\end{table}
+
+A escolha dos modelos também delimita o escopo do estudo. Transformers temporais, como TFT, Informer, Autoformer e PatchTST, são alternativas modernas para forecasting multi-horizonte \cite{lim2021tft,zhou2021informer,wu2021autoformer,nie2023patchtst}. Eles não foram incluídos no benchmark final porque uma comparação justa exigiria nova família de arquitetura, espaço próprio de hiperparâmetros, orçamento adicional de HPO, avaliação multi-seed e decisões específicas de regularização para o tamanho e a qualidade do dataset Sapo. Além disso, a literatura não autoriza assumir que Transformers vencem automaticamente em séries temporais; \citeonline{zeng2023transformers} mostram que baselines simples podem superar Transformers em alguns cenários de previsão. Assim, o recorte deste TCC é comparar famílias recorrentes e tabulares sob um contrato causal rastreável, deixando Transformers como extensão natural para trabalhos futuros.
+
+A comparação com XGBoost exige uma ressalva metodológica. O baseline tabular usa o mesmo contrato causal de entrada e é avaliado no mesmo holdout, mas seu treinamento multi-output exige janelas com horizonte completo observado. Nos modelos neurais, a máscara de alvo observado permite ignorar pontos imputados da loss e das métricas. Assim, a avaliação de teste é comparável, mas o mecanismo de treino não é perfeitamente simétrico.
+
+\section{Treinamento e Busca de Hiperparâmetros}
+
+O resultado principal usa busca de hiperparâmetros para os modelos neurais e para o XGBoost. Essa busca é controlada e suficiente para comparação experimental de TCC, mas não deve ser interpretada como busca exaustiva nem garantia de ótimo global. Para os modelos neurais da tabela principal, foram usados 10 trials de HPO, até 12 épocas por trial e treinamento final de até 36 épocas. O monitoramento de seleção foi feito por métrica de validação, com foco em \texttt{val/mae}. Para XGBoost, foram usados 12 trials no mesmo contrato de dados.
+
+Nas redes neurais, cada trial reportou o MAE de validação ao final de cada época. O estudo do Optuna usou o amostrador padrão \texttt{TPESampler} e o \texttt{HyperbandPruner}, com \texttt{min\_resource}=1, \texttt{max\_resource}=12 e fator de redução 3. Assim, trials pouco promissoras podiam ser interrompidas antes de consumir todo o orçamento de épocas. Essa escolha segue a recomendação da documentação do Optuna para a combinação entre \texttt{TPESampler} e \texttt{HyperbandPruner} \cite{optunaDocsEfficient2026,optunaDocsHyperband2026}. Para o XGBoost, a busca também minimizou MAE de validação, mas a interrupção antecipada efetiva foi feita pelo \textit{early stopping} nativo do XGBoost; o estudo foi configurado com \texttt{MedianPruner}, cuja regra compara resultados intermediários com a mediana de trials anteriores \cite{optunaDocsMedian2026}, mas a função objetivo tabular retornou apenas o valor final de validação de cada trial.
+
+\begin{table}[htb]
+    \centering
+    \caption{Espaço de busca de hiperparâmetros no benchmark principal.}
+    \label{tab:hpo_espaco_busca}
+    \small
+    \begin{tabular}{p{0.21\textwidth}p{0.72\textwidth}}
+        \toprule
+        \textbf{Modelo} & \textbf{Hiperparâmetros buscados} \\
+        \midrule
+        Redes neurais, comum & taxa de aprendizado: 0{,}0004; 0{,}0008; 0{,}0012; 0{,}0018; 0{,}0025; 0{,}0035; 0{,}005. Weight decay: 0; $10^{-6}$; $5 \times 10^{-6}$; $10^{-5}$; $5 \times 10^{-5}$; $10^{-4}$. Dropout: 0{,}05; 0{,}10; 0{,}15; 0{,}20; 0{,}25. Número de camadas: 1; 2; 3. $\delta$ da Huber: 0{,}5; 1{,}0; 1{,}5; 2{,}0. \\
+        LSTM direta & dimensão oculta: 64; 96; 128; 192; 256. Pooling: último estado; média; atenção. \\
+        LSTM recursiva & dimensão oculta: 64; 96; 128; 192; 256. \\
+        Seq2Seq básico & dimensão oculta: 64; 96; 128; 160; 192; 256. \\
+        Seq2Seq com atenção & dimensão oculta do encoder: 64; 96; 128; 160. Dimensão oculta do decoder: 64; 96; 128; 160; 192. Dimensão da atenção de entrada: 64; 96; 128. Embedding de horizonte: 8; 16; 24; 32. \\
+        XGBoost multi-output & número de árvores: 160; 240; 320. Taxa de aprendizado: intervalo logarítmico entre 0{,}02 e 0{,}08. Profundidade máxima: 2; 3; 4; 5. \texttt{max\_bin}: 64; 128. \textit{subsample} e \textit{colsample}: intervalo contínuo entre 0{,}65 e 1{,}0. \textit{early stopping}: 10 ou 15 rodadas. \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}[htb]
+    \centering
+    \caption{Hiperparâmetros selecionados pela busca no benchmark principal.}
+    \label{tab:hpo_melhores_hiperparametros}
+    \small
+    \begin{tabular}{p{0.21\textwidth}p{0.72\textwidth}}
+        \toprule
+        \textbf{Modelo} & \textbf{Configuração vencedora por validação} \\
+        \midrule
+        LSTM direta & taxa de aprendizado 0{,}0025; weight decay $10^{-5}$; dropout 0{,}20; dimensão oculta 256; 1 camada; pooling por atenção; $\delta$ da Huber 1{,}0. \\
+        LSTM recursiva & taxa de aprendizado 0{,}0035; weight decay $5 \times 10^{-6}$; dropout 0{,}20; dimensão oculta 192; 1 camada; $\delta$ da Huber 1{,}5. \\
+        Seq2Seq básico & taxa de aprendizado 0{,}0008; weight decay 0; dropout 0{,}10; dimensão oculta 192; 3 camadas; $\delta$ da Huber 0{,}5. \\
+        Seq2Seq com atenção & taxa de aprendizado 0{,}005; weight decay $5 \times 10^{-6}$; dropout 0{,}20; dimensão oculta do encoder 96; dimensão oculta do decoder 96; 1 camada; dimensão da atenção de entrada 128; embedding de horizonte 8; $\delta$ da Huber 1{,}0. \\
+        XGBoost multi-output & 160 árvores; taxa de aprendizado 0{,}04456; profundidade máxima 4; \texttt{max\_bin}=128; \textit{subsample}=0{,}9078; \textit{colsample}=0{,}7714; \textit{early stopping}=10 rodadas. \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\clearpage
+
+Além do benchmark principal, foi executada uma bateria específica para o Seq2Seq com atenção usando \texttt{weighted\_l1}, uma função de perda ponderada por regime/erro. Essa variante altera o objetivo de treinamento para reduzir parte da suavização e melhorar o comportamento em concentrações mais altas. A rodada específica de \texttt{weighted\_l1} usou 18 trials, até 14 épocas por trial e treinamento final de até 48 épocas. Uma bateria posterior avaliou sensibilidade a seeds, lags explícitos e blends de predições.
+
+As variantes finais de Seq2Seq priorizaram um decoder semi-direto com horizonte explícito e baseline residual sazonal, reduzindo a dependência de realimentação autoregressiva pura. Ainda assim, a avaliação de agendas de teacher forcing foi incluída porque trabalhos recentes em forecasting, como \citeonline{teutsch2022flipped}, indicam que currículos crescentes de teacher forcing podem melhorar previsões multi-step em séries temporais contínuas. No relatório, portanto, teacher forcing e scheduled sampling são tratados como técnicas avaliadas em ablações auxiliares fundamentadas, não como eixo central do resultado final em Sapo. Essa distinção evita atribuir ao scheduled sampling um ganho que, nos experimentos consolidados, esteve mais associado ao contrato de dados, ao uso causal de PM10, à seleção por validação e à função de perda.
+
+\section{Métricas de Avaliação}
+
+A avaliação final utiliza métricas no holdout de teste. As métricas globais principais são MAE, RMSE, MAPE e R2. Também são reportadas métricas por horizonte, especialmente nos horizontes 1, 6, 12 e 24, para observar degradação ao longo da previsão. Como os picos são raros e importantes em qualidade do ar, a análise também considera métricas de cauda, como erro em eventos acima de 35, p99 previsto, razão entre desvio-padrão previsto e observado, viés médio e taxa de subestimação.
+
+A interpretação dos resultados combina métricas agregadas e inspeção visual das séries previstas. Essa combinação é necessária porque modelos que vencem em erro médio podem produzir previsões mais suaves, enquanto variantes voltadas a picos podem preservar mais amplitude ao custo de pequeno aumento no MAE global.
+
+\section{Reprodutibilidade}
+
+A reprodutibilidade foi tratada por meio de scripts determinísticos de geração de figuras, tabelas e diagnósticos, mantendo a separação entre treino, validação e teste. Os experimentos principais foram executados com identificadores de execução, sementes registradas quando aplicável, configuração explícita de HPO e exportação de métricas em formato tabular. No corpo do TCC, os valores reportados são apresentados diretamente nas tabelas e nas figuras; os caminhos técnicos e hashes dos arquivos ficam preservados como material de controle do projeto, sem substituir a descrição metodológica.

@@ -1,0 +1,9 @@
+{
+  "max_abs_diff_profile_vs_heatmap_column_mean": 7.7858567237854e-07,
+  "weighted_l1_profile_min": 0.018729878589510918,
+  "weighted_l1_profile_max": 0.02133004739880562,
+  "weighted_l1_heatmap_cell_min": 0.01872166432440281,
+  "weighted_l1_heatmap_cell_max": 0.021367231383919716,
+  "weighted_l1_heatmap_cell_p02": 0.01874874345958233,
+  "weighted_l1_heatmap_cell_p98": 0.021314218640327454
+}

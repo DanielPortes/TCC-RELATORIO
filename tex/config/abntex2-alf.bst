@@ -28,7 +28,7 @@ ENTRY
     booktitle booksubtitle
     chapter conference-number conference-year conference-location
     edition editor editortype
-    dimensions furtherresp
+    dimensions doi furtherresp
     howpublished illustrated institution
     isbn issn journal key month note marginnote number organization
     org-short pages pagename
@@ -1000,6 +1000,13 @@ FUNCTION {format.url}
   "urlaccessdate" bibinfo.check output new.sentence
 }
 
+FUNCTION {format.doi}
+{ doi empty$
+    { "" }
+    { "DOI: " doi * }
+  if$
+}
+
 FUNCTION {format.conference.info}
 { conference-number empty$
     'skip$
@@ -1390,7 +1397,8 @@ FUNCTION {output.hiddenbibitem}
   "" before.all 'output.state :=
 }
 FUNCTION {fin.entry}
-{ add.period$ write$
+{ format.doi output new.sentence
+  add.period$ write$
   reprinted-from empty$ 'skip$
     {" " reprinted-text empty$
       {bbl.reprint} {reprinted-text} if$ * bbl.colon *

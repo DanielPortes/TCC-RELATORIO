@@ -1,0 +1,28 @@
+[
+  {
+    "modelo": "Seq2Seq attention HPO",
+    "samples": 5177.0,
+    "attention_entropy_norm": 0.9659156122381861,
+    "attention_max_weight": 0.051724258810281754,
+    "attention_top3_mass": 0.1395038515329361,
+    "attention_last_step_mass": 0.02276134304702282,
+    "attention_last6_mass": 0.13214105367660522,
+    "attention_lag24_aligned_mass": 0.020875683054327965,
+    "attention_lag48_aligned_mass": 0.020901650190353394,
+    "diagnostics_json": "/home/portes/DEV/TCC/TCC-wsl/runtime/reports/sapo_clean_pm10_hpo_all_models_20260509/artifacts/seq2seq_attention_clean_pm10_hpo/test_outputs/attention_diagnostics.json",
+    "diagnostics_json_values": "{\"attention_entropy_norm\": 0.9659149443049385, \"attention_lag24_aligned_mass\": 0.02087556100783564, \"attention_lag48_aligned_mass\": 0.020901803845685647, \"attention_last6_mass\": 0.1321397456787534, \"attention_last_step_mass\": 0.022761003438875778, \"attention_max_weight\": 0.051726378274511965, \"attention_top3_mass\": 0.13950807943399995}"
+  },
+  {
+    "modelo": "Seq2Seq weighted L1",
+    "samples": 5177.0,
+    "attention_entropy_norm": 0.9890423116197811,
+    "attention_max_weight": 0.03472793847322464,
+    "attention_top3_mass": 0.10090810060501099,
+    "attention_last_step_mass": 0.021330028772354126,
+    "attention_last6_mass": 0.1272217184305191,
+    "attention_lag24_aligned_mass": 0.021009424701333046,
+    "attention_lag48_aligned_mass": 0.02069227024912834,
+    "diagnostics_json": "/home/portes/DEV/TCC/TCC-wsl/runtime/reports/seq2seq_weighted_l1_hpo_20260509/artifacts/weighted_l1_hpo_mae/test_outputs/test_outputs/attention_diagnostics.json",
+    "diagnostics_json_values": "{\"attention_entropy_norm\": 0.9890418099033788, \"attention_lag24_aligned_mass\": 0.02100932422343443, \"attention_lag48_aligned_mass\": 0.020692367116510426, \"attention_last6_mass\": 0.127221489480716, \"attention_last_step_mass\": 0.021330019640343808, \"attention_max_weight\": 0.03472735040409353, \"attention_top3_mass\": 0.10090669923384078}"
+  }
+]

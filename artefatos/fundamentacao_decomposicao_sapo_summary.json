@@ -1,0 +1,8 @@
+{
+  "autocorr_1h": 0.8097208835086738,
+  "autocorr_24h": 0.6499790531527716,
+  "autocorr_168h": 0.37526668660907475,
+  "seasonal_hourly_amplitude": 4.386327822567852,
+  "trend_7d_ma_min": 2.0,
+  "trend_7d_ma_max": 49.086309523809526
+}

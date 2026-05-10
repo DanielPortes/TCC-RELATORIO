@@ -2,80 +2,52 @@
 \chapter{Introdução}
 \label{chap:introducao}
 
-A poluição atmosférica por material particulado fino (\textit{Particulate Matter}, PM2.5) permanece entre os principais problemas ambientais de impacto direto na saúde pública. Por possuir diâmetro aerodinâmico inferior a 2,5 micrômetros, esse poluente consegue penetrar profundamente no sistema respiratório e alcançar a corrente sanguínea, estando associado a desfechos respiratórios e cardiovasculares adversos \cite{who2021air,pope2006health,brook2010particulate}. Em escala global, a carga de doença atribuível à poluição atmosférica por partículas finas reforça a relevância do tema para sistemas de monitoramento, prevenção e resposta \cite{cohen2017estimates}. No contexto brasileiro, episódios associados a queimadas e transporte atmosférico também ampliam o impacto da exposição ao PM2.5, com efeitos mensuráveis sobre internações e mortalidade \cite{requia2021health,requia2022short}.
+A poluição atmosférica por material particulado fino (\textit{Particulate Matter}, PM2.5) permanece entre os problemas ambientais de maior impacto direto sobre a saúde pública. Por possuir diâmetro aerodinâmico inferior a 2,5 micrômetros, esse poluente consegue penetrar profundamente no sistema respiratório e está associado a desfechos respiratórios e cardiovasculares adversos \cite{who2021air,pope2006health,brook2010particulate}. A carga global de doença atribuível à poluição atmosférica por partículas finas reforça a importância de sistemas de monitoramento, prevenção e resposta \cite{cohen2017estimates}. No Brasil, episódios associados a queimadas e transporte atmosférico também ampliam a relevância do tema, com impactos mensuráveis sobre internações e mortalidade \cite{requia2021health,requia2022short}.
 
-Nesse cenário, prever a concentração de PM2.5 com antecedência útil é relevante tanto para alertas e gestão ambiental quanto para planejamento operacional em regiões monitoradas. Entretanto, a previsão horária desse poluente é desafiadora: a série temporal resulta da interação entre emissões, condições meteorológicas, sazonalidades, transporte regional e eventos episódicos, além de apresentar lacunas e ruído característicos de dados reais de monitoramento. A literatura recente tem explorado com frequência modelos baseados em aprendizado profundo para esse problema, incluindo variantes de LSTM e arquiteturas encoder-decoder com atenção \cite{yang2023attention,zhao2021pm2,zhang2021deep}. Ainda assim, muitas comparações publicadas alteram simultaneamente vários componentes do pipeline experimental, como estratégia de imputação, conjunto de atributos, transformação do alvo, janela temporal e arquitetura, o que dificulta responder com precisão qual decisão de modelagem realmente melhora o desempenho.
+Nesse contexto, prever a concentração horária de PM2.5 com antecedência útil pode apoiar alertas, análise ambiental e planejamento operacional em regiões monitoradas. A tarefa, entretanto, é tecnicamente desafiadora. Séries ambientais reais combinam autocorrelação, sazonalidade, picos raros, mudanças de regime, ruído instrumental e lacunas de medição. Além disso, decisões aparentemente auxiliares, como imputação, normalização, criação de janelas, escolha do conjunto de atributos e separação temporal entre treino e teste, podem alterar substancialmente a conclusão experimental. Por isso, uma comparação entre modelos de previsão só é defensável quando essas escolhas são explicitadas e mantidas sob um protocolo comum.
 
-Essa dificuldade é especialmente importante em aplicações com dados ambientais reais. Séries de monitoramento frequentemente contêm valores faltantes, o que faz da imputação uma escolha metodológica central, e não apenas um detalhe de pré-processamento \cite{rubin1976inference,vanbuuren2011mice,stekhoven2012missforest}. Do mesmo modo, comparações em previsão de séries temporais precisam preservar a ordem temporal dos dados e distinguir corretamente treinamento, validação e teste, evitando conclusões infladas por protocolos inadequados \cite{hyndman2021forecasting,tashman2000out,bergmeir2012crossvalidation}. Em outras palavras, para que a comparação entre modelos seja tecnicamente defensável, é necessário controlar o máximo possível as demais variáveis experimentais.
+A literatura recente tem explorado modelos de aprendizado profundo para previsão de PM2.5, incluindo redes recorrentes, LSTM e arquiteturas encoder-decoder com atenção \cite{yang2023attention,zhao2021pm2,zhang2021deep}. Essas abordagens são atrativas porque conseguem modelar dependências temporais e relações não lineares. Ainda assim, em muitos estudos a comparação entre modelos mistura mudanças de arquitetura com mudanças de dados, horizonte de previsão, atributos disponíveis, imputação e procedimento de validação. Essa mistura dificulta responder se o ganho observado vem da arquitetura, do pré-processamento ou de outra decisão do pipeline.
 
-É nesse ponto que se insere este trabalho. Em vez de propor apenas mais um modelo para previsão de PM2.5, o TCC investiga, em uma tarefa fixa e comparável, o efeito de decisões fundamentais de modelagem sobre o desempenho preditivo. O estudo utiliza dados horários de estações de monitoramento de Ibirité, em Minas Gerais, e formula a tarefa de prever as próximas 24 horas de concentração de PM2.5 a partir das 48 horas anteriores. Sobre essa mesma tarefa, são avaliados, de forma sistemática, quatro eixos principais: a forma de representar o alvo (valor absoluto ou aprendizado residual em delta), a estratégia de imputação, o conjunto de atributos utilizados e a arquitetura de rede neural. No eixo arquitetural, o trabalho compara LSTMs em modos direto e recursivo e uma arquitetura \textit{sequence-to-sequence} com atenção \cite{hochreiter1997long,sutskever2014sequence,bahdanau2014neural}, incluindo, quando pertinente, adaptações de treinamento como \textit{scheduled sampling} \cite{bengio2015scheduled}.
+Este trabalho parte desse problema metodológico. Em vez de apresentar a criação de um novo modelo como contribuição central, o TCC desenvolve um estudo experimental rastreável para previsão horária de PM2.5 na estação Sapo, no conjunto CMD. A tarefa principal usa as 48 horas anteriores para prever as 24 horas seguintes, com divisão cronológica em treino, validação e teste na proporção 70/15/15. O protocolo final combina o alvo PM2.5 e o poluente PM10 com atributos temporais, termos de Fourier, indicadores de ausência e duas variáveis causais derivadas de PM10: um valor recente disponível antes da emissão da previsão e uma tendência calculada sem olhar o futuro. Essas variáveis representam informação disponível no momento da previsão, evitando uso indevido de dados futuros.
 
-Com isso, a contribuição principal do trabalho não está apenas no desempenho absoluto do modelo final, mas na construção de uma evidência experimental mais clara sobre quais escolhas realmente importam para a previsão de PM2.5 nesse contexto. Essa perspectiva é particularmente adequada para um TCC em Ciência da Computação, pois privilegia desenho experimental, comparabilidade metodológica e interpretação técnica dos resultados, em vez de uma coleção pouco controlada de tentativas independentes.
+O estudo compara modelos sequenciais e um baseline tabular sob o mesmo contrato experimental. São avaliadas LSTM recursiva, LSTM direta, Seq2Seq básico, Seq2Seq com atenção e XGBoost multi-output. Além da comparação principal, o trabalho discute ablações metodológicas e variantes internas do Seq2Seq, incluindo estratégias de decoder, uso de variáveis futuras causalmente disponíveis, funções de perda voltadas a picos e comportamento da atenção. A interpretação dos resultados distingue erro médio global, desempenho por horizonte e comportamento em regimes de maior concentração, pois modelos com melhor MAE podem produzir curvas mais suavizadas e subestimar eventos altos.
 
 \section{Problema de Pesquisa e Contribuições}
 
 A pergunta central deste trabalho pode ser formulada da seguinte forma:
 
 \begin{quote}
-Em uma tarefa fixa de previsão horária de PM2.5 para Ibirité, quais escolhas de modelagem mais contribuem para o desempenho preditivo quando avaliadas sob o mesmo protocolo temporal e com comparabilidade experimental?
+Em uma tarefa horária de previsão de PM2.5 na estação Sapo, com entrada de 48 horas, horizonte de 24 horas e split temporal fixo, como diferentes escolhas de modelagem --- arquiteturas sequenciais, baseline tabular, imputação, variáveis exógenas e estratégias de treinamento --- afetam o desempenho preditivo e os erros por horizonte?
 \end{quote}
 
-Para responder a essa pergunta, o trabalho foi estruturado como um estudo de ablação. Em vez de variar vários elementos ao mesmo tempo, cada etapa procura isolar um componente do pipeline para medir seu impacto de maneira controlada. As principais contribuições do TCC são:
+Para responder a essa pergunta, o trabalho é estruturado como um estudo experimental comparável. As principais contribuições são:
 
 \begin{enumerate}
-    \item Definir uma tarefa experimental comparável para previsão de PM2.5 em Ibirité, baseada em entrada de 48 horas e horizonte de saída de 24 horas.
-    \item Avaliar, de forma sistemática, o impacto da representação do alvo, da imputação de faltantes, do conjunto de atributos e da arquitetura de rede neural.
-    \item Comparar arquiteturas recorrentes e encoder-decoder sob o mesmo protocolo temporal, reduzindo vieses de comparação causados por mudanças simultâneas no restante do pipeline.
-    \item Refinar a configuração campeã e discutir não apenas métricas globais de erro, mas também o comportamento do modelo em regimes mais difíceis da série.
+    \item Definir um protocolo rastreável de previsão horária de PM2.5 para a estação Sapo, com tarefa multi-step de entrada de 48 horas e horizonte de 24 horas.
+    \item Consolidar um protocolo de dados com PM2.5, PM10, atributos temporais, indicadores de ausência e proxies causais de PM10 disponíveis para o horizonte de previsão, reduzindo risco de vazamento de informação futura.
+    \item Comparar LSTM direta, LSTM recursiva, Seq2Seq básico, Seq2Seq com atenção e XGBoost multi-output sob o mesmo holdout temporal de teste.
+    \item Avaliar os resultados por métricas globais, métricas por horizonte e comportamento em picos/cauda, separando desempenho médio de resposta a eventos de maior concentração.
+    \item Documentar resultados negativos e trade-offs de modelagem, especialmente no uso de atenção, perdas ponderadas e estratégias voltadas a picos.
 \end{enumerate}
 
 \section{Objetivos}
 
 \subsection{Objetivo Geral}
 
-Investigar, por meio de um estudo de ablação sistemático, quais decisões de modelagem produzem melhor desempenho na previsão horária de curto prazo da concentração de PM2.5 em Ibirité, considerando uma tarefa fixa de entrada de 48 horas e previsão das 24 horas subsequentes.
+Avaliar, sob um protocolo experimental rastreável e comparável, o desempenho de modelos de aprendizado de máquina e aprendizado profundo para previsão horária multi-step de PM2.5 na estação Sapo, distinguindo erro médio global, erros por horizonte e comportamento em regimes de maior concentração.
 
 \subsection{Objetivos Específicos}
 
 \begin{enumerate}
-    \item Obter, organizar e pré-processar os dados horários de PM2.5 e variáveis associadas das estações utilizadas no estudo, estruturando uma tarefa temporal comparável de entrada e saída.
-    \item Comparar a previsão do alvo em valor absoluto com a previsão residual em delta, verificando o efeito dessa escolha sobre o desempenho final.
-    \item Avaliar diferentes estratégias de imputação de dados faltantes, com foco em métodos lineares, baseados em vizinhança e iterativos.
-    \item Investigar o impacto de diferentes conjuntos de atributos, incluindo variáveis meteorológicas básicas, atributos inspirados em relações físicas e atributos com defasagens temporais.
-    \item Comparar arquiteturas recorrentes e encoder-decoder para a tarefa proposta, com ênfase em LSTM direto, LSTM recursivo e \textit{sequence-to-sequence} com atenção.
-    \item Refinar a configuração campeã com variantes adicionais de transformação do alvo e função de perda, analisando os trade-offs observados nas métricas de validação e teste.
+    \item Construir uma base horária para a estação Sapo com PM2.5, PM10, atributos temporais, termos de Fourier, indicadores de ausência e proxies causais de PM10.
+    \item Definir a tarefa de previsão \texttt{48 -> 24} com split cronológico \texttt{70/15/15}.
+    \item Descrever o pré-processamento com imputação, normalização e máscaras para impedir que valores imputados do alvo distorçam loss e métricas observadas.
+    \item Comparar LSTM direta, LSTM recursiva, Seq2Seq básico, Seq2Seq com atenção e XGBoost multi-output no holdout de teste.
+    \item Avaliar os modelos por MAE, RMSE, MAPE, R2, métricas por horizonte e métricas de cauda/picos.
+    \item Discutir ablações relevantes de imputação, uso causal de PM10, funções de perda, desenho do decoder, attention e busca de hiperparâmetros.
+    \item Identificar limitações do protocolo e caminhos de extensão para múltiplas estações, avaliação de eventos extremos e modelos espaço-temporais.
 \end{enumerate}
-
-\section{Cronograma}
-
-O cronograma do TCC considera o primeiro semestre letivo de 2026, iniciado em 16 de março de 2026 e encerrado em 22 de julho de 2026. As atividades foram organizadas de modo a respeitar os marcos institucionais de indicação de orientação, entrega do projeto, entrega do texto para defesa, realização da banca e envio da versão final.
-
-\begin{table}[htb]
-    \centering
-    \caption{Cronograma do TCC no primeiro semestre letivo de 2026.}
-    \label{tab:cronograma_tcc}
-    \resizebox{\textwidth}{!}{%
-    \begin{tabular}{p{0.22\textwidth}p{0.54\textwidth}p{0.20\textwidth}}
-        \toprule
-        \textbf{Período ou data} & \textbf{Atividade} & \textbf{Marco} \\
-        \midrule
-        16/03/2026 & Primeiro dia letivo do primeiro semestre de 2026 e início formal do planejamento do TCC. & Início do semestre \\
-        16/03/2026 a 09/04/2026 & Definição do escopo, alinhamento com a orientadora e consolidação do tema, problema de pesquisa e objetivos. & Preparação inicial \\
-        10/04/2026 & Indicação do professor orientador. & Data limite \\
-        11/04/2026 a 29/04/2026 & Revisão e fechamento do projeto de TCC I, incluindo metodologia, cronograma e referências principais. & Elaboração do projeto \\
-        30/04/2026 & Envio do projeto do TCC I. & Data limite \\
-        01/05/2026 a 15/06/2026 & Execução dos experimentos, organização dos resultados e atualização dos capítulos técnicos do relatório. & Desenvolvimento \\
-        16/06/2026 a 30/06/2026 & Consolidação do texto, revisão do relatório e preparação dos documentos necessários para a defesa. & Fechamento do texto \\
-        01/07/2026 & Entrega do texto do TCC, marcação da defesa e informação da composição da banca. & Data limite \\
-        02/07/2026 a 14/07/2026 & Ajustes finais antes da defesa e preparação da apresentação. & Preparação da defesa \\
-        15/07/2026 & Realização da defesa do TCC. & Data limite \\
-        16/07/2026 a 21/07/2026 & Correções pós-defesa, revisão final do documento e organização da ata da defesa. & Versão final \\
-        22/07/2026 & Envio da versão final do TCC juntamente com a ata da defesa e encerramento do primeiro semestre letivo de 2026. & Data limite \\
-        \bottomrule
-    \end{tabular}%
-    }
-\end{table}
 
 \section{Organização do Trabalho}
 
-Este documento está estruturado em seis capítulos. O Capítulo \ref{chap:introducao} apresenta o problema, a motivação, os objetivos da pesquisa e o cronograma do TCC. O Capítulo \ref{chap:fundamentacao_teorica} reúne os conceitos necessários sobre poluição por PM2.5, séries temporais, imputação de faltantes, redes neurais recorrentes e estratégias de treinamento. O Capítulo \ref{chap:trabalhos_relacionados} discute trabalhos correlatos em previsão de qualidade do ar e em aplicações de aprendizado profundo para PM2.5. O Capítulo \ref{chap:materiais_metodos} descreve os dados utilizados e o protocolo experimental do estudo de ablação. O Capítulo \ref{chap:resultados} apresenta e discute os resultados obtidos em cada etapa. Por fim, o Capítulo \ref{chap:conclusao} sintetiza as conclusões, limitações e possibilidades de continuidade do trabalho.
+Este documento está estruturado em seis capítulos. O Capítulo \ref{chap:introducao} apresenta a motivação, o problema de pesquisa, as contribuições e os objetivos. O Capítulo \ref{chap:fundamentacao_teorica} reúne os conceitos necessários sobre PM2.5, séries temporais, dados faltantes, modelos recorrentes, Seq2Seq, atenção, baseline tabular e métricas de avaliação. O Capítulo \ref{chap:trabalhos_relacionados} posiciona o trabalho na literatura de previsão de qualidade do ar e discute lacunas de comparabilidade experimental. O Capítulo \ref{chap:materiais_metodos} descreve o protocolo experimental, o contrato de dados, os modelos, o treinamento e as métricas. O Capítulo \ref{chap:resultados} apresenta os resultados principais, as análises por horizonte e as ablações auxiliares. Por fim, o Capítulo \ref{chap:conclusao} sintetiza as conclusões, limitações e possibilidades de continuidade.
