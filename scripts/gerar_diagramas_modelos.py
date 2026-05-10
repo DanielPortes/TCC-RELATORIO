@@ -180,7 +180,7 @@ def draw_seq2seq_attention():
     fig, ax = setup_ax(15.4, 7.7)
 
     label(ax, 50, 96, "Seq2Seq com atencao para previsao multi-horizonte", fs=17, weight="bold")
-    label(ax, 50, 91, "Entrada historica de 48h, decoder de 24h e covariaveis futuras conhecidas", fs=10, color=COLORS["muted"])
+    label(ax, 50, 91, "Entrada historica de 48h, decodificador de 24h e covariaveis futuras conhecidas", fs=10, color=COLORS["muted"])
 
     group(ax, 3, 16, 29, 68, "Encoder: historico observado", COLORS["blue"])
     x_positions = [8.5, 17.5, 26.5]
@@ -194,7 +194,7 @@ def draw_seq2seq_attention():
     arrow(ax, (20.9, 44.6), (23.1, 44.6), COLORS["line"], lw=2.0)
     box(ax, 20.8, 28, 8.5, 7.5, "$H$\nmemoria", COLORS["slate_light"], COLORS["line"], fs=10.5, weight="bold")
     arrow(ax, (26.5, 40), (25.0, 35.5), COLORS["line"], lw=2.0)
-    label(ax, 17.5, 23.5, "PM2.5, PM10,\nflags e tempo", fs=9.5, color=COLORS["muted"])
+    label(ax, 17.5, 23.5, "PM2.5, PM10,\nindicadores e tempo", fs=9.5, color=COLORS["muted"])
 
     group(ax, 36, 16, 25, 68, "Atencao temporal", COLORS["violet"])
     label(ax, 48.5, 72, "pesos $\\alpha_{k,j}$", fs=12, weight="bold", color=COLORS["violet"])
@@ -230,9 +230,9 @@ def draw_seq2seq_attention():
     arrow(ax, (75.6, 52.8), (77.4, 52.8), COLORS["green"], lw=2.0)
     arrow(ax, (84.6, 52.8), (86.4, 52.8), COLORS["green"], lw=2.0)
     arrow(ax, (56.7, 31.2), (68.4, 52.8), COLORS["violet"], lw=2.4, rad=-0.05)
-    label(ax, 82, 23.5, "calendario/Fourier + PM10 ex-ante", fs=9.5, color=COLORS["muted"])
+    label(ax, 82, 23.5, "calendario/Fourier + PM10 causal", fs=9.5, color=COLORS["muted"])
 
-    label(ax, 50, 7, "Os estados do encoder sao consolidados em H antes do calculo dos pesos de atencao.", fs=10, color=COLORS["muted"])
+    label(ax, 50, 7, "Os estados do codificador sao consolidados em H antes do calculo dos pesos de atencao.", fs=10, color=COLORS["muted"])
     save(fig, "diagrama_seq2seq_attention_proprio")
 
 
@@ -257,7 +257,7 @@ def draw_tree(ax, x, y, scale=1.0, color=None):
 def draw_xgboost():
     fig, ax = setup_ax(15.4, 6.4)
 
-    label(ax, 50, 94, "XGBoost multi-output: serie temporal como matriz supervisionada", fs=16.5, weight="bold")
+    label(ax, 50, 94, "XGBoost com saida multipla: serie temporal como matriz supervisionada", fs=16.5, weight="bold")
     label(ax, 50, 89, "A janela de 48h e transformada em vetor tabular; a saida contem 24 previsoes", fs=10, color=COLORS["muted"])
 
     group(ax, 3, 18, 26, 62, "Janela temporal 48h", COLORS["blue"])
@@ -272,10 +272,10 @@ def draw_xgboost():
         for c in range(len(headers)):
             fc = COLORS["white"] if r != 1 else COLORS["slate_light"]
             ax.add_patch(Rectangle((table_x + c * col_w, table_y + 11 - r * row_h), col_w, row_h, facecolor=fc, edgecolor=COLORS["blue"], linewidth=0.9))
-    label(ax, 15.8, 26, "lags, flags e\nproxies causais", fs=9.5, color=COLORS["muted"])
+    label(ax, 15.8, 26, "defasagens,\nindicadores e substitutos", fs=9.5, color=COLORS["muted"])
 
     arrow(ax, (29, 49), (36, 49), COLORS["line"], lw=2.4)
-    label(ax, 32.4, 55, "flatten +\nfeatures", fs=9, color=COLORS["muted"])
+    label(ax, 32.4, 55, "vetorizacao +\natributos", fs=9, color=COLORS["muted"])
 
     group(ax, 36, 18, 23, 62, "Vetor tabular", COLORS["violet"])
     for idx, y in enumerate([62, 53, 44, 35]):
@@ -303,7 +303,7 @@ def draw_xgboost():
         fc = COLORS["amber_light"] if text != "24h" else COLORS["slate_light"]
         box(ax, 92.0, y - 2.6, 4.3, 5.2, text, fc, COLORS["amber"], lw=1.1, fs=7.4, weight="bold")
 
-    label(ax, 50, 8, "O baseline usa a mesma divisao temporal, mas aprende sobre atributos tabulares derivados da janela.", fs=10, color=COLORS["muted"])
+    label(ax, 50, 8, "A linha de base usa a mesma divisao temporal e aprende atributos tabulares derivados da janela.", fs=10, color=COLORS["muted"])
     save(fig, "diagrama_xgboost_multioutput_proprio")
 
 

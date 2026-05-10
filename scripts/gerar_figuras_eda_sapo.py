@@ -18,7 +18,7 @@ ART_DIR = ROOT / "artefatos"
 
 DATASET_PATH = (
     TECH_ROOT
-    / "runtime/reports/sapo_clean_pm10_hpo_all_models_20260509/datasets/sapo_clean_pm10_decoder_proxy.parquet"
+    / "runtime/reports/sapo_final_pre_delivery_suite_20260510/datasets/clean_pm10_decoder_proxy.parquet"
 )
 RANKING_PATH = (
     TECH_ROOT
@@ -28,18 +28,41 @@ RANKING_PATH = (
 TIMELINES = {
     "LSTM direta": (
         TECH_ROOT
-        / "runtime/reports/sapo_clean_pm10_hpo_all_models_20260509/artifacts/lstm_direct_clean_pm10_hpo/test_outputs/test_predictions_timeline.csv",
+        / "runtime/reports/sapo_final_pre_delivery_suite_20260510/artifacts/cv_hpo_lstm_direct_clean_pm10/test_outputs/test_predictions_timeline.csv",
         "#4C78A8",
     ),
     "XGBoost": (
         TECH_ROOT
-        / "runtime/reports/sapo_clean_pm10_hpo_all_models_20260509/artifacts/xgboost_clean_pm10_hpo/test_outputs/test_predictions_timeline.csv",
+        / "runtime/reports/sapo_final_pre_delivery_suite_20260510/artifacts/cv_hpo_xgboost_clean_pm10/test_outputs/test_predictions_timeline.csv",
         "#F58518",
     ),
-    "Seq2Seq weighted L1": (
+    "Seq2Seq L1 ponderada": (
         TECH_ROOT
-        / "runtime/reports/seq2seq_weighted_l1_hpo_20260509/artifacts/weighted_l1_hpo_mae/test_outputs/test_outputs/test_predictions_timeline.csv",
+        / "runtime/reports/sapo_final_pre_delivery_suite_20260510/artifacts/cv_hpo_weighted_l1_clean_pm10/test_outputs/test_predictions_timeline.csv",
         "#54A24B",
+    ),
+}
+
+HORIZON_FILES = {
+    "LSTM direta": (
+        TECH_ROOT
+        / "runtime/reports/sapo_final_pre_delivery_suite_20260510/artifacts/cv_hpo_lstm_direct_clean_pm10/test_outputs/per_horizon_metrics.csv",
+        "#4C78A8",
+    ),
+    "LSTM recursiva": (
+        TECH_ROOT
+        / "runtime/reports/sapo_final_pre_delivery_suite_20260510/artifacts/cv_hpo_lstm_recursive_clean_pm10/test_outputs/per_horizon_metrics.csv",
+        "#B279A2",
+    ),
+    "Seq2Seq L1 ponderada": (
+        TECH_ROOT
+        / "runtime/reports/sapo_final_pre_delivery_suite_20260510/artifacts/cv_hpo_weighted_l1_clean_pm10/test_outputs/per_horizon_metrics.csv",
+        "#54A24B",
+    ),
+    "XGBoost": (
+        TECH_ROOT
+        / "runtime/reports/sapo_final_pre_delivery_suite_20260510/artifacts/cv_hpo_xgboost_clean_pm10/test_outputs/per_horizon_metrics.csv",
+        "#F58518",
     ),
 }
 
@@ -229,7 +252,7 @@ def plot_distribution(df: pd.DataFrame, summary: pd.DataFrame) -> None:
         median.set_color(COLORS["ink"])
         median.set_linewidth(1.8)
     ax.axhline(35, color=COLORS["threshold"], linestyle="--", linewidth=1.4, label="Limiar 35")
-    ax.set_title("Distribuição observada de PM2.5 por split", fontsize=13.2, weight="bold")
+    ax.set_title("Distribuição observada de PM2.5 por partição", fontsize=13.2, weight="bold")
     ax.set_ylabel("PM2.5")
     ax.grid(axis="y", color=COLORS["grid"], linewidth=0.8)
     ax.legend(frameon=False)
@@ -247,6 +270,65 @@ def plot_distribution(df: pd.DataFrame, summary: pd.DataFrame) -> None:
     save(fig, "eda_sapo_distribuicao_pm25")
 
 
+def plot_external_holdout_split(summary: pd.DataFrame) -> None:
+    labels = {
+        "train": "Treino final",
+        "val": "Validação\nde treinamento",
+        "test": "Teste final",
+    }
+    fig, ax = plt.subplots(figsize=(12.2, 3.35))
+    y = 0.0
+    height = 0.55
+    for row in summary.itertuples(index=False):
+        start = pd.Timestamp(row.inicio)
+        end = pd.Timestamp(row.fim) + pd.Timedelta(hours=1)
+        left = mdates.date2num(start)
+        width = mdates.date2num(end) - left
+        ax.broken_barh(
+            [(left, width)],
+            (y, height),
+            facecolors=COLORS[row.split],
+            edgecolors="white",
+            linewidth=1.2,
+            alpha=0.86,
+        )
+        ax.text(
+            left + width / 2,
+            y + height / 2,
+            f"{labels[row.split]}\n{int(row.timestamps):,}".replace(",", "."),
+            ha="center",
+            va="center",
+            color="white",
+            fontsize=10.6,
+            weight="bold",
+            linespacing=1.05,
+        )
+
+    ax.set_title("Divisão cronológica externa 70/15/15 - Sapo", fontsize=14.0, weight="bold")
+    ax.text(
+        0.5,
+        0.89,
+        "A HPO por validação temporal ocorre apenas nos 85% anteriores ao teste final",
+        transform=ax.transAxes,
+        ha="center",
+        va="center",
+        color=COLORS["muted"],
+        fontsize=10.1,
+    )
+    ax.set_yticks([])
+    ax.set_xlabel("Tempo")
+    ax.set_ylim(-0.12, 0.8)
+    ax.grid(axis="x", color=COLORS["grid"], linewidth=0.8)
+    ax.xaxis_date()
+    ax.xaxis.set_major_locator(mdates.MonthLocator(interval=6))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m"))
+    for spine in ("left", "right", "top"):
+        ax.spines[spine].set_visible(False)
+    ax.tick_params(axis="x", labelsize=9.8)
+    fig.tight_layout()
+    save(fig, "split_70_15_15_sapo")
+
+
 def plot_station_ranking() -> pd.DataFrame:
     ranking = pd.read_csv(RANKING_PATH)
     top = ranking.sort_values("rank_previsibilidade_pm25_pm10").head(10).copy()
@@ -260,8 +342,8 @@ def plot_station_ranking() -> pd.DataFrame:
     top_plot = top.iloc[::-1]
     colors = [COLORS["sapo"] if s == "conceicao-do-mato-dentro-sapo" else COLORS["other"] for s in top_plot["usina_slug"]]
     ax.barh(top_plot["short_label"], top_plot["score_previsibilidade_pm25_pm10"], color=colors, alpha=0.92)
-    ax.set_title("Ranking preliminar de estações por PM2.5 + contexto PM10", fontsize=13.4, weight="bold")
-    ax.set_xlabel("Score de previsibilidade PM2.5 + PM10")
+    ax.set_title("Classificação preliminar de estações por PM2.5 + contexto PM10", fontsize=13.4, weight="bold")
+    ax.set_xlabel("Pontuação de previsibilidade PM2.5 + PM10")
     ax.set_xlim(0, max(90, top["score_previsibilidade_pm25_pm10"].max() + 3))
     ax.grid(axis="x", color=COLORS["grid"], linewidth=0.8)
     for y, (_, row) in enumerate(top_plot.iterrows()):
@@ -315,6 +397,30 @@ def plot_prediction_panels() -> None:
     save(fig, "predito_observado_pico_sapo")
 
 
+def plot_horizon_errors() -> None:
+    fig, ax = plt.subplots(figsize=(10.8, 4.9))
+    for name, (path, color) in HORIZON_FILES.items():
+        df = pd.read_csv(path)
+        ax.plot(
+            df["horizon_step"],
+            df["mae"],
+            color=color,
+            linewidth=2.1,
+            marker="o",
+            markersize=3.2,
+            label=name,
+        )
+    ax.set_title("MAE por horizonte no teste externo", fontsize=13.4, weight="bold")
+    ax.set_xlabel("Horizonte previsto (horas)")
+    ax.set_ylabel("MAE")
+    ax.set_xlim(1, 24)
+    ax.set_xticks([1, 6, 12, 18, 24])
+    ax.grid(color=COLORS["grid"], linewidth=0.8)
+    ax.legend(frameon=False, ncol=2, fontsize=9.2)
+    fig.tight_layout()
+    save(fig, "erro_por_horizonte_sapo")
+
+
 def write_artifacts(
     df: pd.DataFrame,
     summary: pd.DataFrame,
@@ -355,9 +461,11 @@ def main() -> None:
     summary = split_summary(df)
     gaps = gap_runs(df)
     observed = observed_runs(df)
+    plot_external_holdout_split(summary)
     plot_coverage_and_gaps(df, gaps)
     plot_distribution(df, summary)
     ranking_top = plot_station_ranking()
+    plot_horizon_errors()
     plot_prediction_panels()
     write_artifacts(df, summary, gaps, observed, ranking_top)
     print(summary.to_string(index=False))

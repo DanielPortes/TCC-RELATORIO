@@ -224,7 +224,7 @@ def draw_teacher_forcing_scheduled_sampling() -> None:
     ax.text(
         0.5,
         0.97,
-        "Teacher forcing vs. scheduled sampling",
+        "Técnicas de realimentação no treinamento",
         ha="center",
         va="top",
         fontsize=14.5,
@@ -234,7 +234,7 @@ def draw_teacher_forcing_scheduled_sampling() -> None:
     ax.text(
         0.5,
         0.92,
-        "A diferença está no valor realimentado para o próximo passo do decoder",
+        "A diferença está no valor realimentado para o próximo passo do decodificador",
         ha="center",
         va="top",
         fontsize=9.8,
@@ -242,15 +242,15 @@ def draw_teacher_forcing_scheduled_sampling() -> None:
     )
 
     rows = [
-        (0.72, "Teacher forcing", "$y_{t+k-1}$\nvalor real", COLORS["blue_light"], COLORS["blue"]),
-        (0.47, "Free running", "$\\hat{y}_{t+k-1}$\npredição", COLORS["green_light"], COLORS["green"]),
-        (0.22, "Scheduled\nsampling", "sorteio\n$u \\sim U(0,1)$", COLORS["amber_light"], COLORS["amber"]),
+        (0.72, r"$\it{teacher\ forcing}$", "$y_{t+k-1}$\nvalor real", COLORS["blue_light"], COLORS["blue"]),
+        (0.47, r"$\it{free\ running}$", "$\\hat{y}_{t+k-1}$\npredição", COLORS["green_light"], COLORS["green"]),
+        (0.22, "$\\it{scheduled}$\n$\\it{sampling}$", "sorteio\n$u \\sim U(0,1)$", COLORS["amber_light"], COLORS["amber"]),
     ]
     for y, title, left_text, fc, ec in rows:
         ax.text(0.02, y + 0.065, title, ha="left", va="center", fontsize=11.2, weight="bold", color=ec, linespacing=1.0)
         _box(ax, 0.28, y, 0.16, 0.12, left_text, fc, ec, fs=10.0, weight="bold")
         _arrow(ax, (0.44, y + 0.06), (0.54, y + 0.06), COLORS["line"])
-        _box(ax, 0.54, y, 0.16, 0.12, "Decoder\n$Dec_\\theta$", COLORS["slate_light"], COLORS["line"], fs=10.0, weight="bold")
+        _box(ax, 0.54, y, 0.16, 0.12, "Decodificador\n$Dec_\\theta$", COLORS["slate_light"], COLORS["line"], fs=10.0, weight="bold")
         _arrow(ax, (0.70, y + 0.06), (0.81, y + 0.06), COLORS["line"])
         _box(ax, 0.81, y, 0.13, 0.12, "$\\hat{y}_{t+k}$\nsaída", COLORS["violet_light"], COLORS["violet"], fs=10.0, weight="bold")
 
@@ -262,7 +262,7 @@ def draw_teacher_forcing_scheduled_sampling() -> None:
     ax.text(
         0.5,
         0.055,
-        "$p_{TF}=1$ equivale a teacher forcing puro; $p_{TF}=0$ equivale a treino igual a inferência autoregressiva.",
+        "$p_{TF}=1$ usa valor real; $p_{TF}=0$ equivale a treino igual à inferência autoregressiva.",
         ha="center",
         va="center",
         fontsize=9.7,
@@ -303,14 +303,14 @@ def draw_teacher_forcing_scheduled_sampling() -> None:
 
 def draw_walk_forward_validation() -> None:
     folds = [
-        ("Fold 1", [("Treino", 0, 1), ("Validação", 1, 2)]),
-        ("Fold 2", [("Treino", 0, 2), ("Validação", 2, 3)]),
-        ("Fold 3", [("Treino", 0, 3), ("Validação", 3, 4)]),
+        ("Partição 1", [("Treino", 0, 1), ("Validação interna", 1, 2)]),
+        ("Partição 2", [("Treino", 0, 2), ("Validação interna", 2, 3)]),
+        ("Partição 3", [("Treino", 0, 3), ("Validação interna", 3, 4)]),
     ]
     test_span = (4, 5)
     colors = {
         "Treino": (COLORS["blue"], COLORS["blue_light"]),
-        "Validação": (COLORS["amber"], COLORS["amber_light"]),
+        "Validação interna": (COLORS["amber"], COLORS["amber_light"]),
         "Teste final": (COLORS["green"], COLORS["green_light"]),
     }
 
@@ -332,7 +332,7 @@ def draw_walk_forward_validation() -> None:
     ax.text(
         2.5,
         3.22,
-        "Cada fold treina apenas com o passado e valida no bloco cronologicamente seguinte",
+        "HPO dentro do desenvolvimento: cada partição treina no passado e valida no bloco seguinte",
         ha="center",
         va="top",
         fontsize=10.5,
@@ -368,15 +368,17 @@ def draw_walk_forward_validation() -> None:
                 facecolor=face,
             )
             ax.add_patch(rect)
+            display_label = "Validação\ninterna" if label == "Validação interna" else label
             ax.text(
                 (start + end) / 2,
                 y + bar_h / 2,
-                label,
+                display_label,
                 ha="center",
                 va="center",
-                fontsize=9.7,
+                fontsize=9.2,
                 color=edge,
                 weight="bold",
+                linespacing=0.9,
             )
 
         edge, face = colors["Teste final"]
@@ -404,7 +406,7 @@ def draw_walk_forward_validation() -> None:
         )
 
     legend_y = 0.18
-    legend_items = [("Treino", 0.55), ("Validação", 1.75), ("Teste final", 3.12)]
+    legend_items = [("Treino", 0.55), ("Validação interna", 1.75), ("Teste final", 3.45)]
     for label, x in legend_items:
         edge, face = colors[label]
         ax.add_patch(
@@ -423,7 +425,7 @@ def draw_walk_forward_validation() -> None:
     ax.text(
         2.5,
         -0.08,
-        "O teste final permanece reservado e não participa da escolha de hiperparâmetros.",
+        "O teste final fica fora da HPO e é usado apenas na avaliação final.",
         ha="center",
         va="center",
         fontsize=9.5,
