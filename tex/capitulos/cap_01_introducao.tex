@@ -10,7 +10,7 @@ A literatura recente tem explorado modelos de aprendizado profundo para previsã
 
 Este trabalho parte desse problema metodológico. Em vez de apresentar a criação de um novo modelo como contribuição central, o TCC desenvolve um estudo experimental rastreável para previsão horária de PM2.5 na estação Sapo, no conjunto CMD. A tarefa principal usa as 48 horas anteriores para prever as 24 horas seguintes, com divisão cronológica externa em treino, validação e teste na proporção 70/15/15. A seleção de hiperparâmetros é feita por validação temporal \textit{walk-forward} dentro do bloco de desenvolvimento anterior ao teste, mantendo o teste final reservado para avaliação fora da amostra. O protocolo final combina o alvo PM2.5 e o poluente PM10 com atributos temporais, termos de Fourier, indicadores de ausência e duas variáveis causais derivadas de PM10: um valor recente disponível antes da emissão da previsão e uma tendência calculada sem olhar o futuro. Essas variáveis representam informação disponível no momento da previsão, evitando uso indevido de dados futuros.
 
-O estudo compara modelos sequenciais e uma linha de base tabular sob o mesmo contrato experimental. São avaliadas LSTM recursiva, LSTM direta, Seq2Seq básico, Seq2Seq com atenção e XGBoost com saída múltipla. Além da comparação principal, o trabalho discute ablações metodológicas e variantes internas do Seq2Seq, incluindo estratégias de decodificação, uso de variáveis futuras causalmente disponíveis, funções de perda voltadas a picos e comportamento da atenção. A interpretação dos resultados distingue erro médio global, desempenho por horizonte e comportamento em regimes de maior concentração, pois modelos com melhor MAE podem produzir curvas mais suavizadas e subestimar eventos altos.
+O estudo compara modelos sequenciais e uma linha de base tabular sob o mesmo contrato experimental. São avaliadas LSTM recursiva, LSTM direta, Seq2Seq básico, Seq2Seq atenção canônica, Seq2Seq atenção com L1 ponderada e XGBoost com saída múltipla. Além da comparação principal, o trabalho discute ablações metodológicas e variantes internas do Seq2Seq, incluindo estratégias de decodificação, uso de variáveis futuras causalmente disponíveis, funções de perda voltadas a picos e comportamento da atenção. A interpretação dos resultados distingue erro médio global, desempenho por horizonte e comportamento em regimes de maior concentração, pois modelos com melhor MAE podem produzir curvas mais suavizadas e subestimar eventos altos.
 
 \section{Problema de Pesquisa e Contribuições}
 
@@ -25,7 +25,7 @@ Para responder a essa pergunta, o trabalho é estruturado como um estudo experim
 \begin{enumerate}
     \item Definir um protocolo rastreável de previsão horária de PM2.5 para a estação Sapo, com tarefa de múltiplos passos, entrada de 48 horas e horizonte de 24 horas.
     \item Consolidar um protocolo de dados com PM2.5, PM10, atributos temporais, indicadores de ausência e variáveis substitutas causais de PM10 disponíveis para o horizonte de previsão, reduzindo risco de vazamento de informação futura.
-    \item Comparar LSTM direta, LSTM recursiva, Seq2Seq básico, Seq2Seq com atenção e XGBoost com saída múltipla sob o mesmo teste temporal externo.
+    \item Comparar, no mesmo teste temporal externo, modelos LSTM, Seq2Seq e XGBoost, incluindo variantes com atenção e perda ponderada.
     \item Avaliar os resultados por métricas globais, métricas por horizonte e comportamento em picos/cauda, separando desempenho médio de resposta a eventos de maior concentração.
     \item Documentar resultados negativos e compromissos de modelagem, especialmente no uso de atenção, perdas ponderadas e estratégias voltadas a picos.
 \end{enumerate}
@@ -42,7 +42,7 @@ Avaliar, sob um protocolo experimental rastreável e comparável, o desempenho d
     \item Construir uma base horária para a estação Sapo com PM2.5, PM10, atributos temporais, termos de Fourier, indicadores de ausência e variáveis substitutas causais de PM10.
     \item Definir a tarefa de previsão \texttt{48 -> 24} com divisão cronológica externa \texttt{70/15/15} e seleção de hiperparâmetros por \textit{walk-forward}.
     \item Descrever o pré-processamento com imputação, normalização e máscaras para impedir que valores imputados do alvo distorçam a função de perda e as métricas observadas.
-    \item Comparar LSTM direta, LSTM recursiva, Seq2Seq básico, Seq2Seq com atenção e XGBoost com saída múltipla no teste externo.
+    \item Comparar LSTM direta/recursiva, Seq2Seq básico, duas variantes Seq2Seq com atenção e XGBoost com saída múltipla no teste externo.
     \item Avaliar os modelos por MAE, RMSE, MAPE, R2, métricas por horizonte e métricas de cauda/picos.
     \item Discutir ablações relevantes de imputação, uso causal de PM10, funções de perda, desenho do decodificador, atenção e busca de hiperparâmetros.
     \item Identificar limitações do protocolo e caminhos de extensão para múltiplas estações, avaliação de eventos extremos e modelos espaço-temporais.

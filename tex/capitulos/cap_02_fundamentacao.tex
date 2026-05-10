@@ -91,7 +91,7 @@ Na previsão de múltiplos passos, o objetivo é estimar mais de um instante fut
     \item \textbf{Codificador-decodificador:} uma rede codifica a janela de entrada e outra gera a sequência futura, possivelmente condicionada por variáveis conhecidas no horizonte. Essa formulação é natural para tarefas sequência-para-sequência.
 \end{itemize}
 
-Este trabalho compara essas alternativas por meio de LSTM recursiva, LSTM direta, Seq2Seq básico e Seq2Seq com atenção. Também é avaliada uma linha de base XGBoost com saída múltipla, que prevê o horizonte completo de forma tabular. A comparação é necessária porque a literatura de previsão não sustenta uma única arquitetura universalmente dominante; revisões de RNNs para séries temporais ressaltam que não existem ``\textit{no silver bullets}'' em previsão \cite{hewamalage2021rnn}.
+Este trabalho compara essas alternativas por meio de LSTM recursiva, LSTM direta, Seq2Seq básico, Seq2Seq atenção canônica e Seq2Seq atenção com L1 ponderada. Também é avaliada uma linha de base XGBoost com saída múltipla, que prevê o horizonte completo de forma tabular. A comparação é necessária porque a literatura de previsão não sustenta uma única arquitetura universalmente dominante; revisões de RNNs para séries temporais ressaltam que não existem ``\textit{no silver bullets}'' em previsão \cite{hewamalage2021rnn}.
 
 \section{Dados Faltantes, Imputação e Vazamento Temporal}
 

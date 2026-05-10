@@ -1,97 +1,97 @@
 modelo,posicao_encoder,posicao_relativa_horas,rotulo_posicao,peso_medio
-Seq2Seq attention HPO,0,-47,t-47,0.026580145582556725
-Seq2Seq attention HPO,1,-46,t-46,0.023715559393167496
-Seq2Seq attention HPO,2,-45,t-45,0.022336430847644806
-Seq2Seq attention HPO,3,-44,t-44,0.021540425717830658
-Seq2Seq attention HPO,4,-43,t-43,0.02107592485845089
-Seq2Seq attention HPO,5,-42,t-42,0.0208221934735775
-Seq2Seq attention HPO,6,-41,t-41,0.020667104050517082
-Seq2Seq attention HPO,7,-40,t-40,0.020578980445861816
-Seq2Seq attention HPO,8,-39,t-39,0.020527638494968414
-Seq2Seq attention HPO,9,-38,t-38,0.020479068160057068
-Seq2Seq attention HPO,10,-37,t-37,0.02044299803674221
-Seq2Seq attention HPO,11,-36,t-36,0.020401200279593468
-Seq2Seq attention HPO,12,-35,t-35,0.02033333294093609
-Seq2Seq attention HPO,13,-34,t-34,0.020260488614439964
-Seq2Seq attention HPO,14,-33,t-33,0.020185649394989014
-Seq2Seq attention HPO,15,-32,t-32,0.020109480246901512
-Seq2Seq attention HPO,16,-31,t-31,0.0200522318482399
-Seq2Seq attention HPO,17,-30,t-30,0.020009122788906097
-Seq2Seq attention HPO,18,-29,t-29,0.019976802170276642
-Seq2Seq attention HPO,19,-28,t-28,0.019965317100286484
-Seq2Seq attention HPO,20,-27,t-27,0.019966870546340942
-Seq2Seq attention HPO,21,-26,t-26,0.019970109686255455
-Seq2Seq attention HPO,22,-25,t-25,0.01998397521674633
-Seq2Seq attention HPO,23,-24,t-24,0.01999998278915882
-Seq2Seq attention HPO,24,-23,t-23,0.020003829151391983
-Seq2Seq attention HPO,25,-22,t-22,0.0200114194303751
-Seq2Seq attention HPO,26,-21,t-21,0.020022183656692505
-Seq2Seq attention HPO,27,-20,t-20,0.020030440762639046
-Seq2Seq attention HPO,28,-19,t-19,0.020057475194334984
-Seq2Seq attention HPO,29,-18,t-18,0.02010088413953781
-Seq2Seq attention HPO,30,-17,t-17,0.020152313634753227
-Seq2Seq attention HPO,31,-16,t-16,0.020220724865794182
-Seq2Seq attention HPO,32,-15,t-15,0.020296623930335045
-Seq2Seq attention HPO,33,-14,t-14,0.020369963720440865
-Seq2Seq attention HPO,34,-13,t-13,0.02045554108917713
-Seq2Seq attention HPO,35,-12,t-12,0.020552003756165504
-Seq2Seq attention HPO,36,-11,t-11,0.020642604678869247
-Seq2Seq attention HPO,37,-10,t-10,0.02074975147843361
-Seq2Seq attention HPO,38,-9,t-9,0.020862335339188576
-Seq2Seq attention HPO,39,-8,t-8,0.020975766703486443
-Seq2Seq attention HPO,40,-7,t-7,0.02111177146434784
-Seq2Seq attention HPO,41,-6,t-6,0.021262245252728462
-Seq2Seq attention HPO,42,-5,t-5,0.02142367698252201
-Seq2Seq attention HPO,43,-4,t-4,0.021616891026496887
-Seq2Seq attention HPO,44,-3,t-3,0.021842805668711662
-Seq2Seq attention HPO,45,-2,t-2,0.022094713523983955
-Seq2Seq attention HPO,46,-1,t-1,0.022401219233870506
-Seq2Seq attention HPO,47,0,t,0.02276143804192543
-Seq2Seq L1 ponderada,0,-47,t-47,0.018729878589510918
-Seq2Seq L1 ponderada,1,-46,t-46,0.01917872577905655
-Seq2Seq L1 ponderada,2,-45,t-45,0.019764257594943047
-Seq2Seq L1 ponderada,3,-44,t-44,0.020248152315616608
-Seq2Seq L1 ponderada,4,-43,t-43,0.020574646070599556
-Seq2Seq L1 ponderada,5,-42,t-42,0.020778965204954147
-Seq2Seq L1 ponderada,6,-41,t-41,0.02090400457382202
-Seq2Seq L1 ponderada,7,-40,t-40,0.02097558230161667
-Seq2Seq L1 ponderada,8,-39,t-39,0.021013574674725533
-Seq2Seq L1 ponderada,9,-38,t-38,0.021031184121966362
-Seq2Seq L1 ponderada,10,-37,t-37,0.021033423021435738
-Seq2Seq L1 ponderada,11,-36,t-36,0.021025309339165688
-Seq2Seq L1 ponderada,12,-35,t-35,0.02100856602191925
-Seq2Seq L1 ponderada,13,-34,t-34,0.020984910428524017
-Seq2Seq L1 ponderada,14,-33,t-33,0.020956849679350853
-Seq2Seq L1 ponderada,15,-32,t-32,0.020928965881466866
-Seq2Seq L1 ponderada,16,-31,t-31,0.020906396210193634
-Seq2Seq L1 ponderada,17,-30,t-30,0.020890315994620323
-Seq2Seq L1 ponderada,18,-29,t-29,0.020879825577139854
-Seq2Seq L1 ponderada,19,-28,t-28,0.020875750109553337
-Seq2Seq L1 ponderada,20,-27,t-27,0.02087652124464512
-Seq2Seq L1 ponderada,21,-26,t-26,0.02088146284222603
-Seq2Seq L1 ponderada,22,-25,t-25,0.02088700607419014
-Seq2Seq L1 ponderada,23,-24,t-24,0.02089085802435875
-Seq2Seq L1 ponderada,24,-23,t-23,0.020889125764369965
-Seq2Seq L1 ponderada,25,-22,t-22,0.020880989730358124
-Seq2Seq L1 ponderada,26,-21,t-21,0.020869534462690353
-Seq2Seq L1 ponderada,27,-20,t-20,0.020856987684965134
-Seq2Seq L1 ponderada,28,-19,t-19,0.02084812894463539
-Seq2Seq L1 ponderada,29,-18,t-18,0.020848549902439117
-Seq2Seq L1 ponderada,30,-17,t-17,0.020855212584137917
-Seq2Seq L1 ponderada,31,-16,t-16,0.02086731418967247
-Seq2Seq L1 ponderada,32,-15,t-15,0.020881857722997665
-Seq2Seq L1 ponderada,33,-14,t-14,0.020900283008813858
-Seq2Seq L1 ponderada,34,-13,t-13,0.020919615402817726
-Seq2Seq L1 ponderada,35,-12,t-12,0.02094024233520031
-Seq2Seq L1 ponderada,36,-11,t-11,0.020958907902240753
-Seq2Seq L1 ponderada,37,-10,t-10,0.02097479999065399
-Seq2Seq L1 ponderada,38,-9,t-9,0.020988544449210167
-Seq2Seq L1 ponderada,39,-8,t-8,0.021003371104598045
-Seq2Seq L1 ponderada,40,-7,t-7,0.021022802218794823
-Seq2Seq L1 ponderada,41,-6,t-6,0.02105039171874523
-Seq2Seq L1 ponderada,42,-5,t-5,0.02108548767864704
-Seq2Seq L1 ponderada,43,-4,t-4,0.021126657724380493
-Seq2Seq L1 ponderada,44,-3,t-3,0.021174369379878044
-Seq2Seq L1 ponderada,45,-2,t-2,0.02122543752193451
-Seq2Seq L1 ponderada,46,-1,t-1,0.021278951317071915
-Seq2Seq L1 ponderada,47,0,t,0.02133004739880562
+Seq2Seq atenção canônica,0,-47,t-47,0.026580145582556725
+Seq2Seq atenção canônica,1,-46,t-46,0.023715559393167496
+Seq2Seq atenção canônica,2,-45,t-45,0.022336430847644806
+Seq2Seq atenção canônica,3,-44,t-44,0.021540425717830658
+Seq2Seq atenção canônica,4,-43,t-43,0.02107592485845089
+Seq2Seq atenção canônica,5,-42,t-42,0.0208221934735775
+Seq2Seq atenção canônica,6,-41,t-41,0.020667104050517082
+Seq2Seq atenção canônica,7,-40,t-40,0.020578980445861816
+Seq2Seq atenção canônica,8,-39,t-39,0.020527638494968414
+Seq2Seq atenção canônica,9,-38,t-38,0.020479068160057068
+Seq2Seq atenção canônica,10,-37,t-37,0.02044299803674221
+Seq2Seq atenção canônica,11,-36,t-36,0.020401200279593468
+Seq2Seq atenção canônica,12,-35,t-35,0.02033333294093609
+Seq2Seq atenção canônica,13,-34,t-34,0.020260488614439964
+Seq2Seq atenção canônica,14,-33,t-33,0.020185649394989014
+Seq2Seq atenção canônica,15,-32,t-32,0.020109480246901512
+Seq2Seq atenção canônica,16,-31,t-31,0.0200522318482399
+Seq2Seq atenção canônica,17,-30,t-30,0.020009122788906097
+Seq2Seq atenção canônica,18,-29,t-29,0.019976802170276642
+Seq2Seq atenção canônica,19,-28,t-28,0.019965317100286484
+Seq2Seq atenção canônica,20,-27,t-27,0.019966870546340942
+Seq2Seq atenção canônica,21,-26,t-26,0.019970109686255455
+Seq2Seq atenção canônica,22,-25,t-25,0.01998397521674633
+Seq2Seq atenção canônica,23,-24,t-24,0.01999998278915882
+Seq2Seq atenção canônica,24,-23,t-23,0.020003829151391983
+Seq2Seq atenção canônica,25,-22,t-22,0.0200114194303751
+Seq2Seq atenção canônica,26,-21,t-21,0.020022183656692505
+Seq2Seq atenção canônica,27,-20,t-20,0.020030440762639046
+Seq2Seq atenção canônica,28,-19,t-19,0.020057475194334984
+Seq2Seq atenção canônica,29,-18,t-18,0.02010088413953781
+Seq2Seq atenção canônica,30,-17,t-17,0.020152313634753227
+Seq2Seq atenção canônica,31,-16,t-16,0.020220724865794182
+Seq2Seq atenção canônica,32,-15,t-15,0.020296623930335045
+Seq2Seq atenção canônica,33,-14,t-14,0.020369963720440865
+Seq2Seq atenção canônica,34,-13,t-13,0.02045554108917713
+Seq2Seq atenção canônica,35,-12,t-12,0.020552003756165504
+Seq2Seq atenção canônica,36,-11,t-11,0.020642604678869247
+Seq2Seq atenção canônica,37,-10,t-10,0.02074975147843361
+Seq2Seq atenção canônica,38,-9,t-9,0.020862335339188576
+Seq2Seq atenção canônica,39,-8,t-8,0.020975766703486443
+Seq2Seq atenção canônica,40,-7,t-7,0.02111177146434784
+Seq2Seq atenção canônica,41,-6,t-6,0.021262245252728462
+Seq2Seq atenção canônica,42,-5,t-5,0.02142367698252201
+Seq2Seq atenção canônica,43,-4,t-4,0.021616891026496887
+Seq2Seq atenção canônica,44,-3,t-3,0.021842805668711662
+Seq2Seq atenção canônica,45,-2,t-2,0.022094713523983955
+Seq2Seq atenção canônica,46,-1,t-1,0.022401219233870506
+Seq2Seq atenção canônica,47,0,t,0.02276143804192543
+Seq2Seq atenção + L1 ponderada,0,-47,t-47,0.018729878589510918
+Seq2Seq atenção + L1 ponderada,1,-46,t-46,0.01917872577905655
+Seq2Seq atenção + L1 ponderada,2,-45,t-45,0.019764257594943047
+Seq2Seq atenção + L1 ponderada,3,-44,t-44,0.020248152315616608
+Seq2Seq atenção + L1 ponderada,4,-43,t-43,0.020574646070599556
+Seq2Seq atenção + L1 ponderada,5,-42,t-42,0.020778965204954147
+Seq2Seq atenção + L1 ponderada,6,-41,t-41,0.02090400457382202
+Seq2Seq atenção + L1 ponderada,7,-40,t-40,0.02097558230161667
+Seq2Seq atenção + L1 ponderada,8,-39,t-39,0.021013574674725533
+Seq2Seq atenção + L1 ponderada,9,-38,t-38,0.021031184121966362
+Seq2Seq atenção + L1 ponderada,10,-37,t-37,0.021033423021435738
+Seq2Seq atenção + L1 ponderada,11,-36,t-36,0.021025309339165688
+Seq2Seq atenção + L1 ponderada,12,-35,t-35,0.02100856602191925
+Seq2Seq atenção + L1 ponderada,13,-34,t-34,0.020984910428524017
+Seq2Seq atenção + L1 ponderada,14,-33,t-33,0.020956849679350853
+Seq2Seq atenção + L1 ponderada,15,-32,t-32,0.020928965881466866
+Seq2Seq atenção + L1 ponderada,16,-31,t-31,0.020906396210193634
+Seq2Seq atenção + L1 ponderada,17,-30,t-30,0.020890315994620323
+Seq2Seq atenção + L1 ponderada,18,-29,t-29,0.020879825577139854
+Seq2Seq atenção + L1 ponderada,19,-28,t-28,0.020875750109553337
+Seq2Seq atenção + L1 ponderada,20,-27,t-27,0.02087652124464512
+Seq2Seq atenção + L1 ponderada,21,-26,t-26,0.02088146284222603
+Seq2Seq atenção + L1 ponderada,22,-25,t-25,0.02088700607419014
+Seq2Seq atenção + L1 ponderada,23,-24,t-24,0.02089085802435875
+Seq2Seq atenção + L1 ponderada,24,-23,t-23,0.020889125764369965
+Seq2Seq atenção + L1 ponderada,25,-22,t-22,0.020880989730358124
+Seq2Seq atenção + L1 ponderada,26,-21,t-21,0.020869534462690353
+Seq2Seq atenção + L1 ponderada,27,-20,t-20,0.020856987684965134
+Seq2Seq atenção + L1 ponderada,28,-19,t-19,0.02084812894463539
+Seq2Seq atenção + L1 ponderada,29,-18,t-18,0.020848549902439117
+Seq2Seq atenção + L1 ponderada,30,-17,t-17,0.020855212584137917
+Seq2Seq atenção + L1 ponderada,31,-16,t-16,0.02086731418967247
+Seq2Seq atenção + L1 ponderada,32,-15,t-15,0.020881857722997665
+Seq2Seq atenção + L1 ponderada,33,-14,t-14,0.020900283008813858
+Seq2Seq atenção + L1 ponderada,34,-13,t-13,0.020919615402817726
+Seq2Seq atenção + L1 ponderada,35,-12,t-12,0.02094024233520031
+Seq2Seq atenção + L1 ponderada,36,-11,t-11,0.020958907902240753
+Seq2Seq atenção + L1 ponderada,37,-10,t-10,0.02097479999065399
+Seq2Seq atenção + L1 ponderada,38,-9,t-9,0.020988544449210167
+Seq2Seq atenção + L1 ponderada,39,-8,t-8,0.021003371104598045
+Seq2Seq atenção + L1 ponderada,40,-7,t-7,0.021022802218794823
+Seq2Seq atenção + L1 ponderada,41,-6,t-6,0.02105039171874523
+Seq2Seq atenção + L1 ponderada,42,-5,t-5,0.02108548767864704
+Seq2Seq atenção + L1 ponderada,43,-4,t-4,0.021126657724380493
+Seq2Seq atenção + L1 ponderada,44,-3,t-3,0.021174369379878044
+Seq2Seq atenção + L1 ponderada,45,-2,t-2,0.02122543752193451
+Seq2Seq atenção + L1 ponderada,46,-1,t-1,0.021278951317071915
+Seq2Seq atenção + L1 ponderada,47,0,t,0.02133004739880562

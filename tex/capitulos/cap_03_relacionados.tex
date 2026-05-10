@@ -26,7 +26,7 @@ Modelos recorrentes são frequentes em previsão de PM2.5 porque conseguem explo
 
 Arquiteturas híbridas com atenção também aparecem na literatura. \citeonline{li2020urban} propuseram uma abordagem CNN-LSTM com atenção para PM2.5 urbano, combinando extração de padrões e dependência temporal. \citeonline{yang2023attention} avaliaram uma LSTM com mecanismo de atenção para concentração horária de PM2.5, comparando-a com modelos como ARIMA, autoencoder e LSTM padrão. Esses trabalhos motivam a avaliação de atenção no presente TCC, mas não implicam que atenção vencerá em qualquer contrato de dados.
 
-O presente estudo se diferencia por comparar LSTM direta, LSTM recursiva, Seq2Seq básico, Seq2Seq com atenção e XGBoost sob o mesmo teste temporal externo. A contribuição não é propor uma arquitetura inédita, mas medir de forma controlada como escolhas de arquitetura, variáveis causais e função de perda mudam erro médio, erro por horizonte e comportamento em picos.
+O presente estudo se diferencia por comparar LSTM direta, LSTM recursiva, Seq2Seq básico, Seq2Seq atenção canônica, Seq2Seq atenção com L1 ponderada e XGBoost sob o mesmo teste temporal externo. A contribuição não é propor uma arquitetura inédita, mas medir de forma controlada como escolhas de arquitetura, variáveis causais e função de perda mudam erro médio, erro por horizonte e comportamento em picos.
 
 \section{Seq2Seq, Previsão Multi-Horizonte e Atenção}
 

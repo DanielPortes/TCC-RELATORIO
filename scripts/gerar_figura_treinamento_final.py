@@ -32,7 +32,7 @@ MODEL_SPECS = [
     },
     {
         "name": "cv_hpo_weighted_l1_clean_pm10",
-        "label": "Seq2Seq L1 ponderada",
+        "label": "Seq2Seq atenção + L1 ponderada",
         "color": "#54A24B",
     },
 ]

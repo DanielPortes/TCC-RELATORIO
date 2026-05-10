@@ -24,13 +24,13 @@ A Tabela \ref{tab:resultado_principal_sapo_hpo} apresenta os resultados principa
         \textbf{Modelo} & \textbf{MAE} & \textbf{RMSE} & \textbf{MAPE} & \textbf{R2} & \textbf{H1 MAE} & \textbf{H24 MAE} \\
         \midrule
         LSTM direta & \textbf{2,7713} & \textbf{3,8346} & \textbf{23,01} & \textbf{0,5154} & 2,6725 & \textbf{2,8670} \\
-        Seq2Seq L1 ponderada & 2,8658 & 3,9641 & 23,90 & 0,4821 & 2,7631 & 2,9695 \\
+        Seq2Seq atenção + L1 ponderada & 2,8658 & 3,9641 & 23,90 & 0,4821 & 2,7631 & 2,9695 \\
         XGBoost com saída múltipla & 2,8786 & 3,9793 & 23,80 & 0,4781 & \textbf{2,5618} & 3,0273 \\
         LSTM recursiva & 2,8876 & 3,8380 & 24,39 & 0,5146 & 2,7380 & 3,1492 \\
         % TODO(resultados): reexecutar Seq2Seq básico no protocolo final conjunto e substituir N/A.
         Seq2Seq básico & N/A & N/A & N/A & N/A & N/A & N/A \\
-        % TODO(resultados): reexecutar Seq2Seq com atenção no protocolo final conjunto e substituir N/A.
-        Seq2Seq com atenção & N/A & N/A & N/A & N/A & N/A & N/A \\
+        % TODO(resultados): reexecutar Seq2Seq atenção canônica no protocolo final conjunto e substituir N/A.
+        Seq2Seq atenção canônica & N/A & N/A & N/A & N/A & N/A & N/A \\
         \bottomrule
     \end{tabular}%
     }
@@ -38,7 +38,7 @@ A Tabela \ref{tab:resultado_principal_sapo_hpo} apresenta os resultados principa
 
 O resultado reforça a conclusão obtida com o protocolo mais forte: a LSTM direta permanece vencedora por erro médio após ampliar o espaço de HPO e usar seleção por \textit{walk-forward}. O XGBoost continua sendo uma linha de base tabular forte e manteve o menor erro no primeiro horizonte, mas a busca \textit{walk-forward} executada para ele foi limitada a quatro tentativas completas por custo computacional; portanto, a conclusão tabular deve ser lida como conservadora, não como esgotamento do espaço de árvores.
 
-Entre os modelos neurais com métricas consolidadas, a LSTM direta superou a LSTM recursiva e o Seq2Seq com L1 ponderada no MAE global. A abordagem recursiva apresentou RMSE e R2 muito próximos aos da LSTM direta, mas teve pior MAE e maior erro no horizonte final. O Seq2Seq com L1 ponderada ficou ligeiramente à frente do XGBoost em MAE, mas abaixo da LSTM direta e com RMSE/R2 inferiores.
+Entre os modelos neurais com métricas consolidadas, a LSTM direta superou a LSTM recursiva e o Seq2Seq atenção com L1 ponderada no MAE global. A abordagem recursiva apresentou RMSE e R2 muito próximos aos da LSTM direta, mas teve pior MAE e maior erro no horizonte final. O Seq2Seq atenção com L1 ponderada ficou ligeiramente à frente do XGBoost em MAE, mas abaixo da LSTM direta e com RMSE/R2 inferiores.
 
 \begin{figure}[htbp]
     \centering
@@ -47,7 +47,7 @@ Entre os modelos neurais com métricas consolidadas, a LSTM direta superou a LST
     \label{fig:curvas_validacao_lr_modelos_finais}
 \end{figure}
 
-A Figura \ref{fig:curvas_validacao_lr_modelos_finais} complementa a tabela principal com a dinâmica de treinamento. O painel (a) mostra que o melhor ponto de controle dos modelos neurais não correspondeu à última época executada: a LSTM direta teve melhor \textit{checkpoint} na época 15 e parou na época 23; a LSTM recursiva teve melhor \textit{checkpoint} na época 14 e parou na época 22; e o Seq2Seq com L1 ponderada teve melhor \textit{checkpoint} na época 18 e parou na época 26. Esse padrão é compatível com a paciência de oito épocas usada na parada antecipada. O painel (b) mostra a agenda de taxa de aprendizado: as três primeiras épocas fazem aquecimento linear e, depois disso, a taxa decai suavemente por cosseno. A perda de validação também foi registrada nos artefatos, mas não é usada como comparação visual principal porque os modelos neurais finais não otimizam exatamente a mesma função de perda.
+A Figura \ref{fig:curvas_validacao_lr_modelos_finais} complementa a tabela principal com a dinâmica de treinamento. O painel (a) mostra que o melhor ponto de controle dos modelos neurais não correspondeu à última época executada: a LSTM direta teve melhor \textit{checkpoint} na época 15 e parou na época 23; a LSTM recursiva teve melhor \textit{checkpoint} na época 14 e parou na época 22; e o Seq2Seq atenção com L1 ponderada teve melhor \textit{checkpoint} na época 18 e parou na época 26. Esse padrão é compatível com a paciência de oito épocas usada na parada antecipada. O painel (b) mostra a agenda de taxa de aprendizado: as três primeiras épocas fazem aquecimento linear e, depois disso, a taxa decai suavemente por cosseno. A perda de validação também foi registrada nos artefatos, mas não é usada como comparação visual principal porque os modelos neurais finais não otimizam exatamente a mesma função de perda.
 
 \section{Estabilidade com Múltiplas Sementes}
 
@@ -64,12 +64,12 @@ A Tabela \ref{tab:multi_seed_sapo} resume a sensibilidade à semente aleatória 
         \midrule
         LSTM direta & \textbf{2,8055} & 0,0540 & 3,8611 & 0,5086 & 0,0435 \\
         LSTM recursiva & 2,8425 & 0,0426 & \textbf{3,8006} & \textbf{0,5239} & 0,4505 \\
-        Seq2Seq L1 ponderada & 2,8646 & 0,0201 & 3,9617 & 0,4827 & 0,0567 \\
+        Seq2Seq atenção + L1 ponderada & 2,8646 & 0,0201 & 3,9617 & 0,4827 & 0,0567 \\
         XGBoost com saída múltipla & 2,8852 & \textbf{0,0077} & 3,9895 & 0,4755 & -0,0344 \\
         % TODO(resultados): reexecutar Seq2Seq básico com múltiplas sementes no protocolo final conjunto.
         Seq2Seq básico & N/A & N/A & N/A & N/A & N/A \\
-        % TODO(resultados): reexecutar Seq2Seq com atenção com múltiplas sementes no protocolo final conjunto.
-        Seq2Seq com atenção & N/A & N/A & N/A & N/A & N/A \\
+        % TODO(resultados): reexecutar Seq2Seq atenção canônica com múltiplas sementes no protocolo final conjunto.
+        Seq2Seq atenção canônica & N/A & N/A & N/A & N/A & N/A \\
         \bottomrule
     \end{tabular}%
     }
@@ -116,13 +116,13 @@ A Tabela \ref{tab:erro_por_horizonte_sapo} detalha o MAE nos horizontes 1, 6, 12
         \textbf{Modelo} & \textbf{H1} & \textbf{H6} & \textbf{H12} & \textbf{H24} & \textbf{H24 - H1} \\
         \midrule
         LSTM direta & 2,6725 & \textbf{2,7218} & \textbf{2,7773} & \textbf{2,8670} & \textbf{0,1945} \\
-        Seq2Seq L1 ponderada & 2,7631 & 2,8133 & 2,8709 & 2,9695 & 0,2063 \\
+        Seq2Seq atenção + L1 ponderada & 2,7631 & 2,8133 & 2,8709 & 2,9695 & 0,2063 \\
         XGBoost com saída múltipla & \textbf{2,5618} & 2,8004 & 2,9092 & 3,0273 & 0,4655 \\
         LSTM recursiva & 2,7380 & 2,7338 & 2,9061 & 3,1492 & 0,4112 \\
         % TODO(resultados): recalcular MAE por horizonte do Seq2Seq básico no protocolo final conjunto.
         Seq2Seq básico & N/A & N/A & N/A & N/A & N/A \\
-        % TODO(resultados): recalcular MAE por horizonte do Seq2Seq com atenção no protocolo final conjunto.
-        Seq2Seq com atenção & N/A & N/A & N/A & N/A & N/A \\
+        % TODO(resultados): recalcular MAE por horizonte do Seq2Seq atenção canônica no protocolo final conjunto.
+        Seq2Seq atenção canônica & N/A & N/A & N/A & N/A & N/A \\
         \bottomrule
     \end{tabular}%
     }
@@ -151,19 +151,19 @@ A Tabela \ref{tab:cauda_sapo} mostra métricas associadas à amplitude e aos reg
         \textbf{Modelo} & \textbf{Peak35 MAE} & \textbf{p99 previsto} & \textbf{p99 observado} & \textbf{Razão DP} & \textbf{MBE} \\
         \midrule
         LSTM direta & 13,6112 & 28,57 & 34,00 & 0,7391 & -0,1366 \\
-        Seq2Seq L1 ponderada & 12,3697 & \textbf{31,57} & 34,00 & 0,8645 & 0,1869 \\
+        Seq2Seq atenção + L1 ponderada & 12,3697 & \textbf{31,57} & 34,00 & 0,8645 & 0,1869 \\
         XGBoost com saída múltipla & 12,2583 & 30,73 & 34,00 & 0,8506 & 0,0066 \\
         LSTM recursiva & \textbf{12,0392} & 30,49 & 34,00 & \textbf{0,8751} & 0,4450 \\
         % TODO(resultados): recalcular métricas de cauda do Seq2Seq básico no protocolo final conjunto.
         Seq2Seq básico & N/A & N/A & N/A & N/A & N/A \\
-        % TODO(resultados): recalcular métricas de cauda do Seq2Seq com atenção no protocolo final conjunto.
-        Seq2Seq com atenção & N/A & N/A & N/A & N/A & N/A \\
+        % TODO(resultados): recalcular métricas de cauda do Seq2Seq atenção canônica no protocolo final conjunto.
+        Seq2Seq atenção canônica & N/A & N/A & N/A & N/A & N/A \\
         \bottomrule
     \end{tabular}%
     }
 \end{table}
 
-Essas métricas mostram um compromisso importante. A LSTM direta vence em erro médio, mas apresenta razão entre desvios-padrão de 0,7391 e p99 previsto de 28,57, abaixo do p99 observado de 34,00. Isso sugere uma previsão mais suave e com subestimação de parte dos eventos altos. A LSTM recursiva, o XGBoost e o Seq2Seq com L1 ponderada preservam mais amplitude, mas não superam a LSTM direta no MAE global. Portanto, a escolha do modelo depende do objetivo: minimizar erro médio favorece a LSTM direta; priorizar resposta a eventos altos exige olhar para modelos e perdas que preservam mais amplitude. A Figura \ref{fig:predito_observado_pico_sapo} reapresenta uma janela do teste em painéis separados por modelo, com escala vertical comum e interrupções nos trechos sem horários observados. Essa organização evita que as curvas disputem o mesmo eixo visual e deixa explícito que as quebras na linha observada correspondem a lacunas da própria série de teste.
+Essas métricas mostram um compromisso importante. A LSTM direta vence em erro médio, mas apresenta razão entre desvios-padrão de 0,7391 e p99 previsto de 28,57, abaixo do p99 observado de 34,00. Isso sugere uma previsão mais suave e com subestimação de parte dos eventos altos. A LSTM recursiva, o XGBoost e o Seq2Seq atenção com L1 ponderada preservam mais amplitude, mas não superam a LSTM direta no MAE global. Portanto, a escolha do modelo depende do objetivo: minimizar erro médio favorece a LSTM direta; priorizar resposta a eventos altos exige olhar para modelos e perdas que preservam mais amplitude. A Figura \ref{fig:predito_observado_pico_sapo} reapresenta uma janela do teste em painéis separados por modelo, com escala vertical comum e interrupções nos trechos sem horários observados. Essa organização evita que as curvas disputem o mesmo eixo visual e deixa explícito que as quebras na linha observada correspondem a lacunas da própria série de teste.
 
 \begin{figure}[htb]
     \centering
@@ -188,12 +188,12 @@ Além das métricas ponto a ponto, os picos foram agregados por horário único 
         \midrule
         LSTM direta & 15,4683 & -15,4683 & 1,0000 & -16,3894 \\
         LSTM recursiva & \textbf{12,8186} & -12,8186 & 1,0000 & \textbf{-13,6797} \\
-        Seq2Seq L1 ponderada & 13,6471 & -13,3950 & \textbf{0,9471} & -14,5321 \\
+        Seq2Seq atenção + L1 ponderada & 13,6471 & -13,3950 & \textbf{0,9471} & -14,5321 \\
         XGBoost com saída múltipla & 13,7253 & -13,7253 & 1,0000 & -14,7604 \\
         % TODO(resultados): recalcular eventos de pico do Seq2Seq básico no protocolo final conjunto.
         Seq2Seq básico & N/A & N/A & N/A & N/A \\
-        % TODO(resultados): recalcular eventos de pico do Seq2Seq com atenção no protocolo final conjunto.
-        Seq2Seq com atenção & N/A & N/A & N/A & N/A \\
+        % TODO(resultados): recalcular eventos de pico do Seq2Seq atenção canônica no protocolo final conjunto.
+        Seq2Seq atenção canônica & N/A & N/A & N/A & N/A \\
         Persistência \(y(t)\) & 13,8803 & -13,8689 & 0,9894 & -14,9206 \\
         Sazonal \(y(t-24)\) & 14,3677 & -14,2487 & 0,9405 & -15,3809 \\
         \bottomrule
@@ -224,7 +224,7 @@ A atenção canônica com Huber não foi o melhor caminho durante o desenvolvime
     }
 \end{table}
 
-O Seq2Seq com L1 ponderada continua relevante, mas a nova seleção por \textit{walk-forward} torna sua posição mais conservadora que na rodada anterior sem validação temporal interna. Ele fica abaixo da LSTM direta em MAE, RMSE e R2, embora preserve mais amplitude e tenha melhor Peak35 MAE na semente canônica. Esse resultado sustenta a interpretação de compromisso: a perda ponderada melhora parte do comportamento de cauda, mas não torna o Seq2Seq o vencedor global.
+O Seq2Seq atenção com L1 ponderada continua relevante, mas a nova seleção por \textit{walk-forward} torna sua posição mais conservadora que na rodada anterior sem validação temporal interna. Ele fica abaixo da LSTM direta em MAE, RMSE e R2, embora preserve mais amplitude e tenha melhor Peak35 MAE na semente canônica. Esse resultado sustenta a interpretação de compromisso: a perda ponderada melhora parte do comportamento de cauda, mas não torna o Seq2Seq o vencedor global.
 
 \section{Ablação PM10 Causal}
 
@@ -277,7 +277,7 @@ O resultado reforça uma decisão metodológica importante do TCC. Tratar valore
 
 \section{Análise dos Pesos de Atenção}
 
-Para responder se a camada de atenção realmente produziu um mecanismo temporal interpretável, os pesos de atenção foram extraídos diretamente dos pontos de controle finais do Seq2Seq com atenção canônico e da melhor variante com L1 ponderada. A extração foi feita sobre 5.177 janelas do conjunto de teste, sem novo treinamento. Em cada janela, a matriz de atenção tem 24 linhas, uma para cada horizonte previsto, e 48 colunas, uma para cada posição histórica do codificador.
+Para responder se a camada de atenção realmente produziu um mecanismo temporal interpretável, os pesos de atenção foram extraídos diretamente dos pontos de controle finais do Seq2Seq atenção canônica e da melhor variante com L1 ponderada. A extração foi feita sobre 5.177 janelas do conjunto de teste, sem novo treinamento. Em cada janela, a matriz de atenção tem 24 linhas, uma para cada horizonte previsto, e 48 colunas, uma para cada posição histórica do codificador.
 
 \begin{figure}[htb]
     \centering
@@ -291,7 +291,7 @@ A Figura \ref{fig:perfil_medio_atencao_seq2seq} mostra que a atenção canônica
 \begin{figure}[htb]
     \centering
     \includegraphics[width=\linewidth]{heatmap_medio_atencao_weighted_l1.pdf}
-    \caption{Mapa de calor médio dos pesos de atenção da melhor variante Seq2Seq com L1 ponderada por horizonte previsto e posição do codificador. O painel inferior mostra a média por posição calculada a partir do próprio mapa.}
+    \caption{Mapa de calor médio dos pesos de atenção da melhor variante Seq2Seq atenção com L1 ponderada por horizonte previsto e posição do codificador. O painel inferior mostra a média por posição calculada a partir do próprio mapa.}
     \label{fig:heatmap_medio_atencao_weighted_l1}
 \end{figure}
 \clearpage
@@ -307,16 +307,16 @@ A Figura \ref{fig:heatmap_medio_atencao_weighted_l1} reforça essa leitura para 
         \toprule
         \textbf{Modelo} & \textbf{Entropia norm.} & \textbf{Peso máx.} & \textbf{Top-3} & \textbf{Últimas 6h} & \textbf{Lag 24} & \textbf{Lag 48} \\
         \midrule
-        Seq2Seq com atenção & 0,9659 & 0,0517 & 0,1395 & 0,1321 & 0,0209 & 0,0209 \\
-        Seq2Seq L1 ponderada & 0,9890 & 0,0347 & 0,1009 & 0,1272 & 0,0210 & 0,0207 \\
+        Seq2Seq atenção canônica & 0,9659 & 0,0517 & 0,1395 & 0,1321 & 0,0209 & 0,0209 \\
+        Seq2Seq atenção + L1 ponderada & 0,9890 & 0,0347 & 0,1009 & 0,1272 & 0,0210 & 0,0207 \\
         \bottomrule
     \end{tabular}%
     }
 \end{table}
 
-A Tabela \ref{tab:diagnosticos_atencao} resume o mesmo comportamento. Entropia próxima de 1 indica distribuição quase uniforme; massa nas últimas 6 horas perto de \(6/48 = 0{,}125\) também sugere ausência de foco forte em recência. O Seq2Seq com atenção canônico ainda apresenta peso máximo e massa Top-3 maiores que a variante com L1 ponderada, mas o padrão continua fraco para sustentar uma interpretação causal ou operacional direta. Essa cautela é coerente com a crítica de \citeonline{jain2019attention}: pesos de atenção podem ajudar a inspecionar o modelo, mas não devem ser tratados automaticamente como explicação completa da decisão.
+A Tabela \ref{tab:diagnosticos_atencao} resume o mesmo comportamento. Entropia próxima de 1 indica distribuição quase uniforme; massa nas últimas 6 horas perto de \(6/48 = 0{,}125\) também sugere ausência de foco forte em recência. O Seq2Seq atenção canônica ainda apresenta peso máximo e massa Top-3 maiores que a variante com L1 ponderada, mas o padrão continua fraco para sustentar uma interpretação causal ou operacional direta. Essa cautela é coerente com a crítica de \citeonline{jain2019attention}: pesos de atenção podem ajudar a inspecionar o modelo, mas não devem ser tratados automaticamente como explicação completa da decisão.
 
-Assim, a resposta empírica é dupla. O Seq2Seq com atenção continua competitivo, especialmente quando combinado à perda L1 ponderada, mas os vetores de atenção extraídos não mostram um seletor temporal forte nem uma ênfase clara em defasagem 24, defasagem 48 ou nas horas mais recentes. O ganho observado parece estar mais associado à função de perda, ao contrato causal de variáveis e à seleção por validação do que a um padrão de atenção altamente concentrado.
+Assim, a resposta empírica é dupla. A família Seq2Seq com atenção continua competitiva, especialmente quando combinada à perda L1 ponderada, mas os vetores de atenção extraídos não mostram um seletor temporal forte nem uma ênfase clara em defasagem 24, defasagem 48 ou nas horas mais recentes. O ganho observado parece estar mais associado à função de perda, ao contrato causal de variáveis e à seleção por validação do que a um padrão de atenção altamente concentrado.
 
 \section{Ablações Auxiliares e Resultados Negativos}
 
@@ -330,4 +330,4 @@ A comparação fixa inicial Sapo 70/15/15, executada sem HPO e com outro conjunt
 
 Há limitações importantes. Primeiro, o eixo principal usa uma estação, Sapo, o que limita a generalização para outras estações e regiões. Segundo, o \textit{walk-forward} foi usado para HPO dentro dos 85\% anteriores ao teste, mas o teste final continua sendo um único conjunto cronológico externo; isso preserva o cenário temporal, mas ainda não equivale a repetir todo o estudo em múltiplas estações ou períodos independentes. Terceiro, os modelos neurais apresentam sensibilidade à semente aleatória, embora a análise com múltiplas sementes tenha reduzido a incerteza sobre a classificação por MAE. Quarto, o HPO \textit{walk-forward} do XGBoost foi limitado a quatro tentativas completas por custo computacional. Quinto, eventos de alta concentração são raros, o que torna métricas de picos instáveis e dependentes de poucos episódios.
 
-Mesmo com essas limitações, o protocolo atual permite uma conclusão mais defensável que a narrativa anterior: no conjunto final de Sapo, a LSTM direta venceu em erro médio; o XGBoost permaneceu uma linha de base tabular forte; e o Seq2Seq com L1 ponderada ficou competitivo, preservando mais amplitude e melhorando parte do comportamento em cauda, sem superar a LSTM direta no resultado global.
+Mesmo com essas limitações, o protocolo atual permite uma conclusão mais defensável que a narrativa anterior: no conjunto final de Sapo, a LSTM direta venceu em erro médio; o XGBoost permaneceu uma linha de base tabular forte; e o Seq2Seq atenção com L1 ponderada ficou competitivo, preservando mais amplitude e melhorando parte do comportamento em cauda, sem superar a LSTM direta no resultado global.

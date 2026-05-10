@@ -36,7 +36,7 @@ TIMELINES = {
         / "runtime/reports/sapo_final_pre_delivery_suite_20260510/artifacts/cv_hpo_lstm_recursive_clean_pm10/test_outputs/test_predictions_timeline.csv",
         "#B279A2",
     ),
-    "Seq2Seq L1 ponderada": (
+    "Seq2Seq atenção + L1 ponderada": (
         TECH_ROOT
         / "runtime/reports/sapo_final_pre_delivery_suite_20260510/artifacts/cv_hpo_weighted_l1_clean_pm10/test_outputs/test_predictions_timeline.csv",
         "#54A24B",
@@ -59,7 +59,7 @@ HORIZON_FILES = {
         / "runtime/reports/sapo_final_pre_delivery_suite_20260510/artifacts/cv_hpo_lstm_recursive_clean_pm10/test_outputs/per_horizon_metrics.csv",
         "#B279A2",
     ),
-    "Seq2Seq L1 ponderada": (
+    "Seq2Seq atenção + L1 ponderada": (
         TECH_ROOT
         / "runtime/reports/sapo_final_pre_delivery_suite_20260510/artifacts/cv_hpo_weighted_l1_clean_pm10/test_outputs/per_horizon_metrics.csv",
         "#54A24B",
@@ -70,7 +70,7 @@ HORIZON_FILES = {
         "#F58518",
     ),
 }
-# TODO(resultados): incluir Seq2Seq básico e Seq2Seq com atenção nas figuras
+# TODO(resultados): incluir Seq2Seq básico e Seq2Seq atenção canônica nas figuras
 # quando forem reexecutados no mesmo protocolo final dos demais modelos.
 
 COLORS = {

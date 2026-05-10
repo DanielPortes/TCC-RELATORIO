@@ -160,7 +160,7 @@ O uso de PM10 no decodificador não assume conhecimento futuro de PM10 observado
 
 \section{Modelos Avaliados}
 
-Foram comparadas quatro famílias de modelos neurais e uma linha de base tabular. A Tabela \ref{tab:modelos_metodologia} resume o papel de cada modelo no desenho experimental.
+Foram comparadas cinco variantes neurais e uma linha de base tabular. A Tabela \ref{tab:modelos_metodologia} resume o papel de cada modelo no desenho experimental.
 
 \begin{table}[htb]
     \centering
@@ -174,7 +174,8 @@ Foram comparadas quatro famílias de modelos neurais e uma linha de base tabular
         LSTM recursiva & Prevê passo a passo, realimentando a trajetória prevista & Linha de base sequencial recursiva \\
         LSTM direta & Produz os 24 horizontes de uma vez & Modelo sequencial direto \\
         Seq2Seq básico & Codificador-decodificador recorrente sem atenção explícita & Linha de base codificador-decodificador \\
-        Seq2Seq com atenção & Codificador-decodificador com mecanismo de atenção & Variante central para análise de atenção \\
+        Seq2Seq atenção canônica & Codificador-decodificador com mecanismo de atenção e perda Huber & Variante de referência para análise de atenção \\
+        Seq2Seq atenção com L1 ponderada & Codificador-decodificador com atenção e perda ponderada para regimes altos & Variante final de Seq2Seq \\
         XGBoost com saída múltipla & Árvores com saída multi-horizonte & Linha de base tabular forte \\
         \bottomrule
     \end{tabular}%
@@ -187,7 +188,7 @@ A comparação com XGBoost exige uma ressalva metodológica. A linha de base tab
 
 \section{Treinamento e Busca de Hiperparâmetros}
 
-O resultado principal usa busca de hiperparâmetros com validação temporal \textit{walk-forward} no bloco de desenvolvimento anterior ao teste. A busca é controlada e suficiente para comparação experimental de TCC, mas não deve ser interpretada como busca exaustiva nem garantia de ótimo global. Para os modelos neurais principais, foram usadas 24 tentativas, três partições temporais por janela expansiva, até 18 épocas por tentativa e treinamento final de até 36 épocas para LSTM direta e LSTM recursiva. Para o Seq2Seq com L1 ponderada, o treinamento final manteve orçamento de até 48 épocas. O XGBoost foi submetido ao mesmo desenho \textit{walk-forward}, mas, por custo computacional das tentativas mais longas, o resultado consolidado usou quatro tentativas completas.
+O resultado principal usa busca de hiperparâmetros com validação temporal \textit{walk-forward} no bloco de desenvolvimento anterior ao teste. A busca é controlada e suficiente para comparação experimental de TCC, mas não deve ser interpretada como busca exaustiva nem garantia de ótimo global. Para os modelos neurais principais, foram usadas 24 tentativas, três partições temporais por janela expansiva, até 18 épocas por tentativa e treinamento final de até 36 épocas para LSTM direta e LSTM recursiva. Para o Seq2Seq atenção com L1 ponderada, o treinamento final manteve orçamento de até 48 épocas. O XGBoost foi submetido ao mesmo desenho \textit{walk-forward}, mas, por custo computacional das tentativas mais longas, o resultado consolidado usou quatro tentativas completas.
 
 Nas redes neurais, cada tentativa reiniciou o modelo em cada partição e agregou a métrica de validação ao fim das partições. O estudo do Optuna usou o amostrador padrão \texttt{TPESampler} e o \texttt{HyperbandPruner}, com \texttt{min\_resource}=1, \texttt{max\_resource}=18 e fator de redução 3. Assim, tentativas pouco promissoras podiam ser interrompidas antes de consumir todo o orçamento de épocas. Essa escolha segue a recomendação da documentação do Optuna para a combinação entre \texttt{TPESampler} e \texttt{HyperbandPruner} \cite{optunaDocsEfficient2026,optunaDocsHyperband2026}. Para o XGBoost, a busca minimizou o MAE médio nas partições, com parada antecipada (\textit{early stopping}) nativa do XGBoost e \texttt{MedianPruner} \cite{optunaDocsMedian2026}. A Tabela \ref{tab:hpo_espaco_busca} organiza o espaço de busca por grupo de hiperparâmetros; a Tabela \ref{tab:hpo_melhores_hiperparametros} apresenta a configuração selecionada.
 
@@ -209,7 +210,7 @@ Nos modelos neurais, a taxa de aprendizado apresentada nas tabelas é a taxa nom
         Redes neurais & Profundidade e perda & número de camadas 1; 2; 3; $\delta$ da Huber em 0{,}5; 0{,}75; 1{,}0; 1{,}5; 2{,}0 \\
         LSTM direta & Arquitetura & dimensão oculta 96; 128; 192; 256; 320; agregação por último estado, média ou atenção \\
         LSTM recursiva & Arquitetura & dimensão oculta 96; 128; 192; 256; 320 \\
-        Seq2Seq L1 ponderada & Arquitetura e perda & codificador/decodificador 64; 96; 128; 160; atenção de entrada 64; 96; 128; 160; representação de horizonte 8; 16; 24; 32; pesos moderado/alto e fator de subestimação \\
+        Seq2Seq atenção + L1 ponderada & Arquitetura e perda & codificador/decodificador 64; 96; 128; 160; atenção de entrada 64; 96; 128; 160; representação de horizonte 8; 16; 24; 32; pesos moderado/alto e fator de subestimação \\
         XGBoost com saída múltipla & Árvores e profundidade & 160; 240; 320; 480 árvores; profundidade máxima 2 a 7; \texttt{max\_bin} 64; 128; 256 \\
         XGBoost com saída múltipla & Regularização, amostragem e parada & taxa de aprendizado logarítmica entre 0{,}015 e 0{,}12; \textit{subsample} e \textit{colsample} entre 0{,}60 e 1{,}0; $\lambda$, $\alpha$, $\gamma$, peso mínimo do filho (\textit{min child weight}); parada antecipada (\textit{early stopping}) de 10, 15 ou 25 rodadas \\
         \bottomrule
@@ -228,7 +229,7 @@ Nos modelos neurais, a taxa de aprendizado apresentada nas tabelas é a taxa nom
         \midrule
         LSTM direta & dimensão oculta 256; 3 camadas; agregação por média & taxa nominal de aprendizado 0{,}007; decaimento de pesos $5 \times 10^{-5}$; \textit{dropout} 0{,}20; $\delta$ da Huber 2{,}0 \\
         LSTM recursiva & dimensão oculta 128; 2 camadas & taxa nominal de aprendizado 0{,}0035; decaimento de pesos 0; \textit{dropout} 0{,}20; $\delta$ da Huber 1{,}0 \\
-        Seq2Seq L1 ponderada & codificador 96; decodificador 96; 1 camada; atenção de entrada 96; representação de horizonte 24 & taxa nominal de aprendizado 0{,}007; decaimento de pesos $10^{-6}$; \textit{dropout} 0{,}30; pesos 1{,}20/1{,}10; fator de subestimação 1{,}50 \\
+        Seq2Seq atenção + L1 ponderada & codificador 96; decodificador 96; 1 camada; atenção de entrada 96; representação de horizonte 24 & taxa nominal de aprendizado 0{,}007; decaimento de pesos $10^{-6}$; \textit{dropout} 0{,}30; pesos 1{,}20/1{,}10; fator de subestimação 1{,}50 \\
         XGBoost com saída múltipla & 480 árvores; profundidade máxima 2; \texttt{max\_bin}=64 & taxa de aprendizado 0{,}02563; \textit{subsample}=0{,}7611; \textit{colsample}=0{,}9073; $\lambda=7{,}7542$; parada antecipada=10 rodadas \\
         \bottomrule
     \end{tabular}

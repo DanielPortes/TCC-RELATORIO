@@ -18,13 +18,13 @@ OUT_DIR = ROOT / "artefatos"
 DATASET_PATH = TCC_WSL / "runtime/reports/sapo_clean_pm10_hpo_all_models_20260509/datasets/sapo_clean_pm10_decoder_proxy.parquet"
 
 RUNS = {
-    "Seq2Seq attention HPO": {
+    "Seq2Seq atenção canônica": {
         "ckpt": TCC_WSL
         / "runtime/training/Sapo_Clean_PM10_HPO_All_Models_2026_05_09/166e7cd1d95e4503bbf2cf44182174f2/checkpoints/best_model.ckpt",
         "diag": TCC_WSL
         / "runtime/reports/sapo_clean_pm10_hpo_all_models_20260509/artifacts/seq2seq_attention_clean_pm10_hpo/test_outputs/attention_diagnostics.json",
     },
-    "Seq2Seq L1 ponderada": {
+    "Seq2Seq atenção + L1 ponderada": {
         "ckpt": TCC_WSL
         / "runtime/training/Seq2Seq_Weighted_L1_HPO_2026_05_09/eb94b33d27484a20ad509492ebeb6b5d/checkpoints/best_model.ckpt",
         "diag": TCC_WSL
@@ -214,7 +214,7 @@ def _plot_heatmap(attn: np.ndarray) -> None:
         vmin=float(mean_matrix.min()),
         vmax=float(mean_matrix.max()),
     )
-    ax.set_title("Matriz media de atencao do Seq2Seq L1 ponderada", weight="bold", pad=12)
+    ax.set_title("Matriz media de atencao da variante L1 ponderada", weight="bold", pad=12)
     ax.set_ylabel("Horizonte previsto")
     xticks = [0, 12, 24, 36, seq_len - 1]
     yticks = [0, 5, 11, 17, 23]
@@ -278,7 +278,7 @@ def _export_attention_artifacts(attentions: dict[str, np.ndarray]) -> dict[str, 
             )
     pd.DataFrame(profile_rows).to_csv(OUT_DIR / "attention_profile_tcc.csv", index=False)
 
-    weighted = attentions["Seq2Seq L1 ponderada"]
+    weighted = attentions["Seq2Seq atenção + L1 ponderada"]
     mean_matrix = weighted.mean(axis=0)
     horizon, seq_len = mean_matrix.shape
     matrix_rows = []
@@ -365,7 +365,7 @@ def main() -> None:
     comparison = _export_attention_artifacts(attentions)
 
     _plot_profile(attentions)
-    _plot_heatmap(attentions["Seq2Seq L1 ponderada"])
+    _plot_heatmap(attentions["Seq2Seq atenção + L1 ponderada"])
     _plot_diagnostics(summary_df)
     print(summary_df[[
         "modelo",
