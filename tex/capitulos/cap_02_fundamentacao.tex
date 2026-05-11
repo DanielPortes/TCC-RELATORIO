@@ -22,15 +22,6 @@ A análise de séries temporais costuma separar padrões em componentes interpre
 
 em que \(T_t\) representa tendência ou tendência-ciclo, \(S_t\) representa sazonalidade de período conhecido e \(R_t\) representa o restante da série, incluindo ruído, mudanças abruptas e eventos raros. Para séries horárias, pode haver mais de uma sazonalidade relevante, como ciclo diário, semanal e anual. No protocolo deste TCC, essa leitura motiva o uso de atributos temporais e termos de Fourier para representar ciclos conhecidos, além de defasagens e variáveis substitutas causais para capturar dependências temporais sem usar informação futura.
 
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=\linewidth]{serie_temporal_componentes_sapo.pdf}
-    \caption{Exemplo descritivo de série temporal e componentes no PM2.5 de Sapo. Elaboração própria com base na decomposição aditiva discutida por \citeonline{hyndman2021forecasting}.}
-    \label{fig:serie_temporal_componentes_sapo}
-\end{figure}
-
-A Figura \ref{fig:serie_temporal_componentes_sapo} ilustra essa ideia no próprio recorte de Sapo. O primeiro painel mostra a série regularizada de PM2.5; o segundo resume a tendência-ciclo por média móvel de sete dias; o terceiro destaca um perfil horário médio; e o último concentra resíduos e picos. A figura é descritiva, não uma etapa de entrada dos modelos finais. Sua função é mostrar por que a previsão de PM2.5 não se resume a extrapolar uma média: há persistência temporal, variação lenta, padrões cíclicos e eventos residuais de maior amplitude.
-
 Outro conceito central é autocorrelação, isto é, a associação entre a série e versões defasadas dela mesma. Para uma defasagem \(\ell\), a autocorrelação amostral pode ser escrita como:
 
 \[
@@ -42,7 +33,7 @@ Outro conceito central é autocorrelação, isto é, a associação entre a sér
     }.
 \]
 
-Valores altos de \(\rho(1)\), \(\rho(24)\) ou \(\rho(168)\) indicam, respectivamente, persistência de curto prazo, repetição diária e repetição semanal. No diagnóstico exploratório do artefato final de Sapo, a autocorrelação observada foi aproximadamente 0,81 em 1 hora, 0,65 em 24 horas e 0,38 em 168 horas. Isso ajuda a justificar a janela histórica de 48 horas, a avaliação de defasagens sazonais e a presença de termos cíclicos no conjunto de atributos.
+Valores altos de \(\rho(1)\), \(\rho(24)\) ou \(\rho(168)\) indicam, respectivamente, persistência de curto prazo, repetição diária e repetição semanal. No diagnóstico exploratório do artefato final de Sapo, considerando pares observados completos de PM2.5, a autocorrelação foi aproximadamente 0,81 em 1 hora, 0,68 em 24 horas e 0,46 em 168 horas. Isso ajuda a justificar a janela histórica de 48 horas, a avaliação de defasagens sazonais e a presença de termos cíclicos no conjunto de atributos.
 
 Formalmente, seja $\mathbf{x}_t \in \mathbb{R}^{d}$ o vetor de atributos observado no instante $t$, $y_t \in \mathbb{R}$ a concentração de PM2.5 e $\mathbf{z}_{t+k}$ o vetor de atributos futuros conhecidos no instante de emissão da previsão, como calendário, termos de Fourier e variáveis substitutas causais. Para uma janela de entrada de tamanho $L$ e horizonte $H$, o problema pode ser escrito como:
 

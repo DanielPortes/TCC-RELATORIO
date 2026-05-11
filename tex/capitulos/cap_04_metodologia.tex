@@ -84,6 +84,43 @@ A Tabela \ref{tab:eda_sapo_splits} resume a cobertura e a distribuição observa
     \label{fig:eda_sapo_distribuicao_pm25}
 \end{figure}
 
+\subsection{Padrões Temporais de PM2.5 e PM10}
+
+Além da cobertura e da distribuição marginal, o artefato Sapo foi analisado quanto a tendência, persistência e sazonalidade. Essa análise usa apenas pontos originalmente observados nas métricas agregadas, respeitando as máscaras \texttt{PM2.5\_\_miss} e \texttt{PM10\_\_miss}. A Figura \ref{fig:serie_temporal_componentes_sapo} resume visualmente a decomposição descritiva do PM2.5: há uma componente lenta de tendência-ciclo, um perfil horário repetitivo e resíduos com picos abruptos.
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=\linewidth]{serie_temporal_componentes_sapo.pdf}
+    \caption{Série temporal de PM2.5 e decomposição descritiva no artefato Sapo. Elaboração própria com base na decomposição aditiva discutida por \citeonline{hyndman2021forecasting}.}
+    \label{fig:serie_temporal_componentes_sapo}
+\end{figure}
+
+A Tabela \ref{tab:padroes_temporais_sapo} resume os principais sinais temporais de PM2.5 e PM10. Para PM2.5, a persistência de curto prazo é alta, com autocorrelação de 0,813 em 1 hora, e há repetição diária relevante, com autocorrelação de 0,681 em 24 horas. O sinal semanal existe, mas é mais fraco, com autocorrelação de 0,461 em 168 horas e diferença média entre dias da semana de apenas 0,70. O perfil horário é mais claro: as menores médias de PM2.5 aparecem entre a madrugada e o início da tarde, com mínimo médio próximo de 10,29 às 13h, enquanto o fim da tarde e a noite concentram maiores valores, com máximo médio próximo de 14,77 às 18h.
+
+\begin{table}[htb]
+    \centering
+    \caption{Padrões temporais observados de PM2.5 e PM10 no artefato Sapo.}
+    \label{tab:padroes_temporais_sapo}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lrrp{0.44\textwidth}}
+        \toprule
+        \textbf{Diagnóstico} & \textbf{PM2.5} & \textbf{PM10} & \textbf{Leitura} \\
+        \midrule
+        Autocorrelação 1h & 0,813 & 0,734 & Forte persistência de curto prazo nos dois poluentes. \\
+        Autocorrelação 24h & 0,681 & 0,564 & Repetição diária relevante, justificando defasagens e substitutos causais baseados em 24h. \\
+        Autocorrelação 168h & 0,461 & 0,360 & Sinal semanal mais fraco que o diário. \\
+        Amplitude média por hora & 4,48 & 11,14 & Ciclo horário claro, mais intenso em PM10. \\
+        Amplitude média por dia da semana & 0,70 & 3,68 & Variação semanal pequena diante da variabilidade total. \\
+        Amplitude média por mês & 8,52 & 12,95 & Regime sazonal/mensal forte, com elevação em setembro e outubro. \\
+        \bottomrule
+    \end{tabular}%
+    }
+\end{table}
+
+O PM10 apresenta comportamento compatível com o PM2.5, mas com amplitude horária maior. Suas menores médias ocorrem por volta de 4h, com valor médio próximo de 20,95, e as maiores médias ocorrem por volta de 20h, com valor médio próximo de 32,09. A correlação de Pearson entre PM2.5 e PM10 observados no mesmo horário foi 0,597, e a correlação de Spearman foi 0,421. Portanto, PM10 é uma variável auxiliar informativa, mas não determina completamente a variação horária de PM2.5.
+
+Também há um padrão mensal importante: PM2.5 e PM10 sobem em setembro e outubro, com média de PM2.5 próxima de 17,97 em outubro e p95 de 44 nesse mês. No entanto, a interpretação como ciclo anual regular deve ser cautelosa, pois o artefato cobre apenas quatro anos, possui lacunas e apresenta mudanças de regime entre anos. A autocorrelação anual aproximada de PM2.5 foi baixa, cerca de 0,038, indicando que a repetição anual é menos estável que a persistência horária e diária. Assim, no protocolo final, os termos temporais e de Fourier são úteis para fornecer informação cíclica ao modelo, mas os picos e resíduos continuam dependendo de fatores não observados diretamente, como meteorologia local, mistura atmosférica, transporte espacial e fontes de emissão.
+
 \clearpage
 
 \section{Formulação da Tarefa}
