@@ -14,6 +14,7 @@ Este manifesto registra quais artefatos podem sustentar a escrita final do TCC. 
 - [x] Diagramas teoricos proprios de LSTM, Seq2Seq com atencao e XGBoost gerados e citados no Capitulo 2.
 - [x] Diagramas proprios revisados para reduzir sobreposicao de setas e melhorar a leitura.
 - [x] Pesos de atencao dos checkpoints finais extraidos e analisados no Capitulo 5.
+- [x] Experimentos diagnosticos `oracle future aux` e Seq2Seq multi-alvo adicionados como limite informacional.
 - [x] PDF compilado depois da revisao final.
 
 ## Estado do Repositorio Tecnico
@@ -54,6 +55,7 @@ Este manifesto registra quais artefatos podem sustentar a escrita final do TCC. 
 | `../TCC-wsl/scripts/analysis/run_sapo_clean_pm10_hpo_all_models.py` | Bateria de 2026-05-09 com HPO simples; manter como histórico comparável | `python scripts/analysis/run_sapo_clean_pm10_hpo_all_models.py` com defaults do script. |
 | `../TCC-wsl/scripts/analysis/run_seq2seq_weighted_l1_hpo.py` | HPO especifico do Seq2Seq attention com `weighted_l1` | `python scripts/analysis/run_seq2seq_weighted_l1_hpo.py` com defaults: `WEIGHTED_L1_HPO_TRIALS=18`, `WEIGHTED_L1_HPO_MAX_EPOCHS=14`, `WEIGHTED_L1_FINAL_MAX_EPOCHS=48`. |
 | `../TCC-wsl/scripts/analysis/run_seq2seq_weighted_l1_final_ablation.py` | Ablacao final de seeds, lags e blends do `weighted_l1` | `python scripts/analysis/run_seq2seq_weighted_l1_final_ablation.py` com defaults: `FINAL_MAX_EPOCHS=48`, `REFINED_HPO_TRIALS=14`, `REFINED_HPO_MAX_EPOCHS=16`. |
+| `../TCC-wsl/scripts/analysis/run_station_lstm_seq2seq_feature_transfer.py` | Diagnosticos auxiliares por dataset/estacao, incluindo `oracle future aux` e Seq2Seq multi-alvo em Sapo. | Usado como estudo auxiliar; nao substitui a suite principal `clean_pm10_decoder_proxy`. |
 | `../TCC-wsl/configs/data_source/cmd_sapo.yaml` | Fonte de dados e estacao principal | Sapo/CMD. |
 | `../TCC-wsl/configs/experiment/seq_len_48x24_cmd_sapo_70_15_15.yaml` | Formula a tarefa | entrada 48h e saida 24h. |
 | `../TCC-wsl/configs/period/cmd_sapo_2016_2020_ratio_70_15_15.yaml` | Periodo do benchmark fixo inicial | Usar como historico; conferir sempre contra o artefato final filtrado. |
@@ -73,6 +75,9 @@ Este manifesto registra quais artefatos podem sustentar a escrita final do TCC. 
 | `../TCC-wsl/runtime/reports/sapo_clean_pm10_hpo_all_models_20260509/sapo_clean_pm10_dataset_summary.json` | Periodo, linhas, colunas e missingness do dataset. |
 | `../TCC-wsl/runtime/reports/seq2seq_weighted_l1_hpo_20260509/seq2seq_weighted_l1_hpo_summary.csv` | Melhor Seq2Seq attention individual com `weighted_l1`. |
 | `../TCC-wsl/runtime/reports/seq2seq_weighted_l1_final_ablation_20260509/seq2seq_weighted_l1_final_ablation_summary.csv` | Seeds, lag24/lag48, blends e HPO refinado para cauda/picos. |
+| `../TCC-wsl/runtime/reports/station_lstm_seq2seq_feature_transfer_20260510/cmd_sapo_hourly_pm10_seq2seq_winner_oracle_future_mon_rmse_48x24/summary.json` | Diagnostico oracle com PM10 futuro real em Sapo. |
+| `../TCC-wsl/runtime/reports/station_lstm_seq2seq_feature_transfer_20260510/cmd_sapo_hourly_all_context_seq2seq_winner_oracle_future_mon_rmse_48x24/summary.json` | Diagnostico oracle com PM10 + PTS futuros reais em Sapo. |
+| `../TCC-wsl/runtime/reports/station_lstm_seq2seq_feature_transfer_20260510/cmd_sapo_hourly_all_context_seq2seq_winner_multitarget_aux128_mon_rmse_48x24/summary.json` | Melhor diagnostico Seq2Seq multi-alvo com PM10 e PTS como tarefas auxiliares. |
 | `../TCC-wsl/docs/generated/eda_outras_usinas/metricas/usina_pm25_resumo_ranking.csv` | Ranking exploratorio usado para fundamentar a escolha da estacao Sapo. |
 | `artefatos/eda_sapo_split_summary_tcc.csv` e `artefatos/eda_sapo_summary_tcc.json` | Cobertura, missingness, distribuicao e picos do artefato final Sapo por split. |
 | `artefatos/eda_sapo_pm25_gaps_tcc.csv` | Maiores lacunas originais de PM2.5 no artefato Sapo. |
@@ -96,6 +101,16 @@ Este manifesto registra quais artefatos podem sustentar a escrita final do TCC. 
 | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
 | `cv_hpo_weighted_l1_clean_pm10` seed 42 | ver `cv_hpo_summary.csv` | 2.8658 | 3.9641 | 0.4821 | 12.3697 | 31.57 | Resultado final selecionado por walk-forward. |
 | `cv_hpo_weighted_l1_clean_pm10` media multi-seed | ver `multi_seed_aggregate.csv` | 2.8646 | 3.9617 | 0.4827 | 13.1103 | 30.49 | Competitivo, mas abaixo da LSTM direct em MAE. |
+
+## Diagnosticos de Limite Informacional
+
+| Experimento auxiliar | MAE | RMSE | R2 | Peak35 MAE | Leitura |
+| --- | ---: | ---: | ---: | ---: | --- |
+| PM10 causal Seq2Seq | 2.7777 | 3.9131 | 0.4954 | 10.2406 | Controle causal PM10-only no diagnostico. |
+| PM10 + PTS causal Seq2Seq | 2.8758 | 3.9949 | 0.4741 | 10.5980 | Controle all-context util em Sapo; meteo/gases muito esparsos ficaram fora. |
+| PM10 futuro real (`oracle`) | 2.4201 | 3.2659 | 0.6485 | 7.9835 | Mostra que PM10 futuro carrega informacao relevante, mas usa vazamento controlado. |
+| PM10 + PTS futuro real (`oracle`) | 2.4223 | 3.2654 | 0.6486 | 7.1718 | Melhor pico no oracle; ainda distante de R2 proximo de 1. |
+| Melhor Seq2Seq multi-alvo PM10+PTS | 2.7689 | 3.9373 | 0.4891 | 11.3975 | Aprendizagem auxiliar melhora MAE/R2 contra all-context causal, mas nao reproduz o ganho oracle. |
 
 ## Figuras Exportadas
 

@@ -20,6 +20,28 @@ Modelos clássicos e tabulares continuam relevantes. Trabalhos com SVM, floresta
 
 Neste trabalho, essa linha é representada pelo XGBoost com saída múltipla. Ele não é tratado como modelo simples de descarte, mas como linha de base forte. Essa escolha é importante porque conclusões sobre aprendizado profundo só são defensáveis quando comparadas com linhas de base tabulares bem ajustadas sob o mesmo teste externo.
 
+Também é necessário cuidado ao comparar diretamente valores de MAE, RMSE ou R2 entre trabalhos de PM2.5. Estudos recentes com desempenho aparentemente superior frequentemente usam horizontes mais curtos, agregação diária ou mensal, múltiplas estações, variáveis meteorológicas completas, copoluentes e até variáveis derivadas de reanálise, GNSS-PWV, sensoriamento remoto ou modelos físico-químicos \cite{ayturan2020short,su2023cnn_lstm_pm25,zhang2025gnss_pwv_rf_lstm,zeng2026diverse_horizons,chen2024lstcn_pm25,feng2024hybrid_spatiotemporal_pm25}. Essas condições não são equivalentes ao contrato causal de Sapo, no qual o modelo deve prever 24 horas horárias futuras usando 48 horas históricas e sem conhecer PM10, PTS ou meteorologia reais do futuro.
+
+\begin{table}[htb]
+    \centering
+    \caption{Diferenças de contrato em trabalhos recentes de PM2.5 em relação ao protocolo Sapo.}
+    \label{tab:relacionados_pm25_comparabilidade}
+    \small
+    \renewcommand{\arraystretch}{1.10}
+    \begin{tabular}{>{\raggedright\arraybackslash}p{0.24\textwidth}>{\raggedright\arraybackslash}p{0.34\textwidth}>{\raggedright\arraybackslash}p{0.34\textwidth}}
+        \toprule
+        \textbf{Grupo de evidência} & \textbf{Exemplos na literatura} & \textbf{Implicação para este TCC} \\
+        \midrule
+        Horizonte mais curto ou diferente & Previsões de curto prazo com RNN/LSTM/GRU \cite{ayturan2020short}; previsão de 1 hora com RF-LSTM e GNSS-PWV \cite{zhang2025gnss_pwv_rf_lstm}; dados de 15 minutos em LSTM urbano \cite{balaraman2022lstm_pm25}; previsão mensal em Dezhou \cite{he2024comparative_pm25}. & Métricas de tarefas um-passo, diárias ou mensais tendem a ser menos severas que uma tarefa horária multi-horizonte 48 para 24. Portanto, R2 alto nesses cenários não é diretamente comparável ao R2 de Sapo. \\
+        Variáveis exógenas mais ricas & CNN-LSTM com poluentes, ERA5 e PWV em dez cidades \cite{su2023cnn_lstm_pm25}; Transformer-LSTM com copoluentes e meteorologia \cite{zeng2026diverse_horizons}; RF-LSTM com PWV, PM10, O3, pressão, temperatura e vento \cite{zhang2025gnss_pwv_rf_lstm}. & Esses trabalhos usam fatores que explicam dispersão, estabilidade atmosférica e formação de PM2.5. Em Sapo, essas variáveis estão ausentes ou esparsas, e não podem ser usadas como futuro real sem vazamento. \\
+        Informação espacial explícita & CNN-LSTM e AC-LSTM com correlação entre estações e meteorologia \cite{li2020hybrid_cnn_lstm_access,li2020urban,bai2024cnn_lstm_pm25}; L-STCN e modelos espaço-temporais \cite{chen2024lstcn_pm25}; ST-GCN com alta resolução espacial \cite{feng2024hybrid_spatiotemporal_pm25}. & Parte da variância horária de PM2.5 decorre de transporte, fontes locais e condições de mistura. Um modelo de uma única estação com PM2.5/PM10 não observa diretamente esse campo espacial. \\
+        Arquiteturas híbridas e HPO específico & CNN-LSTM, GRU-LR-TCN, Transformer-LSTM, PSO-Transformer-LSTM e comparações com modelos tradicionais \cite{hu2024high_dim_pm25,qamar2025cleaner_air,liu2025pso_transformer_lstm}. & A arquitetura contribui, mas não substitui variáveis explicativas. No protocolo Sapo, ablações e testes oracle indicam que o limite principal está no contrato informacional, não apenas no desenho neural. \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Assim, a literatura deve ser usada como referência de possibilidades e não como tabela de comparação direta. Trabalhos que reportam R2 próximo de 0,9 ou superior geralmente resolvem uma tarefa diferente ou recebem informação que o protocolo Sapo não possui. A contribuição deste TCC é justamente explicitar esse limite: sob um contrato causal restrito e multi-horizonte, a meta realista não é reproduzir automaticamente o R2 de estudos com entradas meteorológicas e espaciais completas, mas medir o ganho que cada decisão produz dentro do mesmo teste externo.
+
 \section{Deep Learning para Qualidade do Ar}
 
 Modelos recorrentes são frequentes em previsão de PM2.5 porque conseguem explorar dependências temporais. \citeonline{zhao2021pm2} combinaram decomposição por modos empíricos e LSTM para previsão de PM2.5, enquanto \citeonline{tran2023optimized_lstm} investigaram previsão horária de PM2.5 com LSTM otimizada. Estudos como esses sustentam o uso de LSTM como arquitetura base para previsão de curto prazo.

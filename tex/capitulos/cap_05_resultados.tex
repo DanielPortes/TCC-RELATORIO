@@ -252,6 +252,60 @@ A Tabela \ref{tab:ablation_pm10_causal} compara o contrato final contra duas rem
 
 A ablação confirma que os substitutos causais de PM10 foram uma decisão central, sobretudo para a LSTM direta: remover esses atributos aumentou o MAE em 0,0862, e remover PM10 completamente aumentou o MAE em 0,0743. No XGBoost, o ganho global foi menor, mas ainda consistente em MAE, RMSE e R2. Assim, o papel de PM10 causal deve ser apresentado como contribuição metodológica do contrato de dados, não apenas como detalhe de engenharia de atributos.
 
+\section{Limite Informacional com Variáveis Futuras}
+
+Após a ablação causal de PM10, foi executado um diagnóstico adicional com Seq2Seq atenção para responder a uma pergunta diferente: quanto do erro restante parece vir de informação futura ausente, e não apenas de arquitetura ou hiperparâmetros? Para isso, foi usado um cenário \textit{oracle future auxiliary}, no qual o decodificador recebe PM10 e PTS observados no próprio horizonte futuro. Esse cenário não é operacional e não deve ser tratado como candidato a modelo final, mas funciona como limite superior informacional sob a mesma estação e tarefa.
+
+Na estação Sapo, a tentativa de usar um conjunto mais amplo de variáveis mostrou uma limitação prática: entre as variáveis auxiliares avaliadas, PM10 e PTS foram as únicas com observações úteis de forma consistente; variáveis meteorológicas e gases estavam ausentes ou esparsos demais no recorte analisado. A Tabela \ref{tab:oracle_future_aux_sapo} resume os resultados diagnósticos.
+
+\begin{table}[htb]
+    \centering
+    \caption{Diagnóstico \textit{oracle future auxiliary} no Seq2Seq atenção em Sapo.}
+    \label{tab:oracle_future_aux_sapo}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lrrrr}
+        \toprule
+        \textbf{Contrato diagnóstico} & \textbf{MAE} & \textbf{RMSE} & \textbf{R2} & \textbf{Peak35 MAE} \\
+        \midrule
+        PM10 causal no decodificador & 2,7777 & 3,9131 & 0,4954 & 10,2406 \\
+        PM10 + PTS causal no decodificador & 2,8758 & 3,9949 & 0,4741 & 10,5980 \\
+        PM10 futuro real no decodificador (\textit{oracle}) & \textbf{2,4201} & 3,2659 & 0,6485 & 7,9835 \\
+        PM10 + PTS futuro real no decodificador (\textit{oracle}) & 2,4223 & \textbf{3,2654} & \textbf{0,6486} & \textbf{7,1718} \\
+        \bottomrule
+    \end{tabular}%
+    }
+\end{table}
+
+O ganho do \textit{oracle} é grande e ajuda a interpretar o problema. Em relação ao controle causal com PM10 e PTS, o uso de variáveis futuras reais reduziu o MAE de 2,8758 para 2,4223 e elevou o R2 de 0,4741 para 0,6486. A melhoria em picos também foi clara: o Peak35 MAE caiu de 10,5980 para 7,1718. Esse resultado mostra que existe informação relevante no futuro de variáveis auxiliares, especialmente em PM10, que o modelo operacional não tem como conhecer no instante da previsão.
+
+Ao mesmo tempo, o próprio \textit{oracle} impõe uma leitura conservadora: mesmo com PM10 e PTS futuros reais, o R2 ficou em torno de 0,65, ainda distante de 1. Portanto, a distância até um R2 quase perfeito não parece ser apenas consequência de HPO insuficiente ou de uma arquitetura Seq2Seq subótima. Parte relevante da variância horária de PM2.5 em Sapo provavelmente depende de fatores não observados no contrato atual, como meteorologia local, estabilidade e mistura atmosférica, transporte espacial, emissões, ressuspensão e episódios súbitos.
+
+\section{Seq2Seq Multi-Alvo com Variáveis Auxiliares}
+
+Também foi testada uma adaptação do Seq2Seq atenção para prever PM2.5 como alvo principal e, durante o treinamento, prever PM10 e PTS futuros como tarefas auxiliares. A hipótese era que a aprendizagem conjunta poderia induzir uma representação interna mais sensível à dinâmica dos poluentes correlacionados, sem usar variáveis futuras reais no decodificador.
+
+\begin{table}[htb]
+    \centering
+    \caption{Experimentos Seq2Seq multi-alvo com PM10 e PTS como tarefas auxiliares.}
+    \label{tab:seq2seq_multialvo_sapo}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lrrrr}
+        \toprule
+        \textbf{Variante diagnóstica} & \textbf{MAE} & \textbf{RMSE} & \textbf{R2} & \textbf{Peak35 MAE} \\
+        \midrule
+        Seq2Seq causal PM10 + PTS, sem multi-alvo & 2,8758 & 3,9949 & 0,4741 & \textbf{10,5980} \\
+        Multi-alvo, peso auxiliar 0,03 & 2,7997 & 4,0045 & 0,4715 & 14,5285 \\
+        Multi-alvo, peso auxiliar 0,08 & 2,8876 & 4,1483 & 0,4329 & 10,5677 \\
+        Multi-alvo, dimensão 128 e peso auxiliar 0,12 & \textbf{2,7689} & \textbf{3,9373} & \textbf{0,4891} & 11,3975 \\
+        \bottomrule
+    \end{tabular}%
+    }
+\end{table}
+
+O melhor multi-alvo reduziu o MAE em relação ao controle causal com PM10 e PTS, de 2,8758 para 2,7689, e elevou o R2 de 0,4741 para 0,4891. Esse é um indício positivo de que a tarefa auxiliar pode regularizar a representação do Seq2Seq. Porém, o ganho não reproduziu o salto observado no \textit{oracle} e ainda piorou a métrica de pico em relação ao controle causal. Em termos práticos, aprender PM10 e PTS futuros não equivale a conhecer PM10 e PTS futuros.
+
+Esses dois diagnósticos convergem para a mesma interpretação. A arquitetura pode extrair algum ganho adicional, mas o principal gargalo para R2 muito alto está na informação disponível. Sem variáveis meteorológicas e espaciais observadas de forma confiável, e sem acesso causal ao futuro dos poluentes auxiliares, o modelo tende a suavizar a variância horária e subestimar parte dos picos.
+
 \section{Ablação de Máscara e Imputação}
 
 A Tabela \ref{tab:ablation_mascara_imputacao} avalia a decisão de manter imputação linear e excluir alvos originalmente imputados da função de perda e das métricas observadas. A linha ``linear + máscara'' é o contrato principal; as demais linhas alteram somente a política de máscara ou o método de imputação.

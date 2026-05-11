@@ -63,6 +63,19 @@ Esta matriz conecta cada referencia ao ponto do texto que ela sustenta. Ela e in
 | `zanobini2024curitiba` | PM2.5 no Brasil | Cap. 3 | Trabalho brasileiro recente de previsao de PM2.5 com ML. | Adicionado em `referencias.bib`; PDF salvo segundo curadoria. |
 | `tran2023optimized_lstm` | PM2.5 horario com LSTM | Cap. 3 | LSTM otimizado em previsao horaria de PM2.5. | Adicionado em `referencias.bib`; corrige a chave provisoria `rahu2023optimized_lstm` da curadoria. |
 | `li2020urban` | PM2.5 com CNN-LSTM e atencao | Cap. 3 | Exemplo de arquitetura hibrida com atencao para PM2.5 urbano. | Adicionado em `referencias.bib`. |
+| `ayturan2020short` | PM2.5 curto prazo | Cap. 3 | Mostra uso de RNN/LSTM/GRU em previsao de curto prazo e ajuda a discutir sensibilidade ao horizonte. | Adicionado em `referencias.bib`. |
+| `su2023cnn_lstm_pm25` | PM2.5 com CNN-LSTM e variaveis ricas | Cap. 3 | Exemplo com multiplas cidades, copoluentes, meteorologia ERA5 e PWV; sustenta cautela de comparabilidade. | Adicionado em `referencias.bib`. |
+| `hu2024high_dim_pm25` | PM2.5 high-dimensional time series | Cap. 3 | Exemplo de DL para series multivariadas de alta dimensao. | Adicionado em `referencias.bib`. |
+| `zhang2025gnss_pwv_rf_lstm` | PM2.5 com GNSS-PWV e RF-LSTM | Cap. 3 | Exemplo de previsao com variaveis meteorologicas/atmosfericas ricas e horizonte curto. | Adicionado em `referencias.bib`. |
+| `zeng2026diverse_horizons` | PM2.5 em horizontes diversos | Cap. 3 | Mostra que meteorologia melhora mais que copoluentes e que horizonte/completude sazonal afetam desempenho. | Adicionado em `referencias.bib`. |
+| `qamar2025cleaner_air` | PM2.5 com DL e series tradicionais | Cap. 3 | Exemplo recente de comparacao entre modelos DL e abordagens tradicionais. | Adicionado em `referencias.bib`. |
+| `li2020hybrid_cnn_lstm_access` | PM2.5 CNN-LSTM 24h | Cap. 3 | Exemplo de modelo CNN-LSTM para proxima janela de 24h com entradas multivariadas. | Adicionado em `referencias.bib`. |
+| `liu2025pso_transformer_lstm` | PM2.5 Transformer-LSTM com PSO | Cap. 3 | Exemplo de arquitetura hibrida otimizada, com ressalva de que arquitetura depende do contrato de dados. | Adicionado em `referencias.bib`. |
+| `he2024comparative_pm25` | PM2.5 mensal | Cap. 3 | Exemplo de resultado com agregacao mensal, nao diretamente comparavel ao protocolo horario 48->24. | Adicionado em `referencias.bib`. |
+| `bai2024cnn_lstm_pm25` | PM2.5 CNN-LSTM com fatores meteorologicos | Cap. 3 | Exemplo de R2 alto em tarefa com dados diarios, meteorologia e componente espacial. | Adicionado em `referencias.bib`. |
+| `chen2024lstcn_pm25` | PM2.5 horario espaco-temporal | Cap. 3 | Exemplo de modelo com informacao espacial/multiplas estacoes e PCA. | Adicionado em `referencias.bib`. |
+| `feng2024hybrid_spatiotemporal_pm25` | PM2.5 ST-GCN/high resolution | Cap. 3 | Exemplo de desempenho alto com informacao espacial de alta resolucao; sustenta a nao comparabilidade com Sapo uniestacao. | Adicionado em `referencias.bib`. |
+| `balaraman2022lstm_pm25` | PM2.5 LSTM urbano | Cap. 3 | Exemplo de LSTM com dados de 15 minutos e R2 alto, mas em contrato diferente. | Adicionado em `referencias.bib`. |
 
 ## Decisoes de Uso
 
