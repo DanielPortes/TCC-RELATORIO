@@ -2,7 +2,7 @@
 \chapter{Fundamentação Teórica}
 \label{chap:fundamentacao_teorica}
 
-Este capítulo apresenta os conceitos usados no protocolo experimental deste trabalho. O foco é a previsão horária de múltiplos passos de PM2.5 em séries temporais ambientais, com dados faltantes, variáveis exógenas conhecidas no momento da previsão, redes neurais artificiais, modelos recorrentes, arquiteturas codificador-decodificador com atenção e uma linha de base tabular baseada em impulsionamento por gradiente (\textit{gradient boosting}).
+Este capítulo apresenta os conceitos usados no protocolo experimental deste trabalho. O foco é a previsão horária de múltiplos passos de PM2.5 em séries temporais ambientais, com dados faltantes, variáveis exógenas conhecidas no momento da previsão, redes neurais artificiais, modelos recorrentes, arquiteturas codificador-decodificador com atenção e um modelo de referência tabular baseado em impulsionamento por gradiente (\textit{gradient boosting}).
 
 \section{PM2.5 e Monitoramento da Qualidade do Ar}
 
@@ -282,7 +282,7 @@ Nessa expressão, $T_k$ é o número de folhas da árvore e $\mathbf{w}_k$ são 
     \label{fig:xgboost_multioutput_propria}
 \end{figure}
 
-A avaliação final ocorre no mesmo teste externo dos modelos neurais, mas o treinamento tem uma ressalva: a linha de base tabular exige janelas com horizonte completo observado, enquanto os modelos neurais usam máscara ponto a ponto para ignorar alvos imputados.
+A avaliação final ocorre no mesmo teste externo dos modelos neurais, mas o treinamento tem uma ressalva: o modelo de referência tabular exige janelas com horizonte completo observado, enquanto os modelos neurais usam máscara ponto a ponto para ignorar alvos imputados.
 
 \section{Treinamento, Função de Perda e HPO}
 \label{sec:otimizacao_hpo}
@@ -381,4 +381,4 @@ Além dessas métricas, este TCC analisa MAE por horizonte, viés médio, percen
 
 \section{Resumo do Capítulo}
 
-Este capítulo definiu a base teórica do estudo: PM2.5 como série temporal ambiental, componentes temporais, autocorrelação, previsão de múltiplos passos, tratamento de dados faltantes sem vazamento, janelas supervisionadas, variáveis exógenas causalmente disponíveis, redes neurais artificiais, aprendizado profundo, LSTM, Seq2Seq com atenção, \textit{scheduled sampling}, XGBoost, HPO e métricas. A formulação matemática deixa explícito o contrato de previsão 48 para 24 horas e a distinção entre arquiteturas recorrentes, codificador-decodificador e linha de base tabular.
+Este capítulo definiu a base teórica do estudo: PM2.5 como série temporal ambiental, componentes temporais, autocorrelação, previsão de múltiplos passos, tratamento de dados faltantes sem vazamento, janelas supervisionadas, variáveis exógenas causalmente disponíveis, redes neurais artificiais, aprendizado profundo, LSTM, Seq2Seq com atenção, \textit{scheduled sampling}, XGBoost, HPO e métricas. A formulação matemática deixa explícito o contrato de previsão 48 para 24 horas e a distinção entre arquiteturas recorrentes, codificador-decodificador e modelo de referência tabular.

@@ -2,7 +2,7 @@
 \chapter{Trabalhos Relacionados}
 \label{chap:trabalhos_relacionados}
 
-Este capítulo posiciona o trabalho em relação à literatura de previsão de PM2.5 e de avaliação experimental em séries temporais. A discussão não busca listar arquiteturas de forma exaustiva; ela destaca estudos que justificam as decisões metodológicas do TCC: uso de modelos recorrentes, atenção, linhas de base tabulares, tratamento de dados faltantes, previsão multi-horizonte e protocolo temporal comparável.
+Este capítulo posiciona o trabalho em relação à literatura de previsão de PM2.5 e de avaliação experimental em séries temporais. A discussão não busca listar arquiteturas de forma exaustiva; ela destaca estudos que justificam as decisões metodológicas do TCC: uso de modelos recorrentes, atenção, modelos de referência tabulares, tratamento de dados faltantes, previsão multi-horizonte e protocolo temporal comparável.
 
 \section{Referências Estruturantes em Previsão}
 
@@ -10,7 +10,7 @@ A primeira base do trabalho é a literatura de avaliação de previsão. \citeon
 
 A segunda base é a literatura de aprendizado profundo para séries temporais. \citeonline{lim2021survey} revisam desenhos de codificador e decodificador para previsão um-passo e multi-horizonte. \citeonline{benidis2022deep} caracterizam modelos profundos como ``\textit{methods of choice}'' em várias aplicações de séries temporais, especialmente quando há muitos dados, covariáveis e relações não lineares. Já \citeonline{hewamalage2021rnn} revisam RNNs para previsão e alertam que não há ``\textit{no silver bullets}''. Esse conjunto de referências é importante para equilibrar a defesa: redes recorrentes e Seq2Seq são opções bem fundamentadas, mas sua superioridade depende do protocolo, do conjunto de dados e do objetivo.
 
-No contexto deste TCC, essas referências funcionam como base transversal. Elas justificam a formulação supervisionada por janelas, a comparação entre estratégias direta, recursiva e codificador-decodificador, o uso de covariáveis conhecidas no futuro e a necessidade de comparar modelos neurais contra linhas de base tabulares fortes.
+No contexto deste TCC, essas referências funcionam como base transversal. Elas justificam a formulação supervisionada por janelas, a comparação entre estratégias direta, recursiva e codificador-decodificador, o uso de covariáveis conhecidas no futuro e a necessidade de comparar modelos neurais contra modelos de referência tabulares fortes.
 
 \section{Modelos para Previsão de PM2.5}
 
@@ -18,7 +18,7 @@ A previsão de PM2.5 tem sido estudada com modelos estatísticos, métodos tabul
 
 Modelos clássicos e tabulares continuam relevantes. Trabalhos com SVM, florestas aleatórias e combinações estatísticas mostram que engenharia de atributos e otimização podem produzir resultados competitivos em qualidade do ar \cite{song2018arima,guo2019pm2}. No Brasil, \citeonline{zanobini2024curitiba} avaliaram Random Forest e LSTM para material particulado em Curitiba usando dados meteorológicos, fluxo veicular e sensores ópticos, reforçando a relevância de modelos tabulares e recorrentes em contextos urbanos nacionais.
 
-Neste trabalho, essa linha é representada pelo XGBoost com saída múltipla. Ele não é tratado como modelo simples de descarte, mas como linha de base forte. Essa escolha é importante porque conclusões sobre aprendizado profundo só são defensáveis quando comparadas com linhas de base tabulares bem ajustadas sob o mesmo teste externo.
+Neste trabalho, essa linha é representada pelo XGBoost com saída múltipla. Ele não é tratado como modelo simples de descarte, mas como referência forte. Essa escolha é importante porque conclusões sobre aprendizado profundo só são defensáveis quando comparadas com modelos tabulares bem ajustados sob o mesmo teste externo.
 
 Também é necessário cuidado ao comparar diretamente valores de MAE, RMSE ou R2 entre trabalhos de PM2.5. Estudos recentes com desempenho aparentemente superior frequentemente usam horizontes mais curtos, agregação diária ou mensal, múltiplas estações, variáveis meteorológicas completas, copoluentes e até variáveis derivadas de reanálise, GNSS-PWV, sensoriamento remoto ou modelos físico-químicos \cite{ayturan2020short,su2023cnn_lstm_pm25,zhang2025gnss_pwv_rf_lstm,zeng2026diverse_horizons,chen2024lstcn_pm25,feng2024hybrid_spatiotemporal_pm25}. Essas condições não são equivalentes ao contrato causal de Sapo, no qual o modelo deve prever 24 horas horárias futuras usando 48 horas históricas e sem conhecer PM10, PTS ou meteorologia reais do futuro.
 
