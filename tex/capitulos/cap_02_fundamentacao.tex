@@ -222,7 +222,7 @@ A utilidade de Seq2Seq em previsão não se apoia na ideia de que essa família 
     \label{fig:seq2seq_attention_propria}
 \end{figure}
 
-Pesos de atenção não devem ser interpretados automaticamente como explicação causal ou garantia de superioridade. Eles podem ser pouco informativos quando ficam quase uniformes ou quando não produzem ganho mensurável em avaliação fora da amostra.
+Pesos de atenção não devem ser interpretados automaticamente como explicação causal \cite{jain2019attention} nem como garantia de superioridade. Eles podem ser pouco informativos quando ficam quase uniformes ou quando não produzem ganho mensurável em avaliação fora da amostra.
 
 \section{\textit{Teacher Forcing} e \textit{Scheduled Sampling}}
 
@@ -293,7 +293,7 @@ Em aplicações com dados faltantes, a conversão tabular precisa manter consist
 
 Parâmetros são aprendidos pelo modelo durante o treinamento; hiperparâmetros, como taxa de aprendizado, número de camadas, tamanho do estado oculto e \textit{dropout}, são definidos antes ou buscados por procedimento externo. Redes neurais são frequentemente treinadas com otimizadores baseados em gradiente, como Adam e AdamW \cite{kingma2014adam,loshchilov2019decoupled}, e podem usar monitoramento em validação para seleção de ponto de controle.
 
-A taxa de aprendizado controla o tamanho do passo aplicado aos parâmetros a cada atualização por gradiente. Ela pode ser mantida constante ou seguir uma agenda ao longo das épocas. Uma estratégia comum combina aquecimento linear (\textit{linear warm-up}) e decaimento cosseno, abordagem relacionada ao uso de agendas cossenoidais em treinamento de redes neurais \cite{loshchilov2017sgdr}. Com \(E_w\) épocas de aquecimento, \(E\) épocas máximas, taxa máxima \(\eta_{\max}\) e taxa mínima \(\eta_{\min}\), a forma idealizada é:
+A taxa de aprendizado controla o tamanho do passo aplicado aos parâmetros a cada atualização por gradiente. Ela pode ser mantida constante ou seguir uma agenda ao longo das épocas. Uma estratégia comum combina aquecimento linear (\textit{linear warm-up}) e decaimento cosseno: o aquecimento linear aparece em protocolos de treinamento com lotes grandes \cite{goyal2017accurate}, enquanto agendas cossenoidais são discutidas no contexto de reinícios quentes \cite{loshchilov2017sgdr}. Com \(E_w\) épocas de aquecimento, \(E\) épocas máximas, taxa máxima \(\eta_{\max}\) e taxa mínima \(\eta_{\min}\), a forma idealizada é:
 
 \[
     \eta_t =
@@ -353,7 +353,7 @@ A poda, ou \textit{pruning}, é uma forma de parada antecipada no nível da HPO.
 \section{Métricas de Avaliação}
 \label{sec:metricas_avaliacao}
 
-A avaliação de modelos de regressão multi-horizonte deve combinar métricas globais e métricas por horizonte. O erro médio absoluto (MAE) mede a magnitude média dos erros e é menos sensível a valores extremos que o erro quadrático:
+A avaliação de modelos de regressão multi-horizonte deve combinar métricas globais e métricas por horizonte. Métricas como MAE, RMSE e MAPE são amplamente usadas para avaliar acurácia de previsão \cite{hyndman2021forecasting}. O erro médio absoluto (MAE) mede a magnitude média dos erros e é menos sensível a valores extremos que o erro quadrático:
 
 \[
     \text{MAE}(y, \hat{y}) =
