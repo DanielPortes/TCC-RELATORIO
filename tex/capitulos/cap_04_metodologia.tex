@@ -6,7 +6,7 @@ Este capítulo descreve o protocolo experimental utilizado na comparação dos m
 
 \section{Fonte de Dados e Escopo}
 
-O estudo utiliza medições horárias da estação Sapo, pertencente ao recorte CMD (Conceição do Mato Dentro, MG) do conjunto de dados usado neste trabalho. A fonte bruta pertence ao monitoramento contínuo de qualidade do ar disponibilizado pela Fundação Estadual do Meio Ambiente de Minas Gerais \cite{feam2026dadosmonitoramento}. A variável-alvo é a concentração de PM2.5, e o principal poluente auxiliar mantido no contrato final é PM10. Embora a fonte bruta contenha outras variáveis meteorológicas e gases, essas colunas foram removidas do contrato principal porque apresentavam alta esparsidade na estação Sapo e prejudicavam a coerência do conjunto de dados final.
+O estudo utiliza medições horárias da estação Sapo, pertencente ao recorte CMD (Conceição do Mato Dentro, MG) do conjunto de dados usado neste trabalho. A fonte bruta pertence ao monitoramento contínuo de qualidade do ar disponibilizado pela Fundação Estadual do Meio Ambiente de Minas Gerais \cite{feam2026dadosmonitoramento}. A variável-alvo é a concentração de PM2,5, e o principal poluente auxiliar mantido no contrato final é PM10. Embora a fonte bruta contenha outras variáveis meteorológicas e gases, essas colunas foram removidas do contrato principal porque apresentavam alta esparsidade na estação Sapo e prejudicavam a coerência do conjunto de dados final.
 
 O conjunto consolidado usado nos resultados principais contém 34.991 registros horários, de 2017-01-04 00:30:00 a 2020-12-31 22:30:00. Esse período corresponde ao recorte efetivamente disponível após preparação, criação das variáveis substitutas causais de PM10 e remoção das primeiras janelas necessárias para a formulação supervisionada.
 
@@ -20,14 +20,14 @@ O conjunto consolidado usado nos resultados principais contém 34.991 registros 
         \textbf{Item} & \textbf{Definição} \\
         \midrule
         Estação & Sapo / CMD (Conceição do Mato Dentro, MG) \\
-        Poluente-alvo & PM2.5 horário \\
+        Poluente-alvo & PM2,5 horário \\
         Período do artefato & 2017-01-04 00:30:00 a 2020-12-31 22:30:00 \\
         Número de linhas & 34.991 \\
         Tarefa & 48 horas passadas para prever as próximas 24 horas \\
         Divisão externa & Cronológica por proporção 70/15/15 \\
         Seleção de hiperparâmetros & \textit{Walk-forward} temporal nos 85\% anteriores ao teste \\
         Imputação & Linear no contrato final, com máscaras de valores originalmente ausentes \\
-        Variáveis principais & PM2.5, PM10, indicadores de ausência, tempo/Fourier e substitutos causais de PM10 \\
+        Variáveis principais & PM2,5, PM10, indicadores de ausência, tempo/Fourier e substitutos causais de PM10 \\
         Avaliação final & Teste externo, sem embaralhamento temporal \\
         \bottomrule
     \end{tabular}%
@@ -36,29 +36,29 @@ O conjunto consolidado usado nos resultados principais contém 34.991 registros 
 
 \section{Análise Exploratória e Escolha da Estação}
 
-A escolha da estação Sapo foi precedida por uma análise exploratória comparativa sobre 38 estações/usinas com PM2.5. Essa etapa combinou critérios de cobertura do alvo, continuidade temporal, presença de PM10 pareado, frequência de eventos altos e equilíbrio das partições cronológicas. O objetivo dessa triagem não foi escolher uma estação apenas por conveniência, mas selecionar um recorte com volume suficiente, variável auxiliar causalmente útil e incidência mínima de eventos de cauda para sustentar a comparação entre modelos.
+A escolha da estação Sapo foi precedida por uma análise exploratória comparativa sobre 38 estações/usinas com PM2,5. Essa etapa combinou critérios de cobertura do alvo, continuidade temporal, presença de PM10 pareado, frequência de eventos altos e equilíbrio das partições cronológicas. O objetivo dessa triagem não foi escolher uma estação apenas por conveniência, mas selecionar um recorte com volume suficiente, variável auxiliar causalmente útil e incidência mínima de eventos de cauda para sustentar a comparação entre modelos.
 
-Nesse diagnóstico, Sapo apareceu como uma das candidatas mais fortes: ficou em segundo lugar na classificação por PM2.5 puro e também em segundo lugar na classificação que inclui contexto de PM10. A estação Rio Doce/Estação Principal obteve pontuação ligeiramente maior, mas teve menor frequência de eventos PM2.5 \(\geq 35\) no diagnóstico preliminar (0,19\%, contra 1,16\% em Sapo) e não pertence ao mesmo foco CMD adotado neste trabalho. Assim, Sapo foi mantida como estação principal por combinar aderência ao escopo, cobertura de PM2.5 de 83,47\% no diagnóstico comparativo, cobertura pareada PM10 de 74,27\% e correlação absoluta PM10--PM2.5 de 0,58.
+Nesse diagnóstico, Sapo apareceu como uma das candidatas mais fortes: ficou em segundo lugar na classificação por PM2,5 puro e também em segundo lugar na classificação que inclui contexto de PM10. A estação Rio Doce/Estação Principal obteve pontuação ligeiramente maior, mas teve menor frequência de eventos PM2,5 \(\geq 35\) no diagnóstico preliminar (0,19\%, contra 1,16\% em Sapo) e não pertence ao mesmo foco CMD adotado neste trabalho. Assim, Sapo foi mantida como estação principal por combinar aderência ao escopo, cobertura de PM2,5 de 83,47\% no diagnóstico comparativo, cobertura pareada PM10 de 74,27\% e correlação absoluta PM10--PM2,5 de 0,58.
 
 A decisão também foi reforçada por testes preliminares de modelagem. Em uma comparação exploratória com a mesma tarefa 48 para 24 horas e um Seq2Seq com atenção, Sapo obteve o menor MAE entre as estações testadas: 3,03 em Sapo, contra 3,13 em Barra Longa/Centro, 3,96 em Aeroporto CMD e 5,17 em Ibirité/Cascata. Esses números não substituem a comparação final, pois pertencem a uma etapa anterior e menos refinada do projeto, mas mostram que a escolha de Sapo não se apoiou apenas em cobertura de dados. Ela também foi a estação com melhor desempenho inicial entre os recortes avaliados. Testes auxiliares posteriores em Rio Doce e Barra Longa foram usados para investigar portabilidade do protocolo e comportamento do PM10 causal, mas não substituem Sapo como eixo principal deste TCC.
 
 \begin{figure}[htb]
     \centering
     \includegraphics[width=\linewidth]{eda_ranking_estacoes_pm25_pm10.pdf}
-    \caption{Classificação preliminar das estações por previsibilidade de PM2.5 com contexto de PM10.}
+    \caption{Classificação preliminar das estações por previsibilidade de PM2,5 com contexto de PM10.}
     \label{fig:eda_ranking_estacoes_pm25_pm10}
 \end{figure}
 
-Após a escolha da estação, a análise exploratória foi refeita sobre o conjunto final usado na comparação principal. A Figura \ref{fig:eda_sapo_cobertura_lacunas} mostra que a série não é integralmente contínua: há meses com cobertura elevada, mas também lacunas longas, principalmente na validação. A maior lacuna original de PM2.5 ocorre de 2019-12-11 13:30 a 2020-01-28 18:30, com 48,25 dias, seguida por lacunas de 14,38 dias e 10,83 dias no treino. Por outro lado, ainda existem trechos observados contínuos suficientes para análise de janelas; os maiores blocos contínuos identificados têm cerca de 8,54 dias no treino e 8,13 dias no teste. Esse padrão fundamenta duas decisões metodológicas: manter a série em grade horária regular por interpolação e preservar máscaras de ausência para que valores originalmente imputados não sejam tratados como verdade observada na função de perda nem nas métricas.
+Após a escolha da estação, a análise exploratória foi refeita sobre o conjunto final usado na comparação principal. A Figura \ref{fig:eda_sapo_cobertura_lacunas} mostra que a série não é integralmente contínua: há meses com cobertura elevada, mas também lacunas longas, principalmente na validação. A maior lacuna original de PM2,5 ocorre de 2019-12-11 13:30 a 2020-01-28 18:30, com 48,25 dias, seguida por lacunas de 14,38 dias e 10,83 dias no treino. Por outro lado, ainda existem trechos observados contínuos suficientes para análise de janelas; os maiores blocos contínuos identificados têm cerca de 8,54 dias no treino e 8,13 dias no teste. Esse padrão fundamenta duas decisões metodológicas: manter a série em grade horária regular por interpolação e preservar máscaras de ausência para que valores originalmente imputados não sejam tratados como verdade observada na função de perda nem nas métricas.
 
 \begin{figure}[htb]
     \centering
     \includegraphics[width=\linewidth]{eda_sapo_cobertura_lacunas.pdf}
-    \caption{Cobertura mensal e maiores lacunas originais de PM2.5 no artefato Sapo.}
+    \caption{Cobertura mensal e maiores lacunas originais de PM2,5 no artefato Sapo.}
     \label{fig:eda_sapo_cobertura_lacunas}
 \end{figure}
 
-A Tabela \ref{tab:eda_sapo_splits} resume a cobertura e a distribuição observada por partição. O teste apresenta a maior cobertura observada de PM2.5 (93,37\%), enquanto a validação concentra a maior proporção de ausências (31,73\%). A distribuição também mostra que os eventos altos são raros em todas as partições: 1,57\% dos pontos observados no treino, 1,45\% na validação e 0,96\% no teste ficam em PM2.5 \(\geq 35\). Essa raridade justifica a análise de cauda no Capítulo \ref{chap:resultados}, pois o MAE global sozinho tende a privilegiar o regime mais frequente e pode esconder suavização em eventos de maior concentração.
+A Tabela \ref{tab:eda_sapo_splits} resume a cobertura e a distribuição observada por partição. O teste apresenta a maior cobertura observada de PM2,5 (93,37\%), enquanto a validação concentra a maior proporção de ausências (31,73\%). A distribuição também mostra que os eventos altos são raros em todas as partições: 1,57\% dos pontos observados no treino, 1,45\% na validação e 0,96\% no teste ficam em PM2,5 \(\geq 35\). Essa raridade justifica a análise de cauda no Capítulo \ref{chap:resultados}, pois o MAE global sozinho tende a privilegiar o regime mais frequente e pode esconder suavização em eventos de maior concentração.
 
 \begin{table}[htb]
     \centering
@@ -67,7 +67,7 @@ A Tabela \ref{tab:eda_sapo_splits} resume a cobertura e a distribuição observa
     \resizebox{\textwidth}{!}{%
     \begin{tabular}{lrrrrrr}
         \toprule
-        \textbf{Partição} & \textbf{Cob. PM2.5} & \textbf{Cob. PM10} & \textbf{Mediana PM2.5} & \textbf{p95} & \textbf{p99} & \textbf{PM2.5 \(\geq 35\)} \\
+        \textbf{Partição} & \textbf{Cob. PM2,5} & \textbf{Cob. PM10} & \textbf{Mediana PM2,5} & \textbf{p95} & \textbf{p99} & \textbf{PM2,5 \(\geq 35\)} \\
         \midrule
         Treino & 80,70\% & 81,33\% & 9,00 & 24,00 & 40,00 & 1,57\% \\
         Validação & 68,27\% & 64,50\% & 12,00 & 25,00 & 37,00 & 1,45\% \\
@@ -80,31 +80,31 @@ A Tabela \ref{tab:eda_sapo_splits} resume a cobertura e a distribuição observa
 \begin{figure}[htb]
     \centering
     \includegraphics[width=0.95\linewidth]{eda_sapo_distribuicao_pm25.pdf}
-    \caption{Distribuição observada de PM2.5 e frequência de eventos altos por partição.}
+    \caption{Distribuição observada de PM2,5 e frequência de eventos altos por partição.}
     \label{fig:eda_sapo_distribuicao_pm25}
 \end{figure}
 
-\subsection{Padrões Temporais de PM2.5 e PM10}
+\subsection{Padrões Temporais de PM2,5 e PM10}
 
-Além da cobertura e da distribuição marginal, o artefato Sapo foi analisado quanto a tendência, persistência e sazonalidade. Essa análise usa apenas pontos originalmente observados nas métricas agregadas, respeitando as máscaras \texttt{PM2.5\_\_miss} e \texttt{PM10\_\_miss}. A Figura \ref{fig:serie_temporal_componentes_sapo} resume visualmente a decomposição descritiva do PM2.5: há uma componente lenta de tendência-ciclo, um perfil horário repetitivo e resíduos com picos abruptos.
+Além da cobertura e da distribuição marginal, o artefato Sapo foi analisado quanto a tendência, persistência e sazonalidade. Essa análise usa apenas pontos originalmente observados nas métricas agregadas, respeitando as máscaras \texttt{PM2,5\_\_miss} e \texttt{PM10\_\_miss}. A Figura \ref{fig:serie_temporal_componentes_sapo} resume visualmente a decomposição descritiva do PM2,5: há uma componente lenta de tendência-ciclo, um perfil horário repetitivo e resíduos com picos abruptos.
 
 \begin{figure}[htb]
     \centering
     \includegraphics[width=\linewidth]{serie_temporal_componentes_sapo.pdf}
-    \caption{Série temporal de PM2.5 e decomposição descritiva no artefato Sapo. Elaboração própria com base na decomposição aditiva discutida por \citeonline{hyndman2021forecasting}.}
+    \caption{Série temporal de PM2,5 e decomposição descritiva no artefato Sapo. Elaboração própria com base na decomposição aditiva discutida por \citeonline{hyndman2021forecasting}.}
     \label{fig:serie_temporal_componentes_sapo}
 \end{figure}
 
-A Tabela \ref{tab:padroes_temporais_sapo} resume os principais sinais temporais de PM2.5 e PM10. Para PM2.5, a persistência de curto prazo é alta, com autocorrelação de 0,813 em 1 hora, e há repetição diária relevante, com autocorrelação de 0,681 em 24 horas. O sinal semanal existe, mas é mais fraco, com autocorrelação de 0,461 em 168 horas e diferença média entre dias da semana de apenas 0,70. O perfil horário é mais claro: as menores médias de PM2.5 aparecem entre a madrugada e o início da tarde, com mínimo médio próximo de 10,29 às 13h, enquanto o fim da tarde e a noite concentram maiores valores, com máximo médio próximo de 14,77 às 18h.
+A Tabela \ref{tab:padroes_temporais_sapo} resume os principais sinais temporais de PM2,5 e PM10. Para PM2,5, a persistência de curto prazo é alta, com autocorrelação de 0,813 em 1 hora, e há repetição diária relevante, com autocorrelação de 0,681 em 24 horas. O sinal semanal existe, mas é mais fraco, com autocorrelação de 0,461 em 168 horas e diferença média entre dias da semana de apenas 0,70. O perfil horário é mais claro: as menores médias de PM2,5 aparecem entre a madrugada e o início da tarde, com mínimo médio próximo de 10,29 às 13h, enquanto o fim da tarde e a noite concentram maiores valores, com máximo médio próximo de 14,77 às 18h.
 
 \begin{table}[htb]
     \centering
-    \caption{Padrões temporais observados de PM2.5 e PM10 no artefato Sapo.}
+    \caption{Padrões temporais observados de PM2,5 e PM10 no artefato Sapo.}
     \label{tab:padroes_temporais_sapo}
     \resizebox{\textwidth}{!}{%
     \begin{tabular}{lrrp{0.44\textwidth}}
         \toprule
-        \textbf{Diagnóstico} & \textbf{PM2.5} & \textbf{PM10} & \textbf{Leitura} \\
+        \textbf{Diagnóstico} & \textbf{PM2,5} & \textbf{PM10} & \textbf{Leitura} \\
         \midrule
         Autocorrelação 1h & 0,813 & 0,734 & Forte persistência de curto prazo nos dois poluentes. \\
         Autocorrelação 24h & 0,681 & 0,564 & Repetição diária relevante, justificando defasagens e substitutos causais baseados em 24h. \\
@@ -117,24 +117,24 @@ A Tabela \ref{tab:padroes_temporais_sapo} resume os principais sinais temporais 
     }
 \end{table}
 
-O PM10 apresenta comportamento compatível com o PM2.5, mas com amplitude horária maior. Suas menores médias ocorrem por volta de 4h, com valor médio próximo de 20,95, e as maiores médias ocorrem por volta de 20h, com valor médio próximo de 32,09. A correlação de Pearson entre PM2.5 e PM10 observados no mesmo horário foi 0,597, e a correlação de Spearman foi 0,421. Portanto, PM10 é uma variável auxiliar informativa, mas não determina completamente a variação horária de PM2.5.
+O PM10 apresenta comportamento compatível com o PM2,5, mas com amplitude horária maior. Suas menores médias ocorrem por volta de 4h, com valor médio próximo de 20,95, e as maiores médias ocorrem por volta de 20h, com valor médio próximo de 32,09. A correlação de Pearson entre PM2,5 e PM10 observados no mesmo horário foi 0,597, e a correlação de Spearman foi 0,421. Portanto, PM10 é uma variável auxiliar informativa, mas não determina completamente a variação horária de PM2,5.
 
-Também há um padrão mensal importante: PM2.5 e PM10 sobem em setembro e outubro, com média de PM2.5 próxima de 17,97 em outubro e p95 de 44 nesse mês. No entanto, a interpretação como ciclo anual regular deve ser cautelosa, pois o artefato cobre apenas quatro anos, possui lacunas e apresenta mudanças de regime entre anos. A autocorrelação anual aproximada de PM2.5 foi baixa, cerca de 0,038, indicando que a repetição anual é menos estável que a persistência horária e diária. Assim, no protocolo final, os termos temporais e de Fourier são úteis para fornecer informação cíclica ao modelo, mas os picos e resíduos continuam dependendo de fatores não observados diretamente, como meteorologia local, mistura atmosférica, transporte espacial e fontes de emissão.
+Também há um padrão mensal importante: PM2,5 e PM10 sobem em setembro e outubro, com média de PM2,5 próxima de 17,97 em outubro e p95 de 44 nesse mês. No entanto, a interpretação como ciclo anual regular deve ser cautelosa, pois o artefato cobre apenas quatro anos, possui lacunas e apresenta mudanças de regime entre anos. A autocorrelação anual aproximada de PM2,5 foi baixa, cerca de 0,038, indicando que a repetição anual é menos estável que a persistência horária e diária. Assim, no protocolo final, os termos temporais e de Fourier são úteis para fornecer informação cíclica ao modelo, mas os picos e resíduos continuam dependendo de fatores não observados diretamente, como meteorologia local, mistura atmosférica, transporte espacial e fontes de emissão.
 
 \clearpage
 
 \section{Formulação da Tarefa}
 
-A tarefa de previsão é de múltiplos passos: para cada janela válida, os modelos recebem as 48 horas anteriores e produzem uma previsão para as 24 horas seguintes. Formalmente, para um instante inicial \(t\), a entrada contém observações de \(t-47\) até \(t\), e a saída corresponde aos horizontes \(t+1\) até \(t+24\). Essa formulação foi mantida para todos os modelos da comparação principal e está resumida na Figura \ref{fig:tarefa_48_24_sapo}.
+A tarefa de previsão é multi-horizonte: para cada janela válida, os modelos recebem as 48 horas anteriores e produzem uma previsão para as 24 horas seguintes. Formalmente, para um instante inicial \(t\), a entrada contém observações de \(t-47\) até \(t\), e a saída corresponde aos horizontes \(t+1\) até \(t+24\). Essa formulação foi mantida para todos os modelos da comparação principal e está resumida na Figura \ref{fig:tarefa_48_24_sapo}.
 
 \begin{figure}[htb]
     \centering
     \includegraphics[width=0.95\linewidth]{tarefa_48_24_sapo.png}
-    \caption{Formulação da tarefa de múltiplos passos do protocolo Sapo.}
+    \caption{Formulação da tarefa 48 para 24 horas do protocolo Sapo.}
     \label{fig:tarefa_48_24_sapo}
 \end{figure}
 
-A divisão externa é cronológica e usa 70\% dos horários para treino final, 15\% para validação de treinamento e 15\% para teste final. A Tabela \ref{tab:split_temporal_sapo} apresenta os limites reais do artefato final, e a Figura \ref{fig:split_70_15_15_sapo} mostra a mesma divisão na linha do tempo. O conjunto de teste contém os horários mais recentes e só é usado para avaliação final.
+A divisão do conjunto de dados é cronológica e usa 70\% dos horários para treino final, 15\% para validação de treinamento e 15\% para teste final. A Tabela \ref{tab:split_temporal_sapo} apresenta os limites reais do artefato final, e a Figura \ref{fig:split_70_15_15_sapo} mostra a mesma divisão na linha do tempo. O conjunto de teste contém os horários mais recentes e só é usado para avaliação final.
 
 \begin{table}[htb]
     \centering
@@ -154,23 +154,23 @@ A divisão externa é cronológica e usa 70\% dos horários para treino final, 1
 \begin{figure}[htb]
     \centering
     \includegraphics[width=\linewidth]{split_70_15_15_sapo.png}
-    \caption{Linha temporal da divisão cronológica externa usada no artefato Sapo.}
+    \caption{Linha temporal da divisão cronológica usada no artefato Sapo.}
     \label{fig:split_70_15_15_sapo}
 \end{figure}
 
-Neste relatório, portanto, a expressão 70/15/15 se refere à divisão externa de avaliação. A seleção de hiperparâmetros não usa o teste final: ela é feita por \textit{walk-forward} dentro dos 85\% anteriores ao teste. Em seguida, os modelos selecionados são treinados no protocolo final usando o trecho de treino e a validação de treinamento para parada antecipada e escolha de ponto de controle. A validação intermediária faz parte do desenvolvimento do modelo; o único conjunto tratado como avaliação independente é o teste final.
+Neste relatório, portanto, a expressão 70/15/15 se refere à divisão cronológica de avaliação. A seleção de hiperparâmetros não usa o teste final: ela é feita por \textit{walk-forward} dentro dos 85\% anteriores ao teste. Em seguida, os modelos selecionados são treinados no protocolo final usando o trecho de treino e a validação de treinamento para parada antecipada e escolha de ponto de controle. A validação intermediária faz parte do desenvolvimento do modelo; o único conjunto tratado como avaliação independente é o teste final.
 
 \section{Pré-processamento}
 
 O pré-processamento foi desenhado para reduzir vazamento temporal. A imputação é ajustada sobre o trecho de treino e aplicada ao restante do período respeitando a separação temporal. No contrato final, usa-se interpolação linear no bloco de treino; para o bloco posterior ao fim do treino, a transformação não usa âncoras futuras e propaga o último estado imputado disponível. Para cada variável imputada, é mantido um indicador \texttt{\_\_miss}, que informa se o valor original estava ausente.
 
-O alvo PM2.5 também possui uma máscara de observação. Quando essa máscara está disponível, pontos do alvo originalmente imputados são excluídos da função de perda e das métricas observadas. Assim, o modelo pode receber uma série regularizada para formar janelas, mas não é recompensado por prever como ``verdade'' um valor que foi produzido pelo próprio pré-processamento.
+O alvo PM2,5 também possui uma máscara de observação. Quando essa máscara está disponível, pontos do alvo originalmente imputados são excluídos da função de perda e das métricas observadas. Assim, o modelo pode receber uma série regularizada para formar janelas, mas não é recompensado por prever como ``verdade'' um valor que foi produzido pelo próprio pré-processamento.
 
 A normalização é calculada com estatísticas do conjunto de treino. No treinamento dos modelos neurais, médias e desvios são computados por estação e aplicados às janelas de treino, validação e teste. Essa decisão evita que informação agregada dos períodos de validação e teste entre no ajuste de escala do modelo.
 
 \section{Engenharia de Atributos}
 
-O conjunto final de atributos foi mantido enxuto. O codificador recebe PM2.5, PM10, indicadores de ausência e atributos temporais. O decodificador dos modelos que aceitam entradas futuras recebe apenas variáveis conhecidas causalmente no momento da previsão: termos temporais/Fourier e substitutos derivados de PM10. A Tabela \ref{tab:variaveis_contrato} resume os grupos de variáveis.
+O conjunto final de atributos foi mantido enxuto. O codificador recebe PM2,5, PM10, indicadores de ausência e atributos temporais. O decodificador dos modelos que aceitam entradas futuras recebe apenas variáveis conhecidas causalmente no momento da previsão: termos temporais/Fourier e substitutos derivados de PM10. A Tabela \ref{tab:variaveis_contrato} resume os grupos de variáveis.
 
 \begin{table}[htb]
     \centering
@@ -181,9 +181,9 @@ O conjunto final de atributos foi mantido enxuto. O codificador recebe PM2.5, PM
         \toprule
         \textbf{Grupo} & \textbf{Variáveis} & \textbf{Uso} \\
         \midrule
-        Alvo e histórico & \texttt{PM2.5} & Entrada histórica e alvo da previsão \\
+        Alvo e histórico & \texttt{PM2,5} & Entrada histórica e alvo da previsão \\
         Poluente auxiliar & \texttt{PM10} & Entrada histórica no codificador \\
-        Ausência & \texttt{PM2.5\_\_miss}, \texttt{PM10\_\_miss} & Indicar valores originalmente ausentes \\
+        Ausência & \texttt{PM2,5\_\_miss}, \texttt{PM10\_\_miss} & Indicar valores originalmente ausentes \\
         Tempo & \texttt{hour}, \texttt{day\_of\_week}, \texttt{month} & Sazonalidade discreta \\
         Fourier & termos seno/cosseno de 6h, 12h, 24h, 168h e 8760h & Sazonalidade cíclica \\
         Substituto PM10 & \texttt{PM10\_proxy\_exante} & PM10 do mesmo horário no dia anterior, isto é, PM10(t-24) \\
@@ -221,9 +221,9 @@ Foram comparadas cinco variantes neurais e um modelo de referência tabular. A T
 
 A escolha dos modelos também delimita o escopo do estudo. Transformers temporais, como TFT, Informer, Autoformer e PatchTST, são alternativas modernas para previsão multi-horizonte \cite{lim2021tft,zhou2021informer,wu2021autoformer,nie2023patchtst}. Eles não foram incluídos na comparação final porque uma comparação justa exigiria nova família de arquitetura, espaço próprio de hiperparâmetros, orçamento adicional de HPO, avaliação com múltiplas sementes e decisões específicas de regularização para o tamanho e a qualidade do conjunto de dados Sapo. Além disso, a literatura não autoriza assumir que Transformers vencem automaticamente em séries temporais; \citeonline{zeng2023transformers} mostram que linhas de base simples podem superar Transformers em alguns cenários de previsão. Assim, o recorte deste TCC é comparar famílias recorrentes e tabulares sob um contrato causal rastreável, deixando Transformers como extensão natural para trabalhos futuros.
 
-A comparação com XGBoost exige uma ressalva metodológica. O modelo de referência tabular usa o mesmo contrato causal de entrada e é avaliado no mesmo teste externo, mas seu treinamento com saída múltipla exige janelas com horizonte completo observado. Nos modelos neurais, a máscara de alvo observado permite ignorar pontos imputados da função de perda e das métricas. Assim, a avaliação de teste é comparável, mas o mecanismo de treino não é perfeitamente simétrico.
+A comparação com XGBoost exige uma ressalva metodológica. O modelo de referência tabular usa o mesmo contrato causal de entrada e é avaliado no mesmo bloco final de teste, mas seu treinamento com saída múltipla exige janelas com horizonte completo observado. Nos modelos neurais, a máscara de alvo observado permite ignorar pontos imputados da função de perda e das métricas. Assim, a avaliação de teste é comparável, mas o mecanismo de treino não é perfeitamente simétrico.
 
-Além da comparação principal, foram executados experimentos diagnósticos com o Seq2Seq atenção para investigar limites informacionais do problema. O primeiro é o \textit{oracle future auxiliary}: no decodificador, o modelo recebe PM10 e PTS reais do próprio horizonte futuro. Esse cenário não representa um uso causal de previsão, pois usa informação indisponível no instante de previsão, mas mede quanto desempenho poderia ser recuperado caso variáveis auxiliares futuras relevantes fossem conhecidas. O segundo é o Seq2Seq multi-alvo, no qual a rede continua prevendo PM2.5 como alvo principal, mas recebe uma cabeça auxiliar para prever PM10 e PTS futuros durante o treinamento. Esse teste avalia se aprender variáveis correlacionadas em conjunto ajuda a representação interna sem introduzir vazamento na avaliação causal.
+Além da comparação principal, foram executados experimentos diagnósticos com o Seq2Seq atenção para investigar limites informacionais do problema. O primeiro é o \textit{oracle future auxiliary}: no decodificador, o modelo recebe PM10 e PTS reais do próprio horizonte futuro. Esse cenário não representa um uso causal de previsão, pois usa informação indisponível no instante de previsão, mas mede quanto desempenho poderia ser recuperado caso variáveis auxiliares futuras relevantes fossem conhecidas. O segundo é o Seq2Seq multi-alvo, no qual a rede continua prevendo PM2,5 como alvo principal, mas recebe uma cabeça auxiliar para prever PM10 e PTS futuros durante o treinamento. Esse teste avalia se aprender variáveis correlacionadas em conjunto ajuda a representação interna sem introduzir vazamento na avaliação causal.
 
 Esses dois experimentos não substituem o protocolo final nem entram como candidatos a vencedor, porque usam contratos diferentes do contrato causal principal. Eles são apresentados nos resultados como análise de limite: o \textit{oracle} mostra o ganho máximo associado a variáveis futuras observadas, enquanto o multi-alvo testa se a própria arquitetura consegue aproximar esse ganho apenas aprendendo as auxiliares.
 
@@ -280,11 +280,11 @@ Nos modelos neurais, a taxa de aprendizado apresentada nas tabelas é a taxa nom
 
 A formulação final do Seq2Seq priorizou a variante com atenção de entrada e perda \texttt{weighted\_l1}. Essa perda pondera regimes de concentração e tipos de erro, alterando o objetivo de treinamento para reduzir parte da suavização e melhorar o comportamento em concentrações mais altas. Essa variante foi avaliada no protocolo consolidado com \textit{walk-forward} e múltiplas sementes, enquanto defasagens explícitas e combinações de predições permaneceram como análises auxiliares.
 
-As variantes finais de Seq2Seq priorizaram um decodificador semidireto com horizonte explícito e linha de base residual sazonal, reduzindo a dependência de realimentação autoregressiva pura. Ainda assim, a avaliação de agendas de \textit{teacher forcing} foi incluída porque trabalhos recentes em previsão, como \citeonline{teutsch2022flipped}, indicam que currículos crescentes de \textit{teacher forcing} podem melhorar previsões de múltiplos passos em séries temporais contínuas. No relatório, portanto, \textit{teacher forcing} e \textit{scheduled sampling} são tratados como técnicas avaliadas em ablações auxiliares fundamentadas, não como eixo central do resultado final em Sapo. Essa distinção evita atribuir ao \textit{scheduled sampling} um ganho que, nos experimentos consolidados, esteve mais associado ao contrato de dados, ao uso causal de PM10, à seleção por validação e à função de perda.
+As variantes finais de Seq2Seq priorizaram um decodificador semidireto com horizonte explícito e linha de base residual sazonal, reduzindo a dependência de realimentação autoregressiva pura. Ainda assim, a avaliação de agendas de \textit{teacher forcing} foi incluída porque trabalhos recentes em previsão, como \citeonline{teutsch2022flipped}, indicam que currículos crescentes de \textit{teacher forcing} podem melhorar previsões multi-horizonte em séries temporais contínuas. No relatório, portanto, \textit{teacher forcing} e \textit{scheduled sampling} são tratados como técnicas avaliadas em ablações auxiliares fundamentadas, não como eixo central do resultado final em Sapo. Essa distinção evita atribuir ao \textit{scheduled sampling} um ganho que, nos experimentos consolidados, esteve mais associado ao contrato de dados, ao uso causal de PM10, à seleção por validação e à função de perda.
 
 \section{Métricas de Avaliação}
 
-A avaliação final utiliza métricas no teste externo. As métricas globais principais são MAE, RMSE, MAPE e R2. Também são reportadas métricas por horizonte, especialmente nos horizontes 1, 6, 12 e 24, para observar degradação ao longo da previsão. Como os picos são raros e importantes em qualidade do ar, a análise também considera métricas de cauda, como erro em eventos acima de 35, p99 previsto, razão entre desvio-padrão previsto e observado, viés médio e taxa de subestimação.
+A avaliação final utiliza métricas no bloco final de teste. As métricas globais principais são MAE, RMSE, MAPE e R2. Também são reportadas métricas por horizonte, especialmente nos horizontes 1, 6, 12 e 24, para observar degradação ao longo da previsão. Como os picos são raros e importantes em qualidade do ar, a análise também considera métricas de cauda, como erro em eventos acima de 35, p99 previsto, razão entre desvio-padrão previsto e observado, viés médio e taxa de subestimação.
 
 A interpretação dos resultados combina métricas agregadas e inspeção visual das séries previstas. Essa combinação é necessária porque modelos que vencem em erro médio podem produzir previsões mais suaves, enquanto variantes voltadas a picos podem preservar mais amplitude ao custo de pequeno aumento no MAE global.
 

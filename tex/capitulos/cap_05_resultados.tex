@@ -6,13 +6,13 @@ Este capítulo apresenta os resultados do protocolo Sapo descrito no Capítulo \
 
 \section{Caracterização da Comparação Principal}
 
-A comparação principal usa a estação Sapo, tarefa \texttt{48 -> 24}, divisão cronológica externa \texttt{70/15/15}, HPO \textit{walk-forward} no bloco de desenvolvimento e avaliação no teste externo. O conjunto de dados final contém 34.991 registros horários. No conjunto consolidado, a proporção de valores originalmente ausentes é de aproximadamente 19,26\% para PM2.5 e 19,58\% para PM10. Esses percentuais reforçam a importância de manter indicadores de ausência e de excluir o alvo imputado da função de perda e das métricas observadas.
+A comparação principal usa a estação Sapo, tarefa 48 para 24 horas e divisão cronológica 70/15/15. A HPO \textit{walk-forward} ocorre no bloco de desenvolvimento, e a avaliação é feita no bloco final de teste. O conjunto de dados final contém 34.991 registros horários. No conjunto consolidado, a proporção de valores originalmente ausentes é de aproximadamente 19,26\% para PM2,5 e 19,58\% para PM10. Esses percentuais reforçam a importância de manter indicadores de ausência e de excluir o alvo imputado da função de perda e das métricas observadas.
 
 Os eventos altos são raros no teste. Na avaliação final, pontos acima de 35 representam cerca de 0,81\% dos pontos observados, e pontos acima de 50 representam cerca de 0,02\%. Portanto, o MAE global é dominado por regimes baixos e moderados. A análise de cauda é apresentada separadamente para evitar que o melhor erro médio seja confundido com melhor resposta a picos.
 
 \section{Resultado Principal com HPO \textit{Walk-Forward}}
 
-A Tabela \ref{tab:resultado_principal_sapo_hpo} apresenta os resultados principais no teste externo após seleção de hiperparâmetros por validação temporal \textit{walk-forward} com três partições dentro dos 85\% anteriores ao teste. O teste final permaneceu reservado e não foi usado na seleção. O melhor desempenho global na semente canônica foi obtido pela LSTM direta, que apresentou menor MAE, menor RMSE e maior R2 entre os modelos individuais com resultados consolidados.
+A Tabela \ref{tab:resultado_principal_sapo_hpo} apresenta os resultados principais no bloco final de teste após seleção de hiperparâmetros por validação temporal \textit{walk-forward} com três partições dentro dos 85\% anteriores ao teste. O teste final permaneceu reservado e não foi usado na seleção. O melhor desempenho global na semente canônica foi obtido pela LSTM direta, que apresentou menor MAE, menor RMSE e maior R2 entre os modelos individuais com resultados consolidados.
 
 \begin{table}[htb]
     \centering
@@ -79,11 +79,11 @@ A média com múltiplas sementes mantém a LSTM direta como melhor modelo por MA
 
 \section{Linhas de Base Ingênuas}
 
-A Tabela \ref{tab:baselines_ingenuos_sapo} apresenta linhas de base simples avaliadas no mesmo teste externo. A pontuação de habilidade (\textit{skill score}) usa a persistência \(y(t)\) como referência, de forma que valores positivos indicam redução de MAE em relação a essa linha de base.
+A Tabela \ref{tab:baselines_ingenuos_sapo} apresenta linhas de base simples avaliadas no mesmo bloco final de teste. A pontuação de habilidade (\textit{skill score}) usa a persistência \(y(t)\) como referência, de forma que valores positivos indicam redução de MAE em relação a essa linha de base.
 
 \begin{table}[htb]
     \centering
-    \caption{Linhas de base ingênuas no teste externo.}
+    \caption{Linhas de base ingênuas no bloco final de teste.}
     \label{tab:baselines_ingenuos_sapo}
     \resizebox{\textwidth}{!}{%
     \begin{tabular}{lrrrr}
@@ -128,12 +128,12 @@ A Tabela \ref{tab:erro_por_horizonte_sapo} detalha o MAE nos horizontes 1, 6, 12
     }
 \end{table}
 
-A estabilidade por horizonte é relevante porque a tarefa é de múltiplos passos. Um modelo pode ser atraente no primeiro passo e ainda perder desempenho agregado quando o horizonte aumenta. Neste experimento, a LSTM direta combinou bom erro inicial com menor degradação, enquanto XGBoost e LSTM recursiva perderam mais desempenho no fim da janela. A Figura \ref{fig:erro_por_horizonte_sapo} apresenta a curva completa de MAE ao longo dos 24 passos para os modelos com métricas consolidadas.
+A estabilidade por horizonte é relevante porque a tarefa é multi-horizonte. Um modelo pode ser atraente no primeiro horizonte e ainda perder desempenho agregado quando a janela avança. Neste experimento, a LSTM direta combinou bom erro inicial com menor degradação, enquanto XGBoost e LSTM recursiva perderam mais desempenho no fim da janela. A Figura \ref{fig:erro_por_horizonte_sapo} apresenta a curva completa de MAE ao longo dos 24 horizontes para os modelos com métricas consolidadas.
 
 \begin{figure}[htb]
     \centering
     \includegraphics[width=\linewidth]{erro_por_horizonte_sapo.png}
-    \caption{Evolução do MAE por horizonte no teste externo para os modelos com métricas consolidadas.}
+    \caption{Evolução do MAE por horizonte no bloco final de teste para os modelos com métricas consolidadas.}
     \label{fig:erro_por_horizonte_sapo}
 \end{figure}
 
@@ -175,7 +175,7 @@ Essas métricas mostram um compromisso importante. A LSTM direta vence em erro m
 
 \subsection{Análise por Evento de Pico}
 
-Além das métricas ponto a ponto, os picos foram agregados por horário único e agrupados em eventos contínuos com PM2.5 observado \(\geq 35\). Foram encontrados 21 eventos no teste. A Tabela \ref{tab:eventos_pico_sapo} resume o erro médio dentro dos eventos, o viés médio nos eventos, a taxa de subestimação e o erro no horário do pico observado.
+Além das métricas ponto a ponto, os picos foram agregados por horário único e agrupados em eventos contínuos com PM2,5 observado \(\geq 35\). Foram encontrados 21 eventos no teste. A Tabela \ref{tab:eventos_pico_sapo} resume o erro médio dentro dos eventos, o viés médio nos eventos, a taxa de subestimação e o erro no horário do pico observado.
 
 \begin{table}[htb]
     \centering
@@ -228,7 +228,7 @@ O Seq2Seq atenção com L1 ponderada continua relevante, mas a nova seleção po
 
 \section{Ablação PM10 Causal}
 
-A Tabela \ref{tab:ablation_pm10_causal} compara o contrato final contra duas remoções de informação: manter PM10 apenas no histórico, sem substitutos causais no decodificador, e remover PM10 completamente, deixando PM2.5 e atributos temporais. Os hiperparâmetros foram mantidos fixos a partir da seleção \textit{walk-forward}; essas ablações não fizeram novo HPO e foram avaliadas no mesmo teste externo.
+A Tabela \ref{tab:ablation_pm10_causal} compara o contrato final contra duas remoções de informação: manter PM10 apenas no histórico, sem substitutos causais no decodificador, e remover PM10 completamente, deixando PM2,5 e atributos temporais. Os hiperparâmetros foram mantidos fixos a partir da seleção \textit{walk-forward}; essas ablações não fizeram novo HPO e foram avaliadas no mesmo bloco final de teste.
 
 \begin{table}[htb]
     \centering
@@ -241,10 +241,10 @@ A Tabela \ref{tab:ablation_pm10_causal} compara o contrato final contra duas rem
         \midrule
         LSTM direta & PM10 causal completo & \textbf{2,7713} & 0,0000 & \textbf{3,8346} & \textbf{0,5154} \\
         LSTM direta & PM10 histórico sem substituto no decodificador & 2,8575 & +0,0862 & 3,9678 & 0,4812 \\
-        LSTM direta & PM2.5 + tempo apenas & 2,8456 & +0,0743 & 3,9569 & 0,4840 \\
+        LSTM direta & PM2,5 + tempo apenas & 2,8456 & +0,0743 & 3,9569 & 0,4840 \\
         XGBoost & PM10 causal completo & \textbf{2,8786} & 0,0000 & \textbf{3,9793} & \textbf{0,4781} \\
         XGBoost & PM10 histórico sem substituto no decodificador & 2,8873 & +0,0088 & 4,0063 & 0,4710 \\
-        XGBoost & PM2.5 + tempo apenas & 2,8956 & +0,0170 & 4,0194 & 0,4676 \\
+        XGBoost & PM2,5 + tempo apenas & 2,8956 & +0,0170 & 4,0194 & 0,4676 \\
         \bottomrule
     \end{tabular}%
     }
@@ -278,11 +278,11 @@ Na estação Sapo, a tentativa de usar um conjunto mais amplo de variáveis most
 
 O ganho do \textit{oracle} é grande e ajuda a interpretar o problema. Em relação ao controle causal com PM10 e PTS, o uso de variáveis futuras reais reduziu o MAE de 2,8758 para 2,4223 e elevou o R2 de 0,4741 para 0,6486. A melhoria em picos também foi clara: o Peak35 MAE caiu de 10,5980 para 7,1718. Esse resultado mostra que existe informação relevante no futuro de variáveis auxiliares, especialmente em PM10, que o contrato causal não disponibiliza no instante da previsão.
 
-Ao mesmo tempo, o próprio \textit{oracle} impõe uma leitura conservadora: mesmo com PM10 e PTS futuros reais, o R2 ficou em torno de 0,65, ainda distante de 1. Portanto, a distância até um R2 quase perfeito não parece ser apenas consequência de HPO insuficiente ou de uma arquitetura Seq2Seq subótima. Parte relevante da variância horária de PM2.5 em Sapo provavelmente depende de fatores não observados no contrato atual, como meteorologia local, estabilidade e mistura atmosférica, transporte espacial, emissões, ressuspensão e episódios súbitos.
+Ao mesmo tempo, o próprio \textit{oracle} impõe uma leitura conservadora: mesmo com PM10 e PTS futuros reais, o R2 ficou em torno de 0,65, ainda distante de 1. Portanto, a distância até um R2 quase perfeito não parece ser apenas consequência de HPO insuficiente ou de uma arquitetura Seq2Seq subótima. Parte relevante da variância horária de PM2,5 em Sapo provavelmente depende de fatores não observados no contrato atual, como meteorologia local, estabilidade e mistura atmosférica, transporte espacial, emissões, ressuspensão e episódios súbitos.
 
 \section{Seq2Seq Multi-Alvo com Variáveis Auxiliares}
 
-Também foi testada uma adaptação do Seq2Seq atenção para prever PM2.5 como alvo principal e, durante o treinamento, prever PM10 e PTS futuros como tarefas auxiliares. A hipótese era que a aprendizagem conjunta poderia induzir uma representação interna mais sensível à dinâmica dos poluentes correlacionados, sem usar variáveis futuras reais no decodificador.
+Também foi testada uma adaptação do Seq2Seq atenção para prever PM2,5 como alvo principal e, durante o treinamento, prever PM10 e PTS futuros como tarefas auxiliares. A hipótese era que a aprendizagem conjunta poderia induzir uma representação interna mais sensível à dinâmica dos poluentes correlacionados, sem usar variáveis futuras reais no decodificador.
 
 \begin{table}[htb]
     \centering
@@ -382,6 +382,6 @@ A comparação fixa inicial Sapo 70/15/15, executada sem HPO e com outro conjunt
 
 \section{Ameaças à Validade}
 
-Há limitações importantes. Primeiro, o eixo principal usa uma estação, Sapo, o que limita a generalização para outras estações e regiões. Segundo, o \textit{walk-forward} foi usado para HPO dentro dos 85\% anteriores ao teste, mas o teste final continua sendo um único conjunto cronológico externo; isso preserva o cenário temporal, mas ainda não equivale a repetir todo o estudo em múltiplas estações ou períodos independentes. Terceiro, os modelos neurais apresentam sensibilidade à semente aleatória, embora a análise com múltiplas sementes tenha reduzido a incerteza sobre a classificação por MAE. Quarto, o HPO \textit{walk-forward} do XGBoost foi limitado a quatro tentativas completas por custo computacional. Quinto, eventos de alta concentração são raros, o que torna métricas de picos instáveis e dependentes de poucos episódios.
+Há limitações importantes. Primeiro, o eixo principal usa uma estação, Sapo, o que limita a generalização para outras estações e regiões. Segundo, o \textit{walk-forward} foi usado para HPO dentro dos 85\% anteriores ao teste, mas o teste final continua sendo um único bloco cronológico reservado; isso preserva o cenário temporal, mas ainda não equivale a repetir todo o estudo em múltiplas estações ou períodos independentes. Terceiro, os modelos neurais apresentam sensibilidade à semente aleatória, embora a análise com múltiplas sementes tenha reduzido a incerteza sobre a classificação por MAE. Quarto, o HPO \textit{walk-forward} do XGBoost foi limitado a quatro tentativas completas por custo computacional. Quinto, eventos de alta concentração são raros, o que torna métricas de picos instáveis e dependentes de poucos episódios.
 
 Mesmo com essas limitações, o protocolo atual permite uma conclusão mais defensável que a narrativa anterior: no conjunto final de Sapo, a LSTM direta venceu em erro médio; o XGBoost permaneceu um modelo de referência tabular forte; e o Seq2Seq atenção com L1 ponderada ficou competitivo, preservando mais amplitude e melhorando parte do comportamento em cauda, sem superar a LSTM direta no resultado global.
