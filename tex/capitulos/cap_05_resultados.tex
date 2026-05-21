@@ -75,7 +75,7 @@ A Tabela \ref{tab:multi_seed_sapo} resume a sensibilidade à semente aleatória 
     }
 \end{table}
 
-A média com múltiplas sementes mantém a LSTM direta como melhor modelo por MAE, mas mostra uma nuance importante: a LSTM recursiva passa a ter melhor RMSE e R2 médios, ao custo de viés positivo consistente. Essa diferença confirma que a escolha do vencedor depende da métrica operacional priorizada. Para o objetivo principal do TCC, que usa MAE observado como métrica central de erro médio, a LSTM direta continua sendo a escolha principal.
+A média com múltiplas sementes mantém a LSTM direta como melhor modelo por MAE, mas mostra uma nuance importante: a LSTM recursiva passa a ter melhor RMSE e R2 médios, ao custo de viés positivo consistente. Essa diferença confirma que a escolha do vencedor depende da métrica priorizada. Para o objetivo principal do TCC, que usa MAE observado como métrica central de erro médio, a LSTM direta continua sendo a escolha principal.
 
 \section{Linhas de Base Ingênuas}
 
@@ -201,7 +201,7 @@ Além das métricas ponto a ponto, os picos foram agregados por horário único 
     }
 \end{table}
 
-A leitura por evento é mais severa que o MAE global: todos os modelos com métricas consolidadas subestimam fortemente os picos. A LSTM recursiva tem o menor erro médio por evento, enquanto a LSTM direta, apesar de vencer no erro global, é a mais conservadora nos eventos altos. Essa evidência reforça que o TCC deve declarar explicitamente o compromisso entre erro médio e resposta a episódios de maior concentração.
+A leitura por evento é mais severa que o MAE global: todos os modelos com métricas consolidadas subestimam fortemente os picos. A LSTM recursiva tem o menor erro médio por evento, enquanto a LSTM direta, apesar de vencer no erro global, é a mais conservadora nos eventos altos. Essa evidência explicita o compromisso entre erro médio e resposta a episódios de maior concentração.
 
 \section{Seq2Seq com Atenção e Perda L1 Ponderada}
 
@@ -254,7 +254,7 @@ A ablação confirma que os substitutos causais de PM10 foram uma decisão centr
 
 \section{Limite Informacional com Variáveis Futuras}
 
-Após a ablação causal de PM10, foi executado um diagnóstico adicional com Seq2Seq atenção para responder a uma pergunta diferente: quanto do erro restante parece vir de informação futura ausente, e não apenas de arquitetura ou hiperparâmetros? Para isso, foi usado um cenário \textit{oracle future auxiliary}, no qual o decodificador recebe PM10 e PTS observados no próprio horizonte futuro. Esse cenário não é operacional e não deve ser tratado como candidato a modelo final, mas funciona como limite superior informacional sob a mesma estação e tarefa.
+Após a ablação causal de PM10, foi executado um diagnóstico adicional com Seq2Seq atenção para responder a uma pergunta diferente: quanto do erro restante parece vir de informação futura ausente, e não apenas de arquitetura ou hiperparâmetros? Para isso, foi usado um cenário \textit{oracle future auxiliary}, no qual o decodificador recebe PM10 e PTS observados no próprio horizonte futuro. Esse cenário não representa um uso causal de previsão e não deve ser tratado como candidato a modelo final, mas funciona como limite superior informacional sob a mesma estação e tarefa.
 
 Na estação Sapo, a tentativa de usar um conjunto mais amplo de variáveis mostrou uma limitação prática: entre as variáveis auxiliares avaliadas, PM10 e PTS foram as únicas com observações úteis de forma consistente; variáveis meteorológicas e gases estavam ausentes ou esparsos demais no recorte analisado. A Tabela \ref{tab:oracle_future_aux_sapo} resume os resultados diagnósticos.
 
@@ -276,7 +276,7 @@ Na estação Sapo, a tentativa de usar um conjunto mais amplo de variáveis most
     }
 \end{table}
 
-O ganho do \textit{oracle} é grande e ajuda a interpretar o problema. Em relação ao controle causal com PM10 e PTS, o uso de variáveis futuras reais reduziu o MAE de 2,8758 para 2,4223 e elevou o R2 de 0,4741 para 0,6486. A melhoria em picos também foi clara: o Peak35 MAE caiu de 10,5980 para 7,1718. Esse resultado mostra que existe informação relevante no futuro de variáveis auxiliares, especialmente em PM10, que o modelo operacional não tem como conhecer no instante da previsão.
+O ganho do \textit{oracle} é grande e ajuda a interpretar o problema. Em relação ao controle causal com PM10 e PTS, o uso de variáveis futuras reais reduziu o MAE de 2,8758 para 2,4223 e elevou o R2 de 0,4741 para 0,6486. A melhoria em picos também foi clara: o Peak35 MAE caiu de 10,5980 para 7,1718. Esse resultado mostra que existe informação relevante no futuro de variáveis auxiliares, especialmente em PM10, que o contrato causal não disponibiliza no instante da previsão.
 
 Ao mesmo tempo, o próprio \textit{oracle} impõe uma leitura conservadora: mesmo com PM10 e PTS futuros reais, o R2 ficou em torno de 0,65, ainda distante de 1. Portanto, a distância até um R2 quase perfeito não parece ser apenas consequência de HPO insuficiente ou de uma arquitetura Seq2Seq subótima. Parte relevante da variância horária de PM2.5 em Sapo provavelmente depende de fatores não observados no contrato atual, como meteorologia local, estabilidade e mistura atmosférica, transporte espacial, emissões, ressuspensão e episódios súbitos.
 
@@ -368,7 +368,7 @@ A Figura \ref{fig:heatmap_medio_atencao_weighted_l1} reforça essa leitura para 
     }
 \end{table}
 
-A Tabela \ref{tab:diagnosticos_atencao} resume o mesmo comportamento. Entropia próxima de 1 indica distribuição quase uniforme; massa nas últimas 6 horas perto de \(6/48 = 0{,}125\) também sugere ausência de foco forte em recência. O Seq2Seq atenção canônica ainda apresenta peso máximo e massa Top-3 maiores que a variante com L1 ponderada, mas o padrão continua fraco para sustentar uma interpretação causal ou operacional direta. Essa cautela é coerente com a crítica de \citeonline{jain2019attention}: pesos de atenção podem ajudar a inspecionar o modelo, mas não devem ser tratados automaticamente como explicação completa da decisão.
+A Tabela \ref{tab:diagnosticos_atencao} resume o mesmo comportamento. Entropia próxima de 1 indica distribuição quase uniforme; massa nas últimas 6 horas perto de \(6/48 = 0{,}125\) também sugere ausência de foco forte em recência. O Seq2Seq atenção canônica ainda apresenta peso máximo e massa Top-3 maiores que a variante com L1 ponderada, mas o padrão continua fraco para sustentar uma interpretação causal direta. Essa cautela é coerente com a crítica de \citeonline{jain2019attention}: pesos de atenção podem ajudar a inspecionar o modelo, mas não devem ser tratados automaticamente como explicação completa da decisão.
 
 Assim, a resposta empírica é dupla. A família Seq2Seq com atenção continua competitiva, especialmente quando combinada à perda L1 ponderada, mas os vetores de atenção extraídos não mostram um seletor temporal forte nem uma ênfase clara em defasagem 24, defasagem 48 ou nas horas mais recentes. O ganho observado parece estar mais associado à função de perda, ao contrato causal de variáveis e à seleção por validação do que a um padrão de atenção altamente concentrado.
 
