@@ -127,76 +127,87 @@ def group(ax, x, y, w, h, title, color):
 
 
 def draw_lstm():
-    fig, ax = setup_ax(14.4, 7.4)
+    fig, ax = setup_ax(15.8, 7.6)
 
-    label(ax, 50, 95, "Celula LSTM: controle de memoria por portoes", fs=17, weight="bold")
-    label(ax, 50, 90, "Fluxo no passo t para entrada x_t, memoria c_t e estado oculto h_t", fs=10, color=COLORS["muted"])
+    def op_circle(x, y, text, ec=COLORS["line"], fc=COLORS["white"], fs=11):
+        ax.add_patch(Circle((x, y), 2.05, facecolor=fc, edgecolor=ec, linewidth=1.5))
+        label(ax, x, y, text, fs=fs, weight="bold", color=ec)
 
-    group(ax, 3, 18, 22, 62, "Entradas", COLORS["blue"])
-    box(ax, 7, 61, 14, 9.5, "$c_{t-1}$\nmemoria", COLORS["blue_light"], COLORS["blue"], fs=11, weight="bold")
-    box(ax, 7, 44, 14, 9.5, "$x_t$\natributos", COLORS["blue_light"], COLORS["blue"], fs=11, weight="bold")
-    box(ax, 7, 27, 14, 9.5, "$h_{t-1}$\nestado", COLORS["blue_light"], COLORS["blue"], fs=11, weight="bold")
+    label(ax, 50, 95, "Célula LSTM: portas, memória e estado oculto", fs=17, weight="bold")
+    label(ax, 50, 90, "Fluxo clássico no passo t para entrada x_t, memória c_t e estado h_t", fs=10, color=COLORS["muted"])
 
-    group(ax, 29, 14, 47, 70, "Transformacoes internas", COLORS["violet"])
-    box(ax, 33, 43.5, 13, 10.5, "$[x_t;h_{t-1}]$\nconcat", COLORS["slate_light"], COLORS["line"], fs=10.5, weight="bold")
-    label(ax, 39.5, 38.8, "entrada comum\ndos portoes", fs=9.5, color=COLORS["muted"])
+    group(ax, 3, 18, 18, 64, "Entradas", COLORS["blue"])
+    box(ax, 6.2, 66, 11.5, 8.5, "$c_{t-1}$\nmemória", COLORS["blue_light"], COLORS["blue"], fs=10.2, weight="bold")
+    box(ax, 6.2, 45, 11.5, 8.5, "$x_t$\natributos", COLORS["blue_light"], COLORS["blue"], fs=10.2, weight="bold")
+    box(ax, 6.2, 25, 11.5, 8.5, "$h_{t-1}$\nestado", COLORS["blue_light"], COLORS["blue"], fs=10.2, weight="bold")
+
+    group(ax, 24, 13, 56, 73, "Transformações internas", COLORS["violet"])
+    box(ax, 28, 46, 11.5, 9.5, "$[x_t;h_{t-1}]$\nconcat", COLORS["slate_light"], COLORS["line"], fs=10, weight="bold")
+    label(ax, 33.8, 41, "entrada comum\ndas portas", fs=8.8, color=COLORS["muted"])
 
     gates = [
-        ("$f_t$\nesquecer", COLORS["red_light"], COLORS["red"], 59.5),
-        ("$i_t$\nentrada", COLORS["green_light"], COLORS["green"], 47.0),
-        ("$\\tilde{c}_t$\ncandidato", COLORS["amber_light"], COLORS["amber"], 34.5),
-        ("$o_t$\nsaida", COLORS["violet_light"], COLORS["violet"], 22.0),
+        ("$f_t=\\sigma(\\cdot)$\nesquecer", COLORS["red_light"], COLORS["red"], 70),
+        ("$i_t=\\sigma(\\cdot)$\nentrada", COLORS["green_light"], COLORS["green"], 57),
+        ("$\\tilde{c}_t=\\tanh(\\cdot)$\ncandidato", COLORS["amber_light"], COLORS["amber"], 44),
+        ("$o_t=\\sigma(\\cdot)$\nsaída", COLORS["violet_light"], COLORS["violet"], 31),
     ]
     for text, fc, ec, y in gates:
-        box(ax, 51, y, 12, 9.5, text, fc, ec, fs=10.7, weight="bold")
-        arrow(ax, (46, 48.8), (51, y + 4.75), COLORS["blue"], lw=1.7)
+        box(ax, 43, y - 4.2, 15.8, 8.4, text, fc, ec, fs=9.2, weight="bold")
+        arrow(ax, (39.5, 50.8), (43, y), COLORS["blue"], lw=1.5)
 
-    box(ax, 66, 57.5, 7.5, 11.5, "$c_t$\nupdate", COLORS["slate_light"], COLORS["line"], fs=10.5, weight="bold")
-    box(ax, 66, 27.5, 7.5, 11.5, "$h_t$\nupdate", COLORS["slate_light"], COLORS["line"], fs=10.5, weight="bold")
+    op_circle(64.5, 71, "$\\odot$", COLORS["red"], COLORS["red_light"])
+    op_circle(64.5, 50, "$\\odot$", COLORS["green"], COLORS["green_light"])
+    op_circle(71, 64, "$+$", COLORS["line"], COLORS["slate_light"], fs=12)
+    box(ax, 71.7, 42, 9.8, 8, "$\\tanh(c_t)$", COLORS["slate_light"], COLORS["line"], fs=9.4, weight="bold")
+    op_circle(75, 32, "$\\odot$", COLORS["violet"], COLORS["violet_light"])
 
-    arrow(ax, (21, 49), (33, 51.5), COLORS["blue"], lw=2.0, rad=-0.02)
-    arrow(ax, (21, 31.8), (33, 46.5), COLORS["blue"], lw=2.0, rad=0.08)
-    ax.plot([21, 34, 62], [66, 75, 75], color=COLORS["line"], linewidth=2.0)
-    arrow(ax, (62, 75), (66, 67.2), COLORS["line"], lw=2.0)
-    label(ax, 46, 78, "memoria anterior", fs=9.3, color=COLORS["muted"])
+    arrow(ax, (17.7, 49.2), (28, 51.5), COLORS["blue"], lw=1.8, rad=-0.02)
+    arrow(ax, (17.7, 29.2), (28, 48.8), COLORS["blue"], lw=1.8, rad=0.08)
 
-    arrow(ax, (63, 64.2), (66, 64.2), COLORS["red"], lw=2.0)
-    arrow(ax, (63, 51.7), (66, 62.0), COLORS["green"], lw=1.9, rad=0.08)
-    arrow(ax, (63, 39.2), (66, 59.8), COLORS["amber"], lw=1.9, rad=0.12)
-    arrow(ax, (63, 26.7), (66, 33.2), COLORS["violet"], lw=2.0, rad=-0.03)
-    arrow(ax, (69.8, 57.5), (69.8, 39), COLORS["line"], lw=2.0)
+    ax.plot([17.7, 32, 62.2], [70.2, 78, 78], color=COLORS["line"], linewidth=2.0)
+    arrow(ax, (62.2, 78), (64.0, 73.1), COLORS["line"], lw=2.0)
+    label(ax, 42, 74.5, "memória anterior", fs=8.8, color=COLORS["muted"])
 
-    group(ax, 81, 18, 16, 62, "Saidas", COLORS["green"])
-    box(ax, 84, 61, 10, 9.5, "$c_t$\nmemoria", COLORS["green_light"], COLORS["green"], fs=10.8, weight="bold")
-    box(ax, 84, 30, 10, 9.5, "$h_t$\nestado", COLORS["green_light"], COLORS["green"], fs=10.8, weight="bold")
-    arrow(ax, (73.5, 63.2), (84, 65.8), COLORS["green"], lw=2.2)
-    arrow(ax, (73.5, 33.2), (84, 34.8), COLORS["green"], lw=2.2)
+    arrow(ax, (58.8, 70), (62.5, 71), COLORS["red"], lw=1.9)
+    arrow(ax, (58.8, 57), (62.5, 50.7), COLORS["green"], lw=1.8, rad=-0.05)
+    arrow(ax, (58.8, 44), (62.5, 49.3), COLORS["amber"], lw=1.8, rad=0.05)
+    arrow(ax, (66.4, 70.6), (69, 65.2), COLORS["line"], lw=1.8)
+    arrow(ax, (66.4, 50), (69, 62.9), COLORS["line"], lw=1.8, rad=0.08)
+    arrow(ax, (58.8, 31), (72.9, 32), COLORS["violet"], lw=1.9, rad=-0.04)
 
-    label(ax, 50, 7, "O fluxo separa entrada comum, atualizacao da memoria e emissao do estado oculto.", fs=10, color=COLORS["muted"])
+    ax.plot([73.1, 84], [64, 64], color=COLORS["green"], linewidth=2.0)
+    arrow(ax, (71, 64), (72.9, 45.5), COLORS["line"], lw=1.8)
+    arrow(ax, (76.6, 42), (75.5, 34.1), COLORS["line"], lw=1.8)
+
+    group(ax, 84, 18, 13, 64, "Saídas", COLORS["green"])
+    box(ax, 86.2, 59.5, 8.5, 8.5, "$c_t$\nmemória", COLORS["green_light"], COLORS["green"], fs=9.7, weight="bold")
+    box(ax, 86.2, 27.5, 8.5, 8.5, "$h_t$\nestado", COLORS["green_light"], COLORS["green"], fs=9.7, weight="bold")
+    arrow(ax, (84, 64), (86.2, 63.8), COLORS["green"], lw=2.0)
+    arrow(ax, (77.0, 32), (86.2, 31.8), COLORS["green"], lw=2.0)
+
+    label(ax, 50, 7, "As portas σ controlam esquecimento, entrada e saída; tanh gera candidato e exposição da memória.", fs=9.6, color=COLORS["muted"])
     save(fig, "diagrama_lstm_proprio")
 
 
 def draw_seq2seq_attention():
     fig, ax = setup_ax(15.4, 7.7)
 
-    label(ax, 50, 96, "Seq2Seq com atencao para previsao multi-horizonte", fs=17, weight="bold")
-    label(ax, 50, 91, "Entrada historica de 48h, decodificador de 24h e covariaveis futuras conhecidas", fs=10, color=COLORS["muted"])
+    label(ax, 50, 96, "Seq2Seq com atenção para previsão multi-horizonte", fs=17, weight="bold")
+    label(ax, 50, 91, "Janela histórica de L passos, decodificador de H passos e covariáveis futuras conhecidas", fs=10, color=COLORS["muted"])
 
-    group(ax, 3, 16, 29, 68, "Encoder: historico observado", COLORS["blue"])
+    group(ax, 3, 16, 29, 68, "Codificador: histórico observado", COLORS["blue"])
     x_positions = [8.5, 17.5, 26.5]
-    input_labels = ["$x_{t-47}$", "$\\cdots$", "$x_t$"]
-    hidden_labels = ["$h_1$", "$\\cdots$", "$h_{48}$"]
+    input_labels = ["$x_{t-L+1}$", "$\\cdots$", "$x_t$"]
+    hidden_labels = ["$h_1$", "$\\cdots$", "$h_L$"]
     for x, inp, hid in zip(x_positions, input_labels, hidden_labels):
         box(ax, x - 3.4, 59, 6.8, 9.2, inp, COLORS["blue_light"], COLORS["blue"], fs=11.5, weight="bold")
         box(ax, x - 3.4, 40, 6.8, 9.2, hid, COLORS["slate_light"], COLORS["line"], fs=11.5, weight="bold")
         arrow(ax, (x, 59), (x, 49.2), COLORS["blue"], lw=2.0)
     arrow(ax, (11.9, 44.6), (14.1, 44.6), COLORS["line"], lw=2.0)
     arrow(ax, (20.9, 44.6), (23.1, 44.6), COLORS["line"], lw=2.0)
-    box(ax, 20.8, 28, 8.5, 7.5, "$H$\nmemoria", COLORS["slate_light"], COLORS["line"], fs=10.5, weight="bold")
-    arrow(ax, (26.5, 40), (25.0, 35.5), COLORS["line"], lw=2.0)
-    label(ax, 17.5, 23.5, "PM2.5, PM10,\nindicadores e tempo", fs=9.5, color=COLORS["muted"])
+    label(ax, 17.5, 23.5, "alvo, exógenas,\nindicadores e tempo", fs=9.3, color=COLORS["muted"])
 
-    group(ax, 36, 16, 25, 68, "Atencao temporal", COLORS["violet"])
+    group(ax, 36, 16, 25, 68, "Atenção temporal", COLORS["violet"])
     label(ax, 48.5, 72, "pesos $\\alpha_{k,j}$", fs=12, weight="bold", color=COLORS["violet"])
     heat_x, heat_y = 42.2, 60
     cell = 2.9
@@ -212,14 +223,14 @@ def draw_seq2seq_attention():
             ax.add_patch(Rectangle((heat_x + c * cell, heat_y - r * cell), cell - 0.12, cell - 0.12, facecolor=color, edgecolor="white", linewidth=0.8))
     label(ax, 49.5, 44.8, "$c_k = \\sum_j \\alpha_{k,j}h_j$", fs=13, weight="bold")
     box(ax, 42.2, 27, 14.5, 8.5, "contexto\n$c_k$", COLORS["violet_light"], COLORS["violet"], fs=12, weight="bold")
-    arrow(ax, (29.3, 31.8), (42.2, 54.5), COLORS["line"], lw=2.1, rad=0.04)
+    arrow(ax, (28.8, 44.6), (42.2, 54.5), COLORS["line"], lw=2.1, rad=0.04)
     arrow(ax, (49.5, 48.2), (49.5, 35.5), COLORS["violet"], lw=2.2)
 
-    group(ax, 65, 16, 32, 68, "Decoder: horizonte previsto", COLORS["green"])
-    box(ax, 69, 64, 24, 8.5, "covariaveis conhecidas\n$z_{t+1:t+24}$", COLORS["slate_light"], COLORS["line"], fs=10, weight="bold")
+    group(ax, 65, 16, 32, 68, "Decodificador: horizonte previsto", COLORS["green"])
+    box(ax, 69, 64, 24, 8.5, "covariáveis conhecidas\n$z_{t+1:t+H}$", COLORS["slate_light"], COLORS["line"], fs=10, weight="bold")
     dec_x = [72, 81, 90]
-    y_labels = ["$\\hat{y}_{t+1}$", "$\\cdots$", "$\\hat{y}_{t+24}$"]
-    s_labels = ["$s_1$", "$\\cdots$", "$s_{24}$"]
+    y_labels = ["$\\hat{y}_{t+1}$", "$\\cdots$", "$\\hat{y}_{t+H}$"]
+    s_labels = ["$s_1$", "$\\cdots$", "$s_H$"]
     ax.plot([72, 90], [61, 61], color=COLORS["line"], linewidth=2.0)
     arrow(ax, (81, 64), (81, 61.2), COLORS["line"], lw=1.9)
     for x, s, y in zip(dec_x, s_labels, y_labels):
@@ -230,9 +241,9 @@ def draw_seq2seq_attention():
     arrow(ax, (75.6, 52.8), (77.4, 52.8), COLORS["green"], lw=2.0)
     arrow(ax, (84.6, 52.8), (86.4, 52.8), COLORS["green"], lw=2.0)
     arrow(ax, (56.7, 31.2), (68.4, 52.8), COLORS["violet"], lw=2.4, rad=-0.05)
-    label(ax, 82, 23.5, "calendario/Fourier + PM10 causal", fs=9.5, color=COLORS["muted"])
+    label(ax, 82, 23.5, "atributos futuros conhecidos", fs=9.5, color=COLORS["muted"])
 
-    label(ax, 50, 7, "Os estados do codificador sao consolidados em H antes do calculo dos pesos de atencao.", fs=10, color=COLORS["muted"])
+    label(ax, 50, 7, "A atenção calcula pesos sobre os estados do codificador h_1, ..., h_L.", fs=10, color=COLORS["muted"])
     save(fig, "diagrama_seq2seq_attention_proprio")
 
 
@@ -257,14 +268,14 @@ def draw_tree(ax, x, y, scale=1.0, color=None):
 def draw_xgboost():
     fig, ax = setup_ax(15.4, 6.4)
 
-    label(ax, 50, 94, "XGBoost com saida multipla: serie temporal como matriz supervisionada", fs=16.5, weight="bold")
-    label(ax, 50, 89, "A janela de 48h e transformada em vetor tabular; a saida contem 24 previsoes", fs=10, color=COLORS["muted"])
+    label(ax, 50, 94, "XGBoost com saída múltipla: série temporal como matriz supervisionada", fs=16.5, weight="bold")
+    label(ax, 50, 89, "Uma janela de L passos é transformada em vetor tabular; a saída contém H previsões", fs=10, color=COLORS["muted"])
 
-    group(ax, 3, 18, 26, 62, "Janela temporal 48h", COLORS["blue"])
+    group(ax, 3, 18, 26, 62, "Janela temporal L passos", COLORS["blue"])
     table_x, table_y = 7, 33
     col_w, row_h = 4.1, 5.1
-    headers = ["PM2.5", "PM10", "miss", "tempo"]
-    rows = ["t-47", "...", "t"]
+    headers = ["alvo", "exóg. 1", "exóg. 2", "tempo"]
+    rows = ["t-L+1", "...", "t"]
     for c, head in enumerate(headers):
         box(ax, table_x + c * col_w, table_y + 18, col_w, row_h, head, COLORS["blue_light"], COLORS["blue"], lw=1.1, fs=7.5, weight="bold")
     for r, row in enumerate(rows):
@@ -272,10 +283,10 @@ def draw_xgboost():
         for c in range(len(headers)):
             fc = COLORS["white"] if r != 1 else COLORS["slate_light"]
             ax.add_patch(Rectangle((table_x + c * col_w, table_y + 11 - r * row_h), col_w, row_h, facecolor=fc, edgecolor=COLORS["blue"], linewidth=0.9))
-    label(ax, 15.8, 26, "defasagens,\nindicadores e substitutos", fs=9.5, color=COLORS["muted"])
+    label(ax, 15.8, 26, "defasagens,\nindicadores e atributos", fs=9.5, color=COLORS["muted"])
 
     arrow(ax, (29, 49), (36, 49), COLORS["line"], lw=2.4)
-    label(ax, 32.4, 55, "vetorizacao +\natributos", fs=9, color=COLORS["muted"])
+    label(ax, 32.4, 55, "vetorização +\natributos", fs=9, color=COLORS["muted"])
 
     group(ax, 36, 18, 23, 62, "Vetor tabular", COLORS["violet"])
     for idx, y in enumerate([62, 53, 44, 35]):
@@ -296,14 +307,14 @@ def draw_xgboost():
 
     arrow(ax, (86, 49), (90, 49), COLORS["line"], lw=2.4)
 
-    group(ax, 90, 18, 8, 62, "Saida", COLORS["amber"])
+    group(ax, 90, 18, 8, 62, "Saída", COLORS["amber"])
     ys = [68, 61, 54, 47, 40, 33]
-    labels = ["$\\hat{y}_{t+1}$", "$\\hat{y}_{t+2}$", "$\\cdots$", "$\\hat{y}_{t+23}$", "$\\hat{y}_{t+24}$", "24h"]
+    labels = ["$\\hat{y}_{t+1}$", "$\\hat{y}_{t+2}$", "$\\cdots$", "$\\hat{y}_{t+H-1}$", "$\\hat{y}_{t+H}$", "H passos"]
     for y, text in zip(ys, labels):
-        fc = COLORS["amber_light"] if text != "24h" else COLORS["slate_light"]
+        fc = COLORS["amber_light"] if text != "H passos" else COLORS["slate_light"]
         box(ax, 92.0, y - 2.6, 4.3, 5.2, text, fc, COLORS["amber"], lw=1.1, fs=7.4, weight="bold")
 
-    label(ax, 50, 8, "A linha de base usa a mesma divisao temporal e aprende atributos tabulares derivados da janela.", fs=10, color=COLORS["muted"])
+    label(ax, 50, 8, "Os atributos derivados da janela alimentam árvores impulsionadas com saída multi-horizonte.", fs=10, color=COLORS["muted"])
     save(fig, "diagrama_xgboost_multioutput_proprio")
 
 

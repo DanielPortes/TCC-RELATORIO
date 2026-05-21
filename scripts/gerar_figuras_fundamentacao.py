@@ -332,15 +332,15 @@ def draw_walk_forward_validation() -> None:
     ax.text(
         2.5,
         3.22,
-        "HPO dentro do desenvolvimento: cada partição treina no passado e valida no bloco seguinte",
+        "Janela expansiva: cada partição treina no passado e valida no bloco temporal seguinte",
         ha="center",
         va="top",
         fontsize=10.5,
         color=COLORS["muted"],
     )
 
-    year_labels = ["2016", "2017", "2018", "2019", "2020"]
-    for x, label in enumerate(year_labels):
+    period_labels = ["Bloco 1", "Bloco 2", "Bloco 3", "Bloco 4", "Bloco final"]
+    for x, label in enumerate(period_labels):
         ax.text(x + 0.5, 2.9, label, ha="center", va="center", fontsize=10.5, color=COLORS["ink"])
         ax.plot([x, x], [0.35, 2.75], color="#e2e8f0", linewidth=0.8, zorder=0)
     ax.plot([5, 5], [0.35, 2.75], color="#e2e8f0", linewidth=0.8, zorder=0)
