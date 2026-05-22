@@ -127,6 +127,8 @@ Também há um padrão mensal importante: PM2,5 e PM10 sobem em setembro e outub
 
 A tarefa de previsão é multi-horizonte: para cada janela válida, os modelos recebem as 48 horas anteriores e produzem uma previsão para as 24 horas seguintes. Formalmente, para um instante inicial \(t\), a entrada contém observações de \(t-47\) até \(t\), e a saída corresponde aos horizontes \(t+1\) até \(t+24\). Essa formulação foi mantida para todos os modelos da comparação principal e está resumida na Figura \ref{fig:tarefa_48_24_sapo}.
 
+Essa escolha de 48 horas foi reavaliada por uma análise auxiliar de persistência no próprio artefato final de Sapo. A autocorrelação observada de PM2,5 foi alta em uma hora (\(0{,}813\)) e ainda relevante em 24 horas (\(0{,}681\)), confirmando que o ciclo diário carrega informação importante para a previsão. Em 48 horas, a autocorrelação permaneceu moderada (\(0{,}598\)), enquanto o sinal semanal de 168 horas foi mais fraco (\(0{,}461\)). Além disso, linhas de base e modelos lineares diagnósticos com janelas de 1 a 168 horas indicaram que a maior parte do ganho ocorre ao cobrir as primeiras 24 horas, sem melhora consistente ao ampliar a entrada para uma semana completa. Assim, a janela de 48 horas foi mantida como compromisso metodológico: ela preserva dois ciclos diários, permite comparar defasagens de 24 e 48 horas e mantém custo computacional controlado, mas não deve ser interpretada como evidência de que históricos mais longos sejam sempre desnecessários em outros recortes.
+
 \begin{figure}[htb]
     \centering
     \includegraphics[width=0.95\linewidth]{tarefa_48_24_sapo.png}
@@ -212,7 +214,7 @@ Foram comparadas cinco variantes neurais e um modelo de referência tabular. A T
         LSTM direta & Produz os 24 horizontes de uma vez & Modelo sequencial direto \\
         Seq2Seq básico & Codificador-decodificador recorrente sem atenção explícita & Linha de base codificador-decodificador \\
         Seq2Seq atenção canônica & Codificador-decodificador com mecanismo de atenção e perda Huber & Variante de referência para análise de atenção \\
-        Seq2Seq atenção com L1 ponderada & Codificador-decodificador com atenção e perda ponderada para regimes altos & Variante final de Seq2Seq \\
+        Seq2Seq atenção novo & Codificador-decodificador com atenção, perda ponderada, reinício do decodificador e agrupamento por defasagens & Variante final de Seq2Seq \\
         XGBoost com saída múltipla & Árvores com saída multi-horizonte & Modelo de referência tabular forte \\
         \bottomrule
     \end{tabular}%
@@ -229,7 +231,7 @@ Esses dois experimentos não substituem o protocolo final nem entram como candid
 
 \section{Treinamento e Busca de Hiperparâmetros}
 
-O resultado principal usa busca de hiperparâmetros com validação temporal \textit{walk-forward} no bloco de desenvolvimento anterior ao teste. A busca é controlada e suficiente para comparação experimental de TCC, mas não deve ser interpretada como busca exaustiva nem garantia de ótimo global. Para os modelos neurais principais, foram usadas 24 tentativas, três partições temporais por janela expansiva, até 18 épocas por tentativa e treinamento final de até 36 épocas para LSTM direta e LSTM recursiva. Para o Seq2Seq atenção com L1 ponderada, o treinamento final manteve orçamento de até 48 épocas. O XGBoost foi submetido ao mesmo desenho \textit{walk-forward}, mas, por custo computacional das tentativas mais longas, o resultado consolidado usou quatro tentativas completas.
+O resultado principal usa hiperparâmetros selecionados no bloco de desenvolvimento anterior ao teste. Para LSTM direta, LSTM recursiva e XGBoost, a seleção foi feita por validação temporal \textit{walk-forward}. Para os modelos neurais principais com HPO, foram usadas 24 tentativas, três partições temporais por janela expansiva, até 18 épocas por tentativa e treinamento final de até 36 épocas para LSTM direta e LSTM recursiva. Para o novo Seq2Seq atenção, a configuração final veio de ablações focadas em arquitetura, perda, resposta a picos e tamanho de janela, e foi reexecutada no mesmo protocolo final com quatro sementes. O XGBoost foi submetido ao mesmo desenho \textit{walk-forward}, mas, por custo computacional das tentativas mais longas, o resultado consolidado usou quatro tentativas completas.
 
 Nas redes neurais, cada tentativa reiniciou o modelo em cada partição e agregou a métrica de validação ao fim das partições. O estudo do Optuna usou o amostrador padrão \texttt{TPESampler} e o \texttt{HyperbandPruner}, com \texttt{min\_resource}=1, \texttt{max\_resource}=18 e fator de redução 3. Assim, tentativas pouco promissoras podiam ser interrompidas antes de consumir todo o orçamento de épocas. Essa escolha segue a recomendação da documentação do Optuna para a combinação entre \texttt{TPESampler} e \texttt{HyperbandPruner} \cite{optunaDocsEfficient2026,optunaDocsHyperband2026}. Para o XGBoost, a busca minimizou o MAE médio nas partições, com parada antecipada (\textit{early stopping}) nativa do XGBoost e \texttt{MedianPruner} \cite{optunaDocsMedian2026}. A Tabela \ref{tab:hpo_espaco_busca} organiza o espaço de busca por grupo de hiperparâmetros; a Tabela \ref{tab:hpo_melhores_hiperparametros} apresenta a configuração selecionada.
 
@@ -237,7 +239,7 @@ Nos modelos neurais, a taxa de aprendizado apresentada nas tabelas é a taxa nom
 
 \begin{table}[htb]
     \centering
-    \caption{Espaço de busca de hiperparâmetros na comparação principal.}
+    \caption{Espaço de busca e configuração selecionada na comparação principal.}
     \label{tab:hpo_espaco_busca}
     \small
     \renewcommand{\arraystretch}{1.08}
@@ -251,7 +253,7 @@ Nos modelos neurais, a taxa de aprendizado apresentada nas tabelas é a taxa nom
         Redes neurais & Profundidade e perda & número de camadas 1; 2; 3; $\delta$ da Huber em 0{,}5; 0{,}75; 1{,}0; 1{,}5; 2{,}0 \\
         LSTM direta & Arquitetura & dimensão oculta 96; 128; 192; 256; 320; agregação por último estado, média ou atenção \\
         LSTM recursiva & Arquitetura & dimensão oculta 96; 128; 192; 256; 320 \\
-        Seq2Seq atenção + L1 ponderada & Arquitetura e perda & codificador/decodificador 64; 96; 128; 160; atenção de entrada 64; 96; 128; 160; representação de horizonte 8; 16; 24; 32; pesos moderado/alto e fator de subestimação \\
+        Seq2Seq atenção novo & Arquitetura e perda & variante selecionada por ablações: codificador/decodificador 96; uma camada; atenção de entrada 96; representação de horizonte 24; reinício do decodificador por horizonte; sem \textit{input feeding}; atenção por \textit{lag buckets}; perda ponderada e perda auxiliar leve de evento \\
         XGBoost com saída múltipla & Árvores e profundidade & 160; 240; 320; 480 árvores; profundidade máxima 2 a 7; \texttt{max\_bin} 64; 128; 256 \\
         XGBoost com saída múltipla & Regularização, amostragem e parada & taxa de aprendizado logarítmica entre 0{,}015 e 0{,}12; \textit{subsample} e \textit{colsample} entre 0{,}60 e 1{,}0; $\lambda$, $\alpha$, $\gamma$, peso mínimo do filho (\textit{min child weight}); parada antecipada (\textit{early stopping}) de 10, 15 ou 25 rodadas \\
         \bottomrule
@@ -260,7 +262,7 @@ Nos modelos neurais, a taxa de aprendizado apresentada nas tabelas é a taxa nom
 
 \begin{table}[htb]
     \centering
-    \caption{Hiperparâmetros selecionados pela busca na comparação principal.}
+    \caption{Hiperparâmetros e configurações selecionadas na comparação principal.}
     \label{tab:hpo_melhores_hiperparametros}
     \small
     \renewcommand{\arraystretch}{1.08}
@@ -270,7 +272,7 @@ Nos modelos neurais, a taxa de aprendizado apresentada nas tabelas é a taxa nom
         \midrule
         LSTM direta & dimensão oculta 256; 3 camadas; agregação por média & taxa nominal de aprendizado 0{,}007; decaimento de pesos $5 \times 10^{-5}$; \textit{dropout} 0{,}20; $\delta$ da Huber 2{,}0 \\
         LSTM recursiva & dimensão oculta 128; 2 camadas & taxa nominal de aprendizado 0{,}0035; decaimento de pesos 0; \textit{dropout} 0{,}20; $\delta$ da Huber 1{,}0 \\
-        Seq2Seq atenção + L1 ponderada & codificador 96; decodificador 96; 1 camada; atenção de entrada 96; representação de horizonte 24 & taxa nominal de aprendizado 0{,}007; decaimento de pesos $10^{-6}$; \textit{dropout} 0{,}30; pesos 1{,}20/1{,}10; fator de subestimação 1{,}50 \\
+        Seq2Seq atenção novo & codificador 96; decodificador 96; 1 camada; atenção de entrada 96; representação de horizonte 24; \textit{lag buckets} com janela 2 & taxa nominal de aprendizado 0{,}005; decaimento de pesos $10^{-6}$; \textit{dropout} 0{,}25; pesos 1{,}05/1{,}10; fator de subestimação 1{,}50; perda auxiliar de evento 0{,}035 \\
         XGBoost com saída múltipla & 480 árvores; profundidade máxima 2; \texttt{max\_bin}=64 & taxa de aprendizado 0{,}02563; \textit{subsample}=0{,}7611; \textit{colsample}=0{,}9073; $\lambda=7{,}7542$; parada antecipada=10 rodadas \\
         \bottomrule
     \end{tabular}
@@ -278,7 +280,7 @@ Nos modelos neurais, a taxa de aprendizado apresentada nas tabelas é a taxa nom
 
 \clearpage
 
-A formulação final do Seq2Seq priorizou a variante com atenção de entrada e perda \texttt{weighted\_l1}. Essa perda pondera regimes de concentração e tipos de erro, alterando o objetivo de treinamento para reduzir parte da suavização e melhorar o comportamento em concentrações mais altas. Essa variante foi avaliada no protocolo consolidado com \textit{walk-forward} e múltiplas sementes, enquanto defasagens explícitas e combinações de predições permaneceram como análises auxiliares.
+A formulação final do Seq2Seq priorizou a nova variante com atenção de entrada, perda \texttt{weighted\_l1}, reinício do estado do decodificador a cada horizonte, remoção de \textit{input feeding}, atenção condicionada por horizonte e variáveis do decodificador, agrupamento por \textit{lag buckets} e perda auxiliar leve para eventos. A perda pondera regimes de concentração e tipos de erro, alterando o objetivo de treinamento para reduzir parte da suavização e melhorar o comportamento em concentrações mais altas. Essa variante foi avaliada no protocolo consolidado com múltiplas sementes e janela fixa de 48 horas, após ablações indicarem que janelas de 72, 96 e 168 horas não traziam ganho claro.
 
 As variantes finais de Seq2Seq priorizaram um decodificador semidireto com horizonte explícito e linha de base residual sazonal, reduzindo a dependência de realimentação autoregressiva pura. Ainda assim, a avaliação de agendas de \textit{teacher forcing} foi incluída porque trabalhos recentes em previsão, como \citeonline{teutsch2022flipped}, indicam que currículos crescentes de \textit{teacher forcing} podem melhorar previsões multi-horizonte em séries temporais contínuas. No relatório, portanto, \textit{teacher forcing} e \textit{scheduled sampling} são tratados como técnicas avaliadas em ablações auxiliares fundamentadas, não como eixo central do resultado final em Sapo. Essa distinção evita atribuir ao \textit{scheduled sampling} um ganho que, nos experimentos consolidados, esteve mais associado ao contrato de dados, ao uso causal de PM10, à seleção por validação e à função de perda.
 

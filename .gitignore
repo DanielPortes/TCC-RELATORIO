@@ -30,6 +30,7 @@ dist/
 *.log
 *.lot
 *.nav
+*.out
 *.run.xml
 *.snm
 *.synctex.gz

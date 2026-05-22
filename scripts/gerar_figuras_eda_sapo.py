@@ -28,22 +28,32 @@ RANKING_PATH = (
 TIMELINES = {
     "LSTM direta": (
         TECH_ROOT
-        / "runtime/reports/sapo_final_pre_delivery_suite_20260510/artifacts/cv_hpo_lstm_direct_clean_pm10/test_outputs/test_predictions_timeline.csv",
+        / "runtime/reports/sapo_final_new_seq2seq_suite_20260522/artifacts/lstm_direct_clean_pm10_final_seed_42/test_outputs/test_predictions_timeline.csv",
         "#4C78A8",
+    ),
+    "Seq2Seq atenção novo": (
+        TECH_ROOT
+        / "runtime/reports/sapo_final_new_seq2seq_suite_20260522/artifacts/seq2seq_attention_new_clean_pm10_final_seed_42/test_outputs/test_predictions_timeline.csv",
+        "#54A24B",
     ),
     "LSTM recursiva": (
         TECH_ROOT
-        / "runtime/reports/sapo_final_pre_delivery_suite_20260510/artifacts/cv_hpo_lstm_recursive_clean_pm10/test_outputs/test_predictions_timeline.csv",
+        / "runtime/reports/sapo_final_new_seq2seq_suite_20260522/artifacts/lstm_recursive_clean_pm10_final_seed_42/test_outputs/test_predictions_timeline.csv",
         "#B279A2",
     ),
-    "Seq2Seq atenção + L1 ponderada": (
+    "Seq2Seq atenção canônica": (
         TECH_ROOT
-        / "runtime/reports/sapo_final_pre_delivery_suite_20260510/artifacts/cv_hpo_weighted_l1_clean_pm10/test_outputs/test_predictions_timeline.csv",
-        "#54A24B",
+        / "runtime/reports/sapo_final_new_seq2seq_suite_20260522/artifacts/seq2seq_attention_canonical_clean_pm10_final_seed_42/test_outputs/test_predictions_timeline.csv",
+        "#72B7B2",
+    ),
+    "Seq2Seq básico": (
+        TECH_ROOT
+        / "runtime/reports/sapo_final_new_seq2seq_suite_20260522/artifacts/seq2seq_basic_clean_pm10_final_seed_42/test_outputs/test_predictions_timeline.csv",
+        "#E45756",
     ),
     "XGBoost": (
         TECH_ROOT
-        / "runtime/reports/sapo_final_pre_delivery_suite_20260510/artifacts/cv_hpo_xgboost_clean_pm10/test_outputs/test_predictions_timeline.csv",
+        / "runtime/reports/sapo_final_new_seq2seq_suite_20260522/artifacts/xgboost_clean_pm10_final_seed_42/test_outputs/test_predictions_timeline.csv",
         "#F58518",
     ),
 }
@@ -51,27 +61,35 @@ TIMELINES = {
 HORIZON_FILES = {
     "LSTM direta": (
         TECH_ROOT
-        / "runtime/reports/sapo_final_pre_delivery_suite_20260510/artifacts/cv_hpo_lstm_direct_clean_pm10/test_outputs/per_horizon_metrics.csv",
+        / "runtime/reports/sapo_final_new_seq2seq_suite_20260522/artifacts/lstm_direct_clean_pm10_final_seed_42/test_outputs/per_horizon_metrics.csv",
         "#4C78A8",
+    ),
+    "Seq2Seq atenção novo": (
+        TECH_ROOT
+        / "runtime/reports/sapo_final_new_seq2seq_suite_20260522/artifacts/seq2seq_attention_new_clean_pm10_final_seed_42/test_outputs/per_horizon_metrics.csv",
+        "#54A24B",
     ),
     "LSTM recursiva": (
         TECH_ROOT
-        / "runtime/reports/sapo_final_pre_delivery_suite_20260510/artifacts/cv_hpo_lstm_recursive_clean_pm10/test_outputs/per_horizon_metrics.csv",
+        / "runtime/reports/sapo_final_new_seq2seq_suite_20260522/artifacts/lstm_recursive_clean_pm10_final_seed_42/test_outputs/per_horizon_metrics.csv",
         "#B279A2",
     ),
-    "Seq2Seq atenção + L1 ponderada": (
+    "Seq2Seq atenção canônica": (
         TECH_ROOT
-        / "runtime/reports/sapo_final_pre_delivery_suite_20260510/artifacts/cv_hpo_weighted_l1_clean_pm10/test_outputs/per_horizon_metrics.csv",
-        "#54A24B",
+        / "runtime/reports/sapo_final_new_seq2seq_suite_20260522/artifacts/seq2seq_attention_canonical_clean_pm10_final_seed_42/test_outputs/per_horizon_metrics.csv",
+        "#72B7B2",
+    ),
+    "Seq2Seq básico": (
+        TECH_ROOT
+        / "runtime/reports/sapo_final_new_seq2seq_suite_20260522/artifacts/seq2seq_basic_clean_pm10_final_seed_42/test_outputs/per_horizon_metrics.csv",
+        "#E45756",
     ),
     "XGBoost": (
         TECH_ROOT
-        / "runtime/reports/sapo_final_pre_delivery_suite_20260510/artifacts/cv_hpo_xgboost_clean_pm10/test_outputs/per_horizon_metrics.csv",
+        / "runtime/reports/sapo_final_new_seq2seq_suite_20260522/artifacts/xgboost_clean_pm10_final_seed_42/test_outputs/per_horizon_metrics.csv",
         "#F58518",
     ),
 }
-# TODO(resultados): incluir Seq2Seq básico e Seq2Seq atenção canônica nas figuras
-# quando forem reexecutados no mesmo protocolo final dos demais modelos.
 
 COLORS = {
     "train": "#2563eb",
