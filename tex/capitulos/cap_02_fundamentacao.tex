@@ -74,10 +74,10 @@ Em desenhos experimentais com seleção de hiperparâmetros, a validação cruza
 
 \section{Previsão Multi-Horizonte}
 
-Na previsão multi-horizonte, o objetivo é estimar mais de um instante futuro. Para uma entrada $\mathbf{x}_{t-L+1:t}$ e um horizonte de \(H\) passos, o modelo deve produzir $\hat{\mathbf{y}}_{t+1:t+H}$. Revisões recentes de previsão com aprendizado profundo descrevem arquiteturas de codificador e decodificador tanto para previsão um-passo quanto para previsão multi-horizonte \cite{lim2021survey,benidis2022deep}. Três estratégias são especialmente relevantes:
+Na previsão multi-horizonte, o objetivo é estimar mais de um instante futuro. Para uma entrada $\mathbf{x}_{t-L+1:t}$ e um horizonte de \(H\) instantes, o modelo deve produzir $\hat{\mathbf{y}}_{t+1:t+H}$. Revisões recentes de previsão com aprendizado profundo descrevem arquiteturas de codificador e decodificador tanto para previsão de horizonte único quanto para previsão multi-horizonte \cite{lim2021survey,benidis2022deep}. Três estratégias são especialmente relevantes:
 
 \begin{itemize}
-    \item \textbf{Previsão recursiva:} o modelo aprende uma função de um passo $\hat{y}_{t+1}=g_{\theta}(\mathbf{x}_{t-L+1:t})$ e realimenta suas próprias saídas para obter $\hat{y}_{t+2}, \ldots, \hat{y}_{t+H}$. A estratégia é simples, mas pode acumular erros ao longo do horizonte.
+    \item \textbf{Previsão recursiva:} o modelo aprende uma função de horizonte único $\hat{y}_{t+1}=g_{\theta}(\mathbf{x}_{t-L+1:t})$ e realimenta suas próprias saídas para obter $\hat{y}_{t+2}, \ldots, \hat{y}_{t+H}$. A estratégia é simples, mas pode acumular erros ao longo do horizonte.
     \item \textbf{Previsão direta:} o modelo aprende diretamente $\hat{\mathbf{y}}_{t+1:t+H}=g_{\theta}(\mathbf{x}_{t-L+1:t})$. Isso reduz a realimentação de erro, mas exige aprender a estrutura conjunta do horizonte.
     \item \textbf{Codificador-decodificador:} uma rede codifica a janela de entrada e outra gera a sequência futura, possivelmente condicionada por variáveis conhecidas no horizonte. Essa formulação é natural para tarefas sequência-para-sequência.
 \end{itemize}
@@ -88,13 +88,13 @@ Essas alternativas podem ser implementadas com modelos recorrentes, arquiteturas
 
 Dados ambientais reais frequentemente contêm lacunas por falhas de sensor, manutenção, comunicação ou filtragem de leituras inconsistentes. A ausência de dados deve ser tratada com cuidado porque pode afetar tanto o treinamento quanto a avaliação. A literatura de dados faltantes diferencia o valor não observado do valor realmente medido; tratá-los como equivalentes pode distorcer inferências e métricas \cite{rubin1976inference}.
 
-Imputação é o processo de preencher lacunas com estimativas. Métodos simples, como interpolação linear, preservam a estrutura temporal local e são transparentes; métodos multivariados, como MICE e MissForest, exploram relações entre variáveis \cite{vanbuuren2011mice,stekhoven2012missforest}. Métodos baseados em atenção, como SAITS, também foram propostos para imputação em séries temporais \cite{du2023saits}. Independentemente do método escolhido, a distinção entre valor observado e valor imputado é importante: valores preenchidos não devem ser tratados automaticamente como observações reais. Por isso, protocolos de previsão com lacunas precisam preservar informação sobre ausência e explicitar como a imputação afeta treinamento e avaliação.
+Imputação é o processo de preencher lacunas com estimativas. Métodos simples, como interpolação linear, preservam a estrutura temporal local e são transparentes; métodos multivariados, como MICE e MissForest, exploram relações entre variáveis \cite{vanbuuren2011mice,stekhoven2012missforest}. Métodos de imputação temporal, como BRITS e SAITS, também usam máscaras de observação para distinguir valores disponíveis de valores ausentes \cite{cao2018brits,du2023saits}. Independentemente do método escolhido, a distinção entre valor observado e valor imputado é importante: valores preenchidos não devem ser tratados automaticamente como observações reais. Por isso, protocolos de previsão com lacunas precisam preservar informação sobre ausência e explicitar como a imputação afeta treinamento e avaliação.
 
 Outro risco é o vazamento temporal. A imputação, a normalização e a criação de atributos precisam ser ajustadas sem usar estatísticas futuras indisponíveis no instante de previsão. Em um protocolo cronológico, esses procedimentos devem ser definidos com informação anterior ao período avaliado.
 
 \section{Janelas e Variáveis Exógenas}
 
-Modelos supervisionados de séries temporais costumam converter uma sequência contínua em pares de entrada e saída por janelas deslizantes. Cada amostra é formada por uma janela histórica de \(L\) passos e por um alvo futuro de \(H\) passos. A sobreposição entre janelas aumenta o número de exemplos, mas exige cuidado para manter a divisão temporal e evitar que uma janela de treino alcance o período de validação ou teste.
+Modelos supervisionados de séries temporais costumam converter uma sequência contínua em pares de entrada e saída por janelas deslizantes. Cada amostra é formada por uma janela histórica de \(L\) instantes e por um alvo futuro com \(H\) instantes. A sobreposição entre janelas aumenta o número de exemplos, mas exige cuidado para manter a divisão temporal e evitar que uma janela de treino alcance o período de validação ou teste.
 
 Defasagens explícitas e variáveis exógenas podem aumentar a informação disponível para o modelo. No entanto, uma variável exógena só pode entrar no decodificador se estiver disponível no momento em que a previsão seria feita. Atributos de calendário, termos periódicos e previsões meteorológicas publicadas antes da emissão da previsão são exemplos de informação potencialmente disponível. Já variáveis observadas apenas no futuro, como medições futuras de outro poluente, não devem ser usadas diretamente.
 
@@ -148,12 +148,12 @@ Uma rede neural organiza vários neurônios em camadas. A saída de uma camada a
 
 em que \(W^{(\ell)}\) e \(\mathbf{b}^{(\ell)}\) são os parâmetros da camada \(\ell\). O treinamento ajusta esses parâmetros para minimizar uma função de perda nos exemplos observados. Em tarefas de regressão, essa perda mede a distância entre os valores previstos e observados.
 
-Aprendizado profundo, ou \textit{deep learning}, refere-se ao treinamento de redes neurais com múltiplas camadas e representações sucessivas dos dados \cite{goodfellow2016deep,lecun2015deep}. Em séries temporais, essa ideia é útil porque o modelo pode aprender relações não lineares entre medições recentes, variáveis exógenas, padrões cíclicos e o horizonte previsto. As arquiteturas recorrentes e codificador-decodificador discutidas nas seções seguintes são casos específicos de redes profundas voltadas a sequências: elas compartilham parâmetros ao longo do tempo, mantêm estados internos e produzem previsões para um ou mais passos futuros.
+Aprendizado profundo, ou \textit{deep learning}, refere-se ao treinamento de redes neurais com múltiplas camadas e representações sucessivas dos dados \cite{goodfellow2016deep,lecun2015deep}. Em séries temporais, essa ideia é útil porque o modelo pode aprender relações não lineares entre medições recentes, variáveis exógenas, padrões cíclicos e o horizonte previsto. As arquiteturas recorrentes e codificador-decodificador discutidas nas seções seguintes são casos específicos de redes profundas voltadas a sequências: elas compartilham parâmetros ao longo do tempo, mantêm estados internos e produzem previsões para um ou mais horizontes futuros.
 
 \section{Redes Neurais Recorrentes e LSTM}
 \label{sec:rnn_lstm}
 
-Redes neurais recorrentes são projetadas para dados sequenciais, pois atualizam um estado interno conforme processam cada passo da sequência. Em RNNs simples, o treinamento pode sofrer com desaparecimento ou explosão de gradientes, dificultando o aprendizado de dependências mais longas. A arquitetura Long Short-Term Memory (LSTM) introduz uma célula de memória e portões de entrada, esquecimento e saída para controlar o fluxo de informação \cite{hochreiter1997long}.
+Redes neurais recorrentes são projetadas para dados sequenciais, pois atualizam um estado interno conforme processam cada instante da sequência. Em RNNs simples, o treinamento pode sofrer com desaparecimento ou explosão de gradientes, dificultando o aprendizado de dependências mais longas. A arquitetura Long Short-Term Memory (LSTM) introduz uma célula de memória e portões de entrada, esquecimento e saída para controlar o fluxo de informação \cite{hochreiter1997long}.
 
 Uma célula LSTM pode ser descrita pelas seguintes equações, para entrada $\mathbf{x}_t$, estado oculto anterior $\mathbf{h}_{t-1}$ e memória anterior $\mathbf{c}_{t-1}$:
 
@@ -177,20 +177,20 @@ O portão de esquecimento $\mathbf{f}_t$ controla quanto da memória anterior é
     \label{fig:lstm_propria}
 \end{figure}
 
-Em previsão multi-horizonte, a LSTM pode ser usada em estratégias recursivas ou diretas. Na estratégia recursiva, o modelo aprende a avançar ao longo do horizonte com realimentação. Na estratégia direta, o estado final da janela de entrada é projetado para todos os passos futuros. A comparação entre essas estratégias permite separar o efeito da arquitetura recorrente do efeito da forma de gerar o horizonte.
+Em previsão multi-horizonte, a LSTM pode ser usada em estratégias recursivas ou diretas. Na estratégia recursiva, o modelo aprende a avançar ao longo do horizonte com realimentação. Na estratégia direta, o estado final da janela de entrada é projetado para todo o horizonte futuro. A comparação entre essas estratégias permite separar o efeito da arquitetura recorrente do efeito da forma de gerar o horizonte.
 
 \section{Seq2Seq e Atenção}
 \label{sec:encoder_decoder_attention}
 
-Modelos Sequence-to-Sequence, ou Seq2Seq, foram propostos para mapear uma sequência de entrada em uma sequência de saída. \citeonline{sutskever2014sequence} descrevem a proposta como uma abordagem ``\textit{end-to-end}'' para aprendizado de sequências, em que um codificador transforma a entrada em representação latente e um decodificador gera a sequência de saída. Em séries temporais, essa estrutura é útil porque o decodificador pode produzir um horizonte completo e receber variáveis conhecidas para cada passo futuro.
+Modelos Sequence-to-Sequence, ou Seq2Seq, foram propostos para mapear uma sequência de entrada em uma sequência de saída. \citeonline{sutskever2014sequence} descrevem a proposta como uma abordagem ``\textit{end-to-end}'' para aprendizado de sequências, em que um codificador transforma a entrada em representação latente e um decodificador gera a sequência de saída. Em séries temporais, essa estrutura é útil porque o decodificador pode produzir um horizonte completo e receber variáveis conhecidas para cada horizonte futuro.
 
-Sejam $\mathbf{h}_j$ os estados do codificador para os $L$ passos da janela de entrada. Uma formulação simplificada do codificador é:
+Sejam $\mathbf{h}_j$ os estados do codificador para os \(L\) instantes da janela de entrada. Uma formulação simplificada do codificador é:
 
 \[
     \mathbf{h}_j = Enc_{\theta}(\mathbf{x}_{t-L+j}, \mathbf{h}_{j-1}), \quad j=1,\ldots,L.
 \]
 
-Sem atenção, o decodificador depende principalmente de um vetor de contexto, frequentemente associado ao último estado do codificador. A atenção reduz esse gargalo. O próprio trabalho de \citeonline{bahdanau2014neural} caracteriza o ``\textit{fixed-length vector}'' como uma limitação em tarefas sequência-para-sequência. Com atenção aditiva, para cada passo futuro $k$, calculam-se escores, pesos normalizados e um contexto:
+Sem atenção, o decodificador depende principalmente de um vetor de contexto, frequentemente associado ao último estado do codificador. A atenção reduz esse gargalo. O próprio trabalho de \citeonline{bahdanau2014neural} caracteriza o ``\textit{fixed-length vector}'' como uma limitação em tarefas sequência-para-sequência. Com atenção aditiva, para cada horizonte futuro \(k\), calculam-se escores, pesos normalizados e um contexto:
 
 \[
 \begin{aligned}
@@ -209,7 +209,7 @@ O decodificador atualiza seu estado e produz a previsão:
 \end{aligned}
 \]
 
-Nessas expressões, \(W_s\), \(W_h\), \(\mathbf{v}_a\) e \(\mathbf{b}_a\) são parâmetros aprendidos do mecanismo de atenção, enquanto \(\mathbf{s}_k\) representa o estado do decodificador no passo futuro \(k\).
+Nessas expressões, \(W_s\), \(W_h\), \(\mathbf{v}_a\) e \(\mathbf{b}_a\) são parâmetros aprendidos do mecanismo de atenção, enquanto \(\mathbf{s}_k\) representa o estado do decodificador no horizonte \(k\).
 
 Nesse caso, $\tilde{y}_{t+k-1}$ representa o valor real anterior durante \textit{teacher forcing} ou a previsão anterior durante inferência. Variações de atenção global e local também foram propostas, incluindo mecanismos do tipo Luong \cite{luong2015effective}. Para séries temporais multivariadas, arquiteturas como DA-RNN combinam atenção sobre variáveis de entrada e atenção temporal \cite{qin2017darnn}.
 
@@ -226,9 +226,9 @@ Pesos de atenção não devem ser interpretados automaticamente como explicaçã
 
 \section{\textit{Teacher Forcing} e \textit{Scheduled Sampling}}
 
-Em modelos com decodificador autoregressivo, o treinamento pode usar \textit{teacher forcing}: em vez de alimentar a previsão anterior do próprio modelo, usa-se o valor observado anterior como entrada do próximo passo. Isso acelera o treinamento, mas cria diferença entre treino e inferência, já que o valor real futuro não está disponível no momento da previsão. \citeonline{bengio2015scheduled} descrevem esse problema como discrepância entre treinamento e inferência, pois o item anterior verdadeiro está disponível no treino, mas é substituído por uma saída gerada pelo próprio modelo na inferência.
+Em modelos com decodificador autoregressivo, o treinamento pode usar \textit{teacher forcing}: em vez de alimentar a previsão anterior do próprio modelo, usa-se o valor observado anterior como entrada do próximo instante. Isso acelera o treinamento, mas cria diferença entre treino e inferência, já que o valor real futuro não está disponível no momento da previsão. \citeonline{bengio2015scheduled} descrevem esse problema como discrepância entre treinamento e inferência, pois o item anterior verdadeiro está disponível no treino, mas é substituído por uma saída gerada pelo próprio modelo na inferência.
 
-Seja \(p_{TF}\) a probabilidade de usar o valor real anterior no decodificador. Em cada passo futuro \(k\), pode-se sortear \(b_{i,k}\sim\text{Bernoulli}(p_{TF})\) e definir a entrada autoregressiva como:
+Seja \(p_{TF}\) a probabilidade de usar o valor real anterior no decodificador. Em cada horizonte futuro \(k\), pode-se sortear \(b_{i,k}\sim\text{Bernoulli}(p_{TF})\) e definir a entrada autoregressiva como:
 
 \[
     \tilde{y}_{t+k-1}
@@ -277,7 +277,7 @@ em que $\mathbf{u}_i$ é o vetor tabular de atributos da janela. O objetivo regu
     \Omega(f_k)=\gamma T_k + \frac{1}{2}\lambda\lVert\mathbf{w}_k\rVert_2^2.
 \]
 
-Nessa expressão, $T_k$ é o número de folhas da árvore e $\mathbf{w}_k$ são os pesos das folhas. A regularização penaliza árvores excessivamente complexas e ajuda a controlar sobreajuste. Em problemas multi-horizonte, o XGBoost pode ser combinado com estratégias de saída múltipla para prever todos os passos futuros de uma vez; a Figura~\ref{fig:xgboost_multioutput_propria} ilustra essa conversão tabular.
+Nessa expressão, $T_k$ é o número de folhas da árvore e $\mathbf{w}_k$ são os pesos das folhas. A regularização penaliza árvores excessivamente complexas e ajuda a controlar sobreajuste. Em problemas multi-horizonte, o XGBoost pode ser combinado com estratégias de saída múltipla para prever todo o horizonte futuro de uma vez; a Figura~\ref{fig:xgboost_multioutput_propria} ilustra essa conversão tabular.
 
 \begin{figure}[htbp]
     \centering
@@ -315,7 +315,7 @@ Também são usadas funções de perda robustas ou ponderadas. A perda de Huber 
     \end{cases}
 \]
 
-Quando um conjunto de dados contém valores imputados no alvo, a função de perda pode usar uma máscara $m_{i,k}$ que vale 1 quando o alvo do exemplo $i$ e horizonte $k$ foi observado e 0 quando foi imputado:
+Quando um conjunto de dados contém valores imputados no alvo, a função de perda e as métricas de avaliação podem usar uma máscara \(m_{i,k}\) que vale 1 quando o alvo do exemplo \(i\) e horizonte \(k\) foi observado e 0 quando foi imputado. Essa escolha segue a distinção entre valor observado e valor ausente ou estimado, além do uso de máscaras de observação em métodos de imputação temporal \cite{rubin1976inference,cao2018brits,du2023saits}:
 
 \[
     \mathcal{J}(\theta)
@@ -380,6 +380,16 @@ O coeficiente de determinação ($R^2$) compara o erro do modelo com a variânci
     R^2(y, \hat{y}) =
     1 - \frac{\sum_{i=1}^{N}(y_i - \hat{y}_i)^2}{\sum_{i=1}^{N}(y_i - \bar{y})^2}.
 \]
+
+Quando há valores imputados no alvo, as métricas devem ser calculadas apenas sobre os pontos originalmente observados, usando a mesma lógica da máscara \(m_i\). Para o MAE observado, por exemplo:
+
+\[
+    \text{MAE}_{obs}(y, \hat{y}) =
+    \frac{\sum_{i=1}^{N}m_i|y_i-\hat{y}_i|}
+    {\sum_{i=1}^{N}m_i}.
+\]
+
+O mesmo princípio se aplica a RMSE, MAPE e métricas por horizonte. No caso do \(R^2\), a média \(\bar{y}\) e as somas do numerador e do denominador devem ser calculadas no mesmo subconjunto observado. Isso evita tratar valores imputados como verdade de referência e mantém a avaliação vinculada às medições efetivamente observadas \cite{rubin1976inference,cao2018brits,du2023saits}.
 
 Além dessas métricas globais, análises por horizonte, viés médio, percentis altos previstos e erro em eventos de maior concentração podem complementar a avaliação. Essa combinação é necessária porque um modelo pode vencer em erro médio e ainda produzir curvas excessivamente suavizadas, subestimando picos relevantes para a interpretação ambiental.
 

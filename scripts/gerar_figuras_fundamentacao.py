@@ -234,7 +234,7 @@ def draw_teacher_forcing_scheduled_sampling() -> None:
     ax.text(
         0.5,
         0.92,
-        "A diferença está no valor realimentado para o próximo passo do decodificador",
+        "A diferença está no valor realimentado para o próximo instante do decodificador",
         ha="center",
         va="top",
         fontsize=9.8,

@@ -134,7 +134,7 @@ def draw_lstm():
         label(ax, x, y, text, fs=fs, weight="bold", color=ec)
 
     label(ax, 50, 95, "Célula LSTM: portas, memória e estado oculto", fs=17, weight="bold")
-    label(ax, 50, 90, "Fluxo clássico no passo t para entrada x_t, memória c_t e estado h_t", fs=10, color=COLORS["muted"])
+    label(ax, 50, 90, "Fluxo clássico no instante t para entrada x_t, memória c_t e estado h_t", fs=10, color=COLORS["muted"])
 
     group(ax, 3, 18, 18, 64, "Entradas", COLORS["blue"])
     box(ax, 6.2, 66, 11.5, 8.5, "$c_{t-1}$\nmemória", COLORS["blue_light"], COLORS["blue"], fs=10.2, weight="bold")
@@ -193,7 +193,7 @@ def draw_seq2seq_attention():
     fig, ax = setup_ax(15.4, 7.7)
 
     label(ax, 50, 96, "Seq2Seq com atenção para previsão multi-horizonte", fs=17, weight="bold")
-    label(ax, 50, 91, "Janela histórica de L passos, decodificador de H passos e covariáveis futuras conhecidas", fs=10, color=COLORS["muted"])
+    label(ax, 50, 91, "Janela histórica com L instantes, decodificador com H horizontes e covariáveis futuras conhecidas", fs=10, color=COLORS["muted"])
 
     group(ax, 3, 16, 29, 68, "Codificador: histórico observado", COLORS["blue"])
     x_positions = [8.5, 17.5, 26.5]
@@ -269,15 +269,15 @@ def draw_xgboost():
     fig, ax = setup_ax(15.4, 6.4)
 
     label(ax, 50, 94, "XGBoost com saída múltipla: série temporal como matriz supervisionada", fs=16.5, weight="bold")
-    label(ax, 50, 89, "Uma janela de L passos é transformada em vetor tabular; a saída contém H previsões", fs=10, color=COLORS["muted"])
+    label(ax, 50, 89, "Uma janela com L instantes é transformada em vetor tabular; a saída contém H previsões", fs=10, color=COLORS["muted"])
 
-    group(ax, 3, 18, 26, 62, "Janela temporal L passos", COLORS["blue"])
-    table_x, table_y = 7, 33
-    col_w, row_h = 4.1, 5.1
-    headers = ["alvo", "exóg. 1", "exóg. 2", "tempo"]
+    group(ax, 3, 18, 26, 62, "Janela temporal com L instantes", COLORS["blue"])
+    table_x, table_y = 5.4, 33
+    col_w, row_h = 4.75, 5.1
+    headers = ["alvo", "exóg.\n1", "exóg.\n2", "tempo"]
     rows = ["t-L+1", "...", "t"]
     for c, head in enumerate(headers):
-        box(ax, table_x + c * col_w, table_y + 18, col_w, row_h, head, COLORS["blue_light"], COLORS["blue"], lw=1.1, fs=7.5, weight="bold")
+        box(ax, table_x + c * col_w, table_y + 18, col_w, row_h, head, COLORS["blue_light"], COLORS["blue"], lw=1.1, fs=7.0, weight="bold")
     for r, row in enumerate(rows):
         label(ax, table_x - 2.2, table_y + 14 - r * row_h, row, fs=8.5, color=COLORS["muted"])
         for c in range(len(headers)):
@@ -309,9 +309,9 @@ def draw_xgboost():
 
     group(ax, 90, 18, 8, 62, "Saída", COLORS["amber"])
     ys = [68, 61, 54, 47, 40, 33]
-    labels = ["$\\hat{y}_{t+1}$", "$\\hat{y}_{t+2}$", "$\\cdots$", "$\\hat{y}_{t+H-1}$", "$\\hat{y}_{t+H}$", "H passos"]
+    labels = ["$\\hat{y}_{t+1}$", "$\\hat{y}_{t+2}$", "$\\cdots$", "$\\hat{y}_{t+H-1}$", "$\\hat{y}_{t+H}$", "$H$ previsões"]
     for y, text in zip(ys, labels):
-        fc = COLORS["amber_light"] if text != "H passos" else COLORS["slate_light"]
+        fc = COLORS["amber_light"] if text != "$H$ previsões" else COLORS["slate_light"]
         box(ax, 92.0, y - 2.6, 4.3, 5.2, text, fc, COLORS["amber"], lw=1.1, fs=7.4, weight="bold")
 
     label(ax, 50, 8, "Os atributos derivados da janela alimentam árvores impulsionadas com saída multi-horizonte.", fs=10, color=COLORS["muted"])
