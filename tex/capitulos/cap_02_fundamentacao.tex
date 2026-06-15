@@ -2,17 +2,19 @@
 \chapter{Fundamentação Teórica}
 \label{chap:fundamentacao_teorica}
 
-Este capítulo apresenta os conceitos teóricos necessários para fundamentar a previsão horária multi-horizonte de PM2,5 em séries temporais ambientais. O foco recai sobre dados faltantes, variáveis exógenas conhecidas no momento da previsão, redes neurais artificiais, modelos recorrentes, arquiteturas codificador-decodificador com atenção e modelos tabulares baseados em impulsionamento por gradiente (\textit{gradient boosting}).
+Este capítulo apresenta os conceitos teóricos necessários para fundamentar a previsão horária multi-horizonte de PM2,5 em séries temporais ambientais. O foco recai sobre dados faltantes, variáveis exógenas conhecidas no momento da previsão, redes neurais artificiais, modelos recorrentes, arquiteturas codificador-decodificador com atenção e modelos baseados em árvores com impulsionamento por gradiente (\textit{gradient boosting}).
 
 \section{PM2,5 e Monitoramento da Qualidade do Ar}
 
-PM2,5 designa partículas finas com diâmetro aerodinâmico de até 2,5 micrômetros. Por seu tamanho reduzido, elas podem penetrar profundamente no sistema respiratório e estão associadas a impactos respiratórios e cardiovasculares relevantes \cite{pope2006health,brook2010particulate}. As diretrizes globais da Organização Mundial da Saúde tratam PM2,5 e PM10 como poluentes prioritários para avaliação de qualidade do ar \cite{who2021air}.
+PM2,5 designa o material particulado fino formado por partículas com diâmetro aerodinâmico de até 2,5 micrômetros. O diâmetro aerodinâmico é uma forma de expressar o comportamento da partícula no ar: partículas menores permanecem suspensas por mais tempo e podem ser inaladas com maior facilidade. Por seu tamanho reduzido, o PM2,5 pode atingir regiões profundas do sistema respiratório e está associado a efeitos respiratórios e cardiovasculares relevantes \cite{pope2006health,brook2010particulate}. As diretrizes globais da Organização Mundial da Saúde tratam PM2,5 e PM10 como poluentes prioritários para avaliação de qualidade do ar \cite{who2021air}.
 
-Em redes de monitoramento, as concentrações de poluentes são medidas em intervalos regulares e formam séries temporais. A previsão de curto prazo busca estimar concentrações futuras a partir de medições recentes e de variáveis auxiliares. Em formulações horárias, é comum utilizar uma janela de observações passadas para prever um ou mais instantes futuros.
+PM10, por sua vez, representa partículas com diâmetro aerodinâmico de até 10 micrômetros. Embora seja uma fração mais grossa que PM2,5, sua concentração pode carregar informação sobre condições ambientais, emissão de partículas e episódios de maior concentração. Por isso, em problemas de previsão, PM10 pode ser usado como variável auxiliar quando está disponível de forma compatível com a série de PM2,5.
+
+Em redes de monitoramento, sensores registram concentrações de poluentes em intervalos regulares e formam séries temporais. Uma série temporal de qualidade do ar, portanto, é uma sequência de medições ordenadas pelo tempo. A previsão de curto prazo busca estimar concentrações futuras a partir de medições recentes e de informações auxiliares conhecidas no momento da previsão. Em formulações horárias, é comum usar um bloco de observações passadas para prever um ou mais instantes futuros.
 
 \section{Séries Temporais Multivariadas}
 
-Uma série temporal é uma sequência de observações indexadas no tempo. Em qualidade do ar, a concentração de um poluente depende de autocorrelação, ciclos diários e semanais, condições meteorológicas, variações de emissão, mudanças de regime e eventos raros. Quando múltiplas variáveis são observadas simultaneamente, como PM2,5, PM10 e atributos temporais, a tarefa passa a ser multivariada.
+Uma série temporal é uma sequência de observações indexadas no tempo. Em qualidade do ar, a concentração de um poluente depende de autocorrelação, ciclos diários e semanais, condições meteorológicas, variações de emissão, mudanças de regime e eventos raros. Quando múltiplas variáveis são observadas simultaneamente, como PM2,5, PM10 e atributos de calendário, a tarefa passa a ser multivariada. Nesse caso, o modelo não observa apenas o histórico do alvo, mas também outras informações que podem ajudar a explicar sua variação.
 
 A análise de séries temporais costuma separar padrões em componentes interpretáveis. \citeonline{hyndman2021forecasting} distinguem tendência, sazonalidade, ciclos e variações remanescentes como padrões úteis para escolher métodos de previsão. Em uma decomposição aditiva simples, uma observação pode ser representada por:
 
@@ -35,7 +37,7 @@ Outro conceito central é autocorrelação, isto é, a associação entre a sér
 
 Valores altos de \(\rho(1)\), \(\rho(24)\) ou \(\rho(168)\) indicam, respectivamente, persistência de curto prazo, repetição diária e repetição semanal. Em problemas de previsão, essa leitura ajuda a escolher janelas históricas, defasagens sazonais e termos cíclicos adequados ao período de amostragem da série.
 
-Formalmente, seja $\mathbf{x}_t \in \mathbb{R}^{d}$ o vetor de atributos observado no instante $t$, $y_t \in \mathbb{R}$ a concentração de PM2,5 e $\mathbf{z}_{t+k}$ o vetor de atributos futuros conhecidos no instante de emissão da previsão, como calendário, termos periódicos ou previsões meteorológicas disponíveis operacionalmente. Para uma janela de entrada de tamanho $L$ e horizonte $H$, o problema pode ser escrito como:
+Formalmente, seja $\mathbf{x}_t \in \mathbb{R}^{d}$ o vetor de atributos observado no instante $t$, $y_t \in \mathbb{R}$ a concentração de PM2,5 e $\mathbf{z}_{t+k}$ o vetor de atributos futuros conhecidos no instante de emissão da previsão, como calendário, termos periódicos ou previsões meteorológicas disponíveis operacionalmente. Uma janela de entrada é o bloco de valores passados entregue ao modelo; o horizonte é o conjunto de instantes futuros que se deseja prever. Para uma janela de entrada de tamanho $L$ e horizonte $H$, o problema pode ser escrito como:
 
 \[
     \hat{\mathbf{y}}_{t+1:t+H}
@@ -48,7 +50,7 @@ Formalmente, seja $\mathbf{x}_t \in \mathbb{R}^{d}$ o vetor de atributos observa
 
 em que $f_{\theta}$ é o modelo treinado e $\hat{\mathbf{y}}_{t+1:t+H} = (\hat{y}_{t+1}, \ldots, \hat{y}_{t+H})$. Essa formulação explicita a diferença entre variáveis observadas apenas no passado e variáveis conhecidas para o horizonte futuro.
 
-Em problemas de previsão, a ordem temporal dos dados deve ser preservada. Separações aleatórias, comuns em tarefas tabulares independentes, podem introduzir vazamento de informação futura em séries temporais. Por isso, avaliações fora da amostra e divisões cronológicas são recomendadas para estimar desempenho em um cenário próximo ao uso real \cite{hyndman2021forecasting,tashman2000out,bergmeir2012crossvalidation}.
+Em problemas de previsão, a ordem temporal dos dados deve ser preservada. Separações aleatórias, comuns em tarefas com registros independentes, podem introduzir vazamento de informação futura em séries temporais. Por isso, avaliações fora da amostra e divisões cronológicas são recomendadas para estimar desempenho em um cenário próximo ao uso real \cite{hyndman2021forecasting,tashman2000out,bergmeir2012crossvalidation}.
 
 \subsection{Validação cruzada temporal e \textit{walk-forward}}
 
@@ -82,21 +84,21 @@ Na previsão multi-horizonte, o objetivo é estimar mais de um instante futuro. 
     \item \textbf{Codificador-decodificador:} uma rede codifica a janela de entrada e outra gera a sequência futura, possivelmente condicionada por variáveis conhecidas no horizonte. Essa formulação é natural para tarefas sequência-para-sequência.
 \end{itemize}
 
-Essas alternativas podem ser implementadas com modelos recorrentes, arquiteturas codificador-decodificador e modelos tabulares com saída múltipla. Comparações desse tipo são necessárias porque a literatura de previsão não sustenta uma única arquitetura universalmente dominante; revisões de RNNs para séries temporais ressaltam que não existem soluções universais em previsão \cite{hewamalage2021rnn}.
+Essas alternativas podem ser implementadas com modelos recorrentes, arquiteturas codificador-decodificador e modelos baseados em árvores com saída múltipla. Comparações desse tipo são necessárias porque a literatura de previsão não sustenta uma única arquitetura universalmente dominante; revisões de RNNs para séries temporais ressaltam que não existem soluções universais em previsão \cite{hewamalage2021rnn}.
 
 \section{Dados Faltantes, Imputação e Vazamento Temporal}
 
-Dados ambientais reais frequentemente contêm lacunas por falhas de sensor, manutenção, comunicação ou filtragem de leituras inconsistentes. A ausência de dados deve ser tratada com cuidado porque pode afetar tanto o treinamento quanto a avaliação. A literatura de dados faltantes diferencia o valor não observado do valor realmente medido; tratá-los como equivalentes pode distorcer inferências e métricas \cite{rubin1976inference}.
+Dados ambientais reais frequentemente contêm lacunas por falhas de sensor, manutenção, comunicação ou filtragem de leituras inconsistentes. Uma lacuna significa que, em determinado instante, a medição esperada não foi observada. A ausência de dados deve ser tratada com cuidado porque pode afetar tanto o treinamento quanto a avaliação. A literatura de dados faltantes diferencia o valor não observado do valor realmente medido; tratá-los como equivalentes pode distorcer inferências e métricas \cite{rubin1976inference}.
 
-Imputação é o processo de preencher lacunas com estimativas. Métodos simples, como interpolação linear, preservam a estrutura temporal local e são transparentes; métodos multivariados, como MICE e MissForest, exploram relações entre variáveis \cite{vanbuuren2011mice,stekhoven2012missforest}. Métodos de imputação temporal, como BRITS e SAITS, também usam máscaras de observação para distinguir valores disponíveis de valores ausentes \cite{cao2018brits,du2023saits}. Independentemente do método escolhido, a distinção entre valor observado e valor imputado é importante: valores preenchidos não devem ser tratados automaticamente como observações reais. Por isso, protocolos de previsão com lacunas precisam preservar informação sobre ausência e explicitar como a imputação afeta treinamento e avaliação.
+Imputação é o processo de preencher lacunas com estimativas. Métodos simples, como interpolação linear, preservam a estrutura temporal local e são transparentes; métodos multivariados, como MICE e MissForest, exploram relações entre variáveis \cite{vanbuuren2011mice,stekhoven2012missforest}. Métodos de imputação temporal, como BRITS e SAITS, também usam máscaras de observação para distinguir valores disponíveis de valores ausentes \cite{cao2018brits,du2023saits}. Neste contexto, máscara significa um indicador que informa se um valor foi originalmente observado ou se foi preenchido por algum método de imputação. Independentemente do método escolhido, essa distinção é importante: valores preenchidos não devem ser tratados automaticamente como observações reais. Por isso, protocolos de previsão com lacunas precisam preservar informação sobre ausência e explicitar como a imputação afeta treinamento e avaliação.
 
 Outro risco é o vazamento temporal. A imputação, a normalização e a criação de atributos precisam ser ajustadas sem usar estatísticas futuras indisponíveis no instante de previsão. Em um protocolo cronológico, esses procedimentos devem ser definidos com informação anterior ao período avaliado.
 
 \section{Janelas e Variáveis Exógenas}
 
-Modelos supervisionados de séries temporais costumam converter uma sequência contínua em pares de entrada e saída por janelas deslizantes. Cada amostra é formada por uma janela histórica de \(L\) instantes e por um alvo futuro com \(H\) instantes. A sobreposição entre janelas aumenta o número de exemplos, mas exige cuidado para manter a divisão temporal e evitar que uma janela de treino alcance o período de validação ou teste.
+Modelos supervisionados de séries temporais costumam converter uma sequência contínua em pares de entrada e saída por janelas deslizantes. Cada amostra é formada por uma janela histórica de \(L\) instantes e por um alvo futuro com \(H\) instantes. Em termos simples, o modelo recebe um trecho do passado e aprende a produzir um trecho do futuro. A sobreposição entre janelas aumenta o número de exemplos, mas exige cuidado para manter a divisão temporal e evitar que uma janela de treino alcance o período de validação ou teste.
 
-Defasagens explícitas e variáveis exógenas podem aumentar a informação disponível para o modelo. No entanto, uma variável exógena só pode entrar no decodificador se estiver disponível no momento em que a previsão seria feita. Atributos de calendário, termos periódicos e previsões meteorológicas publicadas antes da emissão da previsão são exemplos de informação potencialmente disponível. Já variáveis observadas apenas no futuro, como medições futuras de outro poluente, não devem ser usadas diretamente.
+Defasagens explícitas e variáveis exógenas podem aumentar a informação disponível para o modelo. Defasagem é o uso de valores passados de uma variável, como a concentração observada uma hora ou vinte e quatro horas antes. Variável exógena é uma informação externa ao alvo principal, como PM10, temperatura, vento ou atributos de calendário. No entanto, uma variável exógena só pode entrar no decodificador se estiver disponível no momento em que a previsão seria feita. Atributos de calendário, termos periódicos e previsões meteorológicas publicadas antes da emissão da previsão são exemplos de informação potencialmente disponível. Já variáveis observadas apenas no futuro, como medições futuras de outro poluente, não devem ser usadas diretamente.
 
 \section{Redes Neurais e Aprendizado Profundo}
 \label{sec:redes_neurais_deep_learning}
@@ -257,7 +259,7 @@ A notação da Figura \ref{fig:teacher_forcing_scheduled_sampling} é importante
 
 \section{Impulsionamento por Gradiente e XGBoost}
 
-Modelos de árvores com impulsionamento (\textit{boosting}) constroem um preditor aditivo por meio de várias árvores fracas, ajustadas sequencialmente para corrigir erros residuais. O XGBoost é uma implementação eficiente de impulsionamento por gradiente (\textit{gradient boosting}) com regularização, paralelização e recursos práticos para dados tabulares \cite{chen2016xgboost}. Por lidar bem com atributos defasados e variáveis derivadas, ele é frequentemente usado como modelo de referência tabular forte para previsão de séries temporais transformadas em matriz supervisionada.
+Modelos de árvores com impulsionamento (\textit{boosting}) constroem um preditor aditivo por meio de várias árvores fracas, ajustadas sequencialmente para corrigir erros residuais. O XGBoost é uma implementação eficiente de impulsionamento por gradiente (\textit{gradient boosting}) com regularização, paralelização e recursos práticos para dados tabulares \cite{chen2016xgboost}. Neste trabalho, dado tabular significa uma matriz em que cada linha representa uma janela temporal transformada em atributos numéricos. Por lidar bem com atributos defasados e variáveis derivadas, o XGBoost é frequentemente usado como modelo de referência para previsão de séries temporais transformadas nesse formato.
 
 No impulsionamento aditivo, a predição após $K$ árvores pode ser escrita como:
 
@@ -288,10 +290,10 @@ Nessa expressão, $T_k$ é o número de folhas da árvore e $\mathbf{w}_k$ são 
 
 Em aplicações com dados faltantes, a conversão tabular precisa manter consistência entre as janelas de entrada, o horizonte previsto e os critérios de inclusão de alvos observados. Essa decisão afeta a comparabilidade entre modelos tabulares e modelos neurais quando há máscaras ou perdas definidas ponto a ponto.
 
-\section{Treinamento, Função de Perda e HPO}
+\section{Treinamento, Função de Perda e Otimização de Hiperparâmetros}
 \label{sec:otimizacao_hpo}
 
-Parâmetros são aprendidos pelo modelo durante o treinamento; hiperparâmetros, como taxa de aprendizado, número de camadas, tamanho do estado oculto e \textit{dropout}, são definidos antes ou buscados por procedimento externo. Redes neurais são frequentemente treinadas com otimizadores baseados em gradiente, como Adam e AdamW \cite{kingma2014adam,loshchilov2019decoupled}, e podem usar monitoramento em validação para seleção de ponto de controle.
+Parâmetros são aprendidos pelo modelo durante o treinamento; hiperparâmetros, como taxa de aprendizado, número de camadas, tamanho do estado oculto e \textit{dropout}, são definidos antes ou buscados por procedimento externo. Essa busca é chamada de otimização de hiperparâmetros, indicada neste trabalho pela sigla HPO, do inglês \textit{Hyperparameter Optimization}. Redes neurais são frequentemente treinadas com otimizadores baseados em gradiente, como Adam e AdamW \cite{kingma2014adam,loshchilov2019decoupled}, e podem usar monitoramento em validação para seleção de ponto de controle.
 
 A taxa de aprendizado controla o tamanho do passo aplicado aos parâmetros a cada atualização por gradiente. Ela pode ser mantida constante ou seguir uma agenda ao longo das épocas. Uma estratégia comum combina aquecimento linear (\textit{linear warm-up}) e decaimento cosseno: o aquecimento linear aparece em protocolos de treinamento com lotes grandes \cite{goyal2017accurate}, enquanto agendas cossenoidais são discutidas no contexto de reinícios quentes \cite{loshchilov2017sgdr}. Com \(E_w\) épocas de aquecimento, \(E\) épocas máximas, taxa máxima \(\eta_{\max}\) e taxa mínima \(\eta_{\min}\), a forma idealizada é:
 
@@ -397,4 +399,4 @@ Além dessas métricas globais, análises por horizonte, viés médio, percentis
 
 \section{Resumo do Capítulo}
 
-Este capítulo definiu a base teórica do estudo: PM2,5 como série temporal ambiental, componentes temporais, autocorrelação, previsão multi-horizonte, tratamento de dados faltantes sem vazamento, janelas supervisionadas, variáveis exógenas causalmente disponíveis, redes neurais artificiais, aprendizado profundo, LSTM, Seq2Seq com atenção, \textit{scheduled sampling}, XGBoost, HPO e métricas. A formulação matemática deixa explícita a distinção entre arquiteturas recorrentes, codificador-decodificador e modelos de referência tabulares.
+Este capítulo definiu a base teórica do estudo: PM2,5 como série temporal ambiental, componentes temporais, autocorrelação, previsão multi-horizonte, tratamento de dados faltantes sem vazamento, janelas supervisionadas, variáveis exógenas disponíveis no momento da previsão, redes neurais artificiais, aprendizado profundo, LSTM, Seq2Seq com atenção, \textit{scheduled sampling}, XGBoost, HPO e métricas. A formulação matemática deixa explícita a distinção entre arquiteturas recorrentes, codificador-decodificador e modelos baseados em árvores, preparando a metodologia comparativa dos capítulos seguintes.

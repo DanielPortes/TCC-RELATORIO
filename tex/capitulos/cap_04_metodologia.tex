@@ -6,7 +6,7 @@ Este capítulo descreve o protocolo experimental utilizado na comparação dos m
 
 \section{Fonte de Dados e Escopo}
 
-O estudo utiliza medições horárias da estação Sapo, pertencente ao recorte CMD (Conceição do Mato Dentro, MG) do conjunto de dados usado neste trabalho. A fonte bruta pertence ao monitoramento contínuo de qualidade do ar disponibilizado pela Fundação Estadual do Meio Ambiente de Minas Gerais \cite{feam2026dadosmonitoramento}. A variável-alvo é a concentração de PM2,5, e o principal poluente auxiliar mantido no contrato final é PM10. Embora a fonte bruta contenha outras variáveis meteorológicas e gases, essas colunas foram removidas do contrato principal porque apresentavam alta esparsidade na estação Sapo e prejudicavam a coerência do conjunto de dados final.
+O estudo utiliza medições horárias da estação Sapo, localizada em Conceição do Mato Dentro, Minas Gerais. Neste trabalho, a sigla CMD é usada apenas como abreviação do município de Conceição do Mato Dentro quando necessário. Os dados fazem parte do monitoramento contínuo de qualidade do ar disponibilizado pela Fundação Estadual do Meio Ambiente de Minas Gerais \cite{feam2026dadosmonitoramento}. A variável-alvo é a concentração de PM2,5, e o principal poluente auxiliar mantido no contrato final é PM10. O conjunto original também contém variáveis meteorológicas e gases, mas essas colunas foram removidas do contrato principal porque apresentavam alta esparsidade na estação Sapo e prejudicavam a coerência do conjunto de dados final.
 
 O conjunto consolidado usado nos resultados principais contém 34.991 registros horários, de 2017-01-04 00:30:00 a 2020-12-31 22:30:00. Esse período corresponde ao recorte efetivamente disponível após preparação, criação das variáveis substitutas causais de PM10 e remoção das primeiras janelas necessárias para a formulação supervisionada.
 
@@ -286,7 +286,7 @@ As variantes finais de Seq2Seq priorizaram um decodificador semidireto com horiz
 
 \section{Métricas de Avaliação}
 
-A avaliação final utiliza métricas no bloco final de teste. As métricas globais principais são MAE, RMSE, MAPE e R2. Também são reportadas métricas por horizonte, especialmente nos horizontes 1, 6, 12 e 24, para observar degradação ao longo da previsão. Como os picos são raros e importantes em qualidade do ar, a análise também considera métricas de cauda, como erro em eventos acima de 35, p99 previsto, razão entre desvio-padrão previsto e observado, viés médio e taxa de subestimação.
+A avaliação final utiliza métricas no bloco final de teste. As métricas globais principais são MAE, RMSE, MAPE e \(R^2\). Também são reportadas métricas por horizonte, especialmente nos horizontes 1, 6, 12 e 24, para observar degradação ao longo da previsão. Como os picos são raros e importantes em qualidade do ar, a análise também considera métricas de cauda, como erro em eventos acima de 35, p99 previsto, razão entre desvio-padrão previsto e observado, viés médio e taxa de subestimação.
 
 A interpretação dos resultados combina métricas agregadas e inspeção visual das séries previstas. Essa combinação é necessária porque modelos que vencem em erro médio podem produzir previsões mais suaves, enquanto variantes voltadas a picos podem preservar mais amplitude ao custo de pequeno aumento no MAE global.
 

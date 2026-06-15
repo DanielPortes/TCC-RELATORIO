@@ -21,7 +21,7 @@ A Tabela \ref{tab:resultado_principal_sapo_hpo} apresenta os resultados principa
     \resizebox{\textwidth}{!}{%
     \begin{tabular}{lrrrrrr}
         \toprule
-        \textbf{Modelo} & \textbf{MAE} & \textbf{RMSE} & \textbf{MAPE} & \textbf{R2} & \textbf{H1 MAE} & \textbf{H24 MAE} \\
+        \textbf{Modelo} & \textbf{MAE} & \textbf{RMSE} & \textbf{MAPE} & \textbf{\(R^2\)} & \textbf{H1 MAE} & \textbf{H24 MAE} \\
         \midrule
         LSTM direta & \textbf{2,7713} & \textbf{3,8346} & \textbf{23,01} & \textbf{0,5154} & 2,6725 & \textbf{2,8670} \\
         Seq2Seq atenção novo & 2,8132 & 3,8799 & 23,23 & 0,5039 & 2,6222 & 2,9138 \\
@@ -34,9 +34,9 @@ A Tabela \ref{tab:resultado_principal_sapo_hpo} apresenta os resultados principa
     }
 \end{table}
 
-O resultado reforça a conclusão central: a LSTM direta permanece vencedora por erro médio. O novo Seq2Seq atenção melhora substancialmente a posição da família Seq2Seq em relação à variante ponderada anterior, reduzindo o MAE da semente canônica de 2,8658 para 2,8132 e aproximando RMSE e R2 dos valores da LSTM direta. O XGBoost continua sendo um modelo de referência tabular forte e manteve o menor erro no primeiro horizonte, mas perdeu para LSTM direta e novo Seq2Seq no MAE global.
+O resultado reforça a conclusão central: a LSTM direta permanece vencedora por erro médio. O novo Seq2Seq atenção melhora substancialmente a posição da família Seq2Seq em relação à variante ponderada anterior, reduzindo o MAE da semente canônica de 2,8658 para 2,8132 e aproximando RMSE e \(R^2\) dos valores da LSTM direta. O XGBoost continua sendo um modelo de referência tabular forte e manteve o menor erro no primeiro horizonte, mas perdeu para LSTM direta e novo Seq2Seq no MAE global.
 
-Entre os modelos neurais, a diferença entre LSTM direta e novo Seq2Seq é pequena no erro médio, mas não desaparece: 2,7713 contra 2,8132 na semente canônica. A LSTM recursiva apresentou RMSE e R2 próximos aos da LSTM direta, mas teve pior MAE e maior erro no horizonte final. O Seq2Seq básico e o Seq2Seq atenção canônica ficaram abaixo da nova variante, mostrando que o ganho veio da combinação específica de desenho do decodificador, perda ponderada, agrupamento de atenção por defasagens e seleção da janela de 48 horas, não apenas do uso genérico de uma arquitetura codificador-decodificador.
+Entre os modelos neurais, a diferença entre LSTM direta e novo Seq2Seq é pequena no erro médio, mas não desaparece: 2,7713 contra 2,8132 na semente canônica. A LSTM recursiva apresentou RMSE e \(R^2\) próximos aos da LSTM direta, mas teve pior MAE e maior erro no horizonte final. O Seq2Seq básico e o Seq2Seq atenção canônica ficaram abaixo da nova variante, mostrando que o ganho veio da combinação específica de desenho do decodificador, perda ponderada, agrupamento de atenção por defasagens e seleção da janela de 48 horas, não apenas do uso genérico de uma arquitetura codificador-decodificador.
 
 \section{Estabilidade com Múltiplas Sementes}
 
@@ -49,7 +49,7 @@ A Tabela \ref{tab:multi_seed_sapo} resume a sensibilidade à semente aleatória 
     \resizebox{\textwidth}{!}{%
     \begin{tabular}{lrrrrr}
         \toprule
-        \textbf{Modelo} & \textbf{MAE médio} & \textbf{Desvio MAE} & \textbf{RMSE médio} & \textbf{R2 médio} & \textbf{MBE médio} \\
+        \textbf{Modelo} & \textbf{MAE médio} & \textbf{Desvio MAE} & \textbf{RMSE médio} & \textbf{\(R^2\) médio} & \textbf{MBE médio} \\
         \midrule
         LSTM direta & \textbf{2,8055} & 0,0540 & 3,8611 & 0,5086 & 0,0435 \\
         Seq2Seq atenção novo & 2,8218 & 0,0220 & 3,8989 & 0,4989 & 0,0651 \\
@@ -62,7 +62,7 @@ A Tabela \ref{tab:multi_seed_sapo} resume a sensibilidade à semente aleatória 
     }
 \end{table}
 
-A média com múltiplas sementes mantém a LSTM direta como melhor modelo por MAE, mas o novo Seq2Seq atenção passa a ser o segundo colocado com margem pequena: MAE médio 2,8218 contra 2,8055. A LSTM recursiva passa a ter melhor RMSE e R2 médios, ao custo de viés positivo consistente. Essa diferença confirma que a escolha do vencedor depende da métrica priorizada. Para o objetivo principal do TCC, que usa MAE observado como métrica central de erro médio, a LSTM direta continua sendo a escolha principal; para eventos altos, a análise de cauda favorece o novo Seq2Seq.
+A média com múltiplas sementes mantém a LSTM direta como melhor modelo por MAE, mas o novo Seq2Seq atenção passa a ser o segundo colocado com margem pequena: MAE médio 2,8218 contra 2,8055. A LSTM recursiva passa a ter melhor RMSE e \(R^2\) médios, ao custo de viés positivo consistente. Essa diferença confirma que a escolha do vencedor depende da métrica priorizada. Para o objetivo principal do TCC, que usa MAE observado como métrica central de erro médio, a LSTM direta continua sendo a escolha principal; para eventos altos, a análise de cauda favorece o novo Seq2Seq.
 
 \section{Linhas de Base Ingênuas}
 
@@ -75,7 +75,7 @@ A Tabela \ref{tab:baselines_ingenuos_sapo} apresenta linhas de base simples aval
     \resizebox{\textwidth}{!}{%
     \begin{tabular}{lrrrr}
         \toprule
-        \textbf{Linha de base} & \textbf{MAE} & \textbf{RMSE} & \textbf{R2} & \textbf{Habilidade MAE} \\
+        \textbf{Linha de base} & \textbf{MAE} & \textbf{RMSE} & \textbf{\(R^2\)} & \textbf{Habilidade MAE} \\
         \midrule
         Persistência \(y(t)\) & 3,8971 & 5,2834 & 0,0801 & 0,0000 \\
         Sazonal \(y(t-24)\) & 3,3739 & 4,7174 & 0,2666 & 0,1342 \\
@@ -195,7 +195,7 @@ A atenção canônica com Huber não foi o melhor caminho durante o desenvolvime
     \resizebox{\textwidth}{!}{%
     \begin{tabular}{lrrrrr}
         \toprule
-        \textbf{Variante} & \textbf{MAE} & \textbf{RMSE} & \textbf{R2} & \textbf{Peak35 MAE} & \textbf{p99 previsto} \\
+        \textbf{Variante} & \textbf{MAE} & \textbf{RMSE} & \textbf{\(R^2\)} & \textbf{Peak35 MAE} & \textbf{p99 previsto} \\
         \midrule
         Seed 42 & 2,8132 & 3,8799 & 0,5039 & 11,0815 & 32,50 \\
         Média com múltiplas sementes & 2,8218 & 3,8989 & 0,4989 & 11,5855 & 31,90 \\
@@ -218,7 +218,7 @@ A Tabela \ref{tab:ablation_pm10_causal} compara o contrato final contra duas rem
     \resizebox{\textwidth}{!}{%
     \begin{tabular}{llrrrr}
         \toprule
-        \textbf{Modelo} & \textbf{Contrato} & \textbf{MAE} & \textbf{\(\Delta\) MAE} & \textbf{RMSE} & \textbf{R2} \\
+        \textbf{Modelo} & \textbf{Contrato} & \textbf{MAE} & \textbf{\(\Delta\) MAE} & \textbf{RMSE} & \textbf{\(R^2\)} \\
         \midrule
         LSTM direta & PM10 causal completo & \textbf{2,7713} & 0,0000 & \textbf{3,8346} & \textbf{0,5154} \\
         LSTM direta & PM10 histórico sem substituto no decodificador & 2,8575 & +0,0862 & 3,9678 & 0,4812 \\
@@ -231,7 +231,7 @@ A Tabela \ref{tab:ablation_pm10_causal} compara o contrato final contra duas rem
     }
 \end{table}
 
-A ablação confirma que os substitutos causais de PM10 foram uma decisão central, sobretudo para a LSTM direta: remover esses atributos aumentou o MAE em 0,0862, e remover PM10 completamente aumentou o MAE em 0,0743. No XGBoost, o ganho global foi menor, mas ainda consistente em MAE, RMSE e R2. Assim, o papel de PM10 causal deve ser apresentado como contribuição metodológica do contrato de dados, não apenas como detalhe de engenharia de atributos.
+A ablação confirma que os substitutos causais de PM10 foram uma decisão central, sobretudo para a LSTM direta: remover esses atributos aumentou o MAE em 0,0862, e remover PM10 completamente aumentou o MAE em 0,0743. No XGBoost, o ganho global foi menor, mas ainda consistente em MAE, RMSE e \(R^2\). Assim, o papel de PM10 causal deve ser apresentado como contribuição metodológica do contrato de dados, não apenas como detalhe de engenharia de atributos.
 
 \section{Limite Informacional com Variáveis Futuras}
 
@@ -246,7 +246,7 @@ Na estação Sapo, a tentativa de usar um conjunto mais amplo de variáveis most
     \resizebox{\textwidth}{!}{%
     \begin{tabular}{lrrrr}
         \toprule
-        \textbf{Contrato diagnóstico} & \textbf{MAE} & \textbf{RMSE} & \textbf{R2} & \textbf{Peak35 MAE} \\
+        \textbf{Contrato diagnóstico} & \textbf{MAE} & \textbf{RMSE} & \textbf{\(R^2\)} & \textbf{Peak35 MAE} \\
         \midrule
         PM10 causal no decodificador & 2,7777 & 3,9131 & 0,4954 & 10,2406 \\
         PM10 + PTS causal no decodificador & 2,8758 & 3,9949 & 0,4741 & 10,5980 \\
@@ -257,9 +257,9 @@ Na estação Sapo, a tentativa de usar um conjunto mais amplo de variáveis most
     }
 \end{table}
 
-O ganho do \textit{oracle} é grande e ajuda a interpretar o problema. Em relação ao controle causal com PM10 e PTS, o uso de variáveis futuras reais reduziu o MAE de 2,8758 para 2,4223 e elevou o R2 de 0,4741 para 0,6486. A melhoria em picos também foi clara: o Peak35 MAE caiu de 10,5980 para 7,1718. Esse resultado mostra que existe informação relevante no futuro de variáveis auxiliares, especialmente em PM10, que o contrato causal não disponibiliza no instante da previsão.
+O ganho do \textit{oracle} é grande e ajuda a interpretar o problema. Em relação ao controle causal com PM10 e PTS, o uso de variáveis futuras reais reduziu o MAE de 2,8758 para 2,4223 e elevou o \(R^2\) de 0,4741 para 0,6486. A melhoria em picos também foi clara: o Peak35 MAE caiu de 10,5980 para 7,1718. Esse resultado mostra que existe informação relevante no futuro de variáveis auxiliares, especialmente em PM10, que o contrato causal não disponibiliza no instante da previsão.
 
-Ao mesmo tempo, o próprio \textit{oracle} impõe uma leitura conservadora: mesmo com PM10 e PTS futuros reais, o R2 ficou em torno de 0,65, ainda distante de 1. Portanto, a distância até um R2 quase perfeito não parece ser apenas consequência de HPO insuficiente ou de uma arquitetura Seq2Seq subótima. Parte relevante da variância horária de PM2,5 em Sapo provavelmente depende de fatores não observados no contrato atual, como meteorologia local, estabilidade e mistura atmosférica, transporte espacial, emissões, ressuspensão e episódios súbitos.
+Ao mesmo tempo, o próprio \textit{oracle} impõe uma leitura conservadora: mesmo com PM10 e PTS futuros reais, o \(R^2\) ficou em torno de 0,65, ainda distante de 1. Portanto, a distância até um \(R^2\) quase perfeito não parece ser apenas consequência de HPO insuficiente ou de uma arquitetura Seq2Seq subótima. Parte relevante da variância horária de PM2,5 em Sapo provavelmente depende de fatores não observados no contrato atual, como meteorologia local, estabilidade e mistura atmosférica, transporte espacial, emissões, ressuspensão e episódios súbitos.
 
 \section{Seq2Seq Multi-Alvo com Variáveis Auxiliares}
 
@@ -272,7 +272,7 @@ Também foi testada uma adaptação do Seq2Seq atenção para prever PM2,5 como 
     \resizebox{\textwidth}{!}{%
     \begin{tabular}{lrrrr}
         \toprule
-        \textbf{Variante diagnóstica} & \textbf{MAE} & \textbf{RMSE} & \textbf{R2} & \textbf{Peak35 MAE} \\
+        \textbf{Variante diagnóstica} & \textbf{MAE} & \textbf{RMSE} & \textbf{\(R^2\)} & \textbf{Peak35 MAE} \\
         \midrule
         Seq2Seq causal PM10 + PTS, sem multi-alvo & 2,8758 & 3,9949 & 0,4741 & \textbf{10,5980} \\
         Multi-alvo, peso auxiliar 0,03 & 2,7997 & 4,0045 & 0,4715 & 14,5285 \\
@@ -283,9 +283,9 @@ Também foi testada uma adaptação do Seq2Seq atenção para prever PM2,5 como 
     }
 \end{table}
 
-O melhor multi-alvo reduziu o MAE em relação ao controle causal com PM10 e PTS, de 2,8758 para 2,7689, e elevou o R2 de 0,4741 para 0,4891. Esse é um indício positivo de que a tarefa auxiliar pode regularizar a representação do Seq2Seq. Porém, o ganho não reproduziu o salto observado no \textit{oracle} e ainda piorou a métrica de pico em relação ao controle causal. Em termos práticos, aprender PM10 e PTS futuros não equivale a conhecer PM10 e PTS futuros.
+O melhor multi-alvo reduziu o MAE em relação ao controle causal com PM10 e PTS, de 2,8758 para 2,7689, e elevou o \(R^2\) de 0,4741 para 0,4891. Esse é um indício positivo de que a tarefa auxiliar pode regularizar a representação do Seq2Seq. Porém, o ganho não reproduziu o salto observado no \textit{oracle} e ainda piorou a métrica de pico em relação ao controle causal. Em termos práticos, aprender PM10 e PTS futuros não equivale a conhecer PM10 e PTS futuros.
 
-Esses dois diagnósticos convergem para a mesma interpretação. A arquitetura pode extrair algum ganho adicional, mas o principal gargalo para R2 muito alto está na informação disponível. Sem variáveis meteorológicas e espaciais observadas de forma confiável, e sem acesso causal ao futuro dos poluentes auxiliares, o modelo tende a suavizar a variância horária e subestimar parte dos picos.
+Esses dois diagnósticos convergem para a mesma interpretação. A arquitetura pode extrair algum ganho adicional, mas o principal gargalo para \(R^2\) muito alto está na informação disponível. Sem variáveis meteorológicas e espaciais observadas de forma confiável, e sem acesso causal ao futuro dos poluentes auxiliares, o modelo tende a suavizar a variância horária e subestimar parte dos picos.
 
 \section{Ablação de Máscara e Imputação}
 
@@ -298,7 +298,7 @@ A Tabela \ref{tab:ablation_mascara_imputacao} avalia a decisão de manter imputa
     \resizebox{\textwidth}{!}{%
     \begin{tabular}{lrrrrr}
         \toprule
-        \textbf{Variante} & \textbf{MAE} & \textbf{\(\Delta\) MAE} & \textbf{RMSE} & \textbf{R2} & \textbf{MBE} \\
+        \textbf{Variante} & \textbf{MAE} & \textbf{\(\Delta\) MAE} & \textbf{RMSE} & \textbf{\(R^2\)} & \textbf{MBE} \\
         \midrule
         Linear + máscara atual & \textbf{2,7713} & 0,0000 & \textbf{3,8346} & \textbf{0,5154} & -0,1366 \\
         Linear sem máscara na função de perda/métricas & 2,9911 & +0,2197 & 4,0692 & 0,4592 & 0,2998 \\
@@ -308,7 +308,7 @@ A Tabela \ref{tab:ablation_mascara_imputacao} avalia a decisão de manter imputa
     }
 \end{table}
 
-O resultado reforça uma decisão metodológica importante do TCC. Tratar valores imputados do alvo como observações reais piorou o MAE observado em 0,2197 e reduziu o R2. Trocar a imputação linear por KNN mantendo a máscara também piorou o resultado. A combinação linear + máscara, portanto, não é apenas uma escolha conveniente de pré-processamento; ela protege a avaliação contra uma fonte concreta de distorção.
+O resultado reforça uma decisão metodológica importante do TCC. Tratar valores imputados do alvo como observações reais piorou o MAE observado em 0,2197 e reduziu o \(R^2\). Trocar a imputação linear por KNN mantendo a máscara também piorou o resultado. A combinação linear + máscara, portanto, não é apenas uma escolha conveniente de pré-processamento; ela protege a avaliação contra uma fonte concreta de distorção.
 
 \section{Interpretação da Atenção}
 
