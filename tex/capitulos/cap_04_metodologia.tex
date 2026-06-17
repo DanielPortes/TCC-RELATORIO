@@ -6,7 +6,7 @@ Este capítulo descreve o protocolo experimental utilizado na comparação dos m
 
 \section{Fonte de Dados e Escopo}
 
-O estudo utiliza medições horárias da estação Sapo, localizada em Conceição do Mato Dentro, Minas Gerais. Neste trabalho, a sigla CMD é usada apenas como abreviação do município de Conceição do Mato Dentro quando necessário. Os dados fazem parte do monitoramento contínuo de qualidade do ar disponibilizado pela Fundação Estadual do Meio Ambiente de Minas Gerais \cite{feam2026dadosmonitoramento}. A variável-alvo é a concentração de PM2,5, e o principal poluente auxiliar mantido no contrato final é PM10. O conjunto original também contém variáveis meteorológicas e gases, mas essas colunas foram removidas do contrato principal porque apresentavam alta esparsidade na estação Sapo e prejudicavam a coerência do conjunto de dados final.
+O estudo utiliza medições horárias da estação Sapo, localizada em Conceição do Mato Dentro, Minas Gerais. Neste trabalho, a sigla CMD é usada apenas como abreviação do município de Conceição do Mato Dentro quando necessário. Os dados fazem parte do monitoramento contínuo de qualidade do ar disponibilizado pela Fundação Estadual do Meio Ambiente de Minas Gerais (FEAM) \cite{feam2026dadosmonitoramento}. A variável-alvo é a concentração de material particulado fino (PM2,5), e o principal poluente auxiliar mantido no contrato final é o material particulado com diâmetro de até 10 micrômetros (PM10). O conjunto original também contém variáveis meteorológicas e gases, mas essas colunas foram removidas do contrato principal porque apresentavam alta esparsidade na estação Sapo e prejudicavam a coerência do conjunto de dados final.
 
 O conjunto consolidado usado nos resultados principais contém 34.991 registros horários, de 2017-01-04 00:30:00 a 2020-12-31 22:30:00. Esse período corresponde ao recorte efetivamente disponível após preparação, criação das variáveis substitutas causais de PM10 e remoção das primeiras janelas necessárias para a formulação supervisionada.
 
@@ -19,7 +19,7 @@ O conjunto consolidado usado nos resultados principais contém 34.991 registros 
         \toprule
         \textbf{Item} & \textbf{Definição} \\
         \midrule
-        Estação & Sapo / CMD (Conceição do Mato Dentro, MG) \\
+        Estação & Sapo / CMD (Conceição do Mato Dentro, Minas Gerais) \\
         Poluente-alvo & PM2,5 horário \\
         Período do artefato & 2017-01-04 00:30:00 a 2020-12-31 22:30:00 \\
         Número de linhas & 34.991 \\
@@ -40,7 +40,7 @@ A escolha da estação Sapo foi precedida por uma análise exploratória compara
 
 Nesse diagnóstico, Sapo apareceu como uma das candidatas mais fortes: ficou em segundo lugar na classificação por PM2,5 puro e também em segundo lugar na classificação que inclui contexto de PM10. A estação Rio Doce/Estação Principal obteve pontuação ligeiramente maior, mas teve menor frequência de eventos PM2,5 \(\geq 35\) no diagnóstico preliminar (0,19\%, contra 1,16\% em Sapo) e não pertence ao mesmo foco CMD adotado neste trabalho. Assim, Sapo foi mantida como estação principal por combinar aderência ao escopo, cobertura de PM2,5 de 83,47\% no diagnóstico comparativo, cobertura pareada PM10 de 74,27\% e correlação absoluta PM10--PM2,5 de 0,58.
 
-A decisão também foi reforçada por testes preliminares de modelagem. Em uma comparação exploratória com a mesma tarefa 48 para 24 horas e um Seq2Seq com atenção, Sapo obteve o menor MAE entre as estações testadas: 3,03 em Sapo, contra 3,13 em Barra Longa/Centro, 3,96 em Aeroporto CMD e 5,17 em Ibirité/Cascata. Esses números não substituem a comparação final, pois pertencem a uma etapa anterior e menos refinada do projeto, mas mostram que a escolha de Sapo não se apoiou apenas em cobertura de dados. Ela também foi a estação com melhor desempenho inicial entre os recortes avaliados. Testes auxiliares posteriores em Rio Doce e Barra Longa foram usados para investigar portabilidade do protocolo e comportamento do PM10 causal, mas não substituem Sapo como eixo principal deste TCC.
+Essa escolha deve ser lida como um recorte metodológico do estudo, não como afirmação de que Sapo seja a estação mais previsível de toda a rede. O papel da triagem foi selecionar uma estação com dados suficientes, presença de PM10 auxiliar e eventos altos em quantidade mínima para análise de cauda. A generalização para outras estações permanece uma limitação e uma possibilidade de continuidade.
 
 \begin{figure}[htb]
     \centering
@@ -67,7 +67,7 @@ A Tabela \ref{tab:eda_sapo_splits} resume a cobertura e a distribuição observa
     \resizebox{\textwidth}{!}{%
     \begin{tabular}{lrrrrrr}
         \toprule
-        \textbf{Partição} & \textbf{Cob. PM2,5} & \textbf{Cob. PM10} & \textbf{Mediana PM2,5} & \textbf{p95} & \textbf{p99} & \textbf{PM2,5 \(\geq 35\)} \\
+        \textbf{Partição} & \textbf{Cobertura PM2,5} & \textbf{Cobertura PM10} & \textbf{Mediana PM2,5} & \textbf{p95} & \textbf{p99} & \textbf{PM2,5 \(\geq 35\)} \\
         \midrule
         Treino & 80,70\% & 81,33\% & 9,00 & 24,00 & 40,00 & 1,57\% \\
         Validação & 68,27\% & 64,50\% & 12,00 & 25,00 & 37,00 & 1,45\% \\
@@ -199,7 +199,7 @@ O uso de PM10 no decodificador não assume conhecimento futuro de PM10 observado
 
 \section{Modelos Avaliados}
 
-Foram comparadas cinco variantes neurais e um modelo de referência tabular. A Tabela \ref{tab:modelos_metodologia} resume o papel de cada modelo no desenho experimental.
+Foram comparadas cinco variantes neurais e um modelo de referência baseado em árvores. A Tabela \ref{tab:modelos_metodologia} resume o papel de cada modelo no desenho experimental.
 
 \begin{table}[htb]
     \centering
@@ -215,17 +215,17 @@ Foram comparadas cinco variantes neurais e um modelo de referência tabular. A T
         Seq2Seq básico & Codificador-decodificador recorrente sem atenção explícita & Linha de base codificador-decodificador \\
         Seq2Seq atenção canônica & Codificador-decodificador com mecanismo de atenção e perda Huber & Variante de referência para análise de atenção \\
         Seq2Seq atenção novo & Codificador-decodificador com atenção, perda ponderada, reinício do decodificador e agrupamento por defasagens & Variante final de Seq2Seq \\
-        XGBoost com saída múltipla & Árvores com saída multi-horizonte & Modelo de referência tabular forte \\
+        XGBoost com saída múltipla & Árvores com saída multi-horizonte & Referência baseada em árvores sobre atributos de janelas \\
         \bottomrule
     \end{tabular}%
     }
 \end{table}
 
-A escolha dos modelos também delimita o escopo do estudo. Transformers temporais, como TFT, Informer, Autoformer e PatchTST, são alternativas modernas para previsão multi-horizonte \cite{lim2021tft,zhou2021informer,wu2021autoformer,nie2023patchtst}. Eles não foram incluídos na comparação final porque uma comparação justa exigiria nova família de arquitetura, espaço próprio de hiperparâmetros, orçamento adicional de HPO, avaliação com múltiplas sementes e decisões específicas de regularização para o tamanho e a qualidade do conjunto de dados Sapo. Além disso, a literatura não autoriza assumir que Transformers vencem automaticamente em séries temporais; \citeonline{zeng2023transformers} mostram que linhas de base simples podem superar Transformers em alguns cenários de previsão. Assim, o recorte deste TCC é comparar famílias recorrentes e tabulares sob um contrato causal rastreável, deixando Transformers como extensão natural para trabalhos futuros.
+A escolha dos modelos também delimita o escopo do estudo. Transformers temporais, como o \textit{Temporal Fusion Transformer} (TFT), Informer, Autoformer e PatchTST, são alternativas modernas para previsão multi-horizonte \cite{lim2021tft,zhou2021informer,wu2021autoformer,nie2023patchtst}. Eles não foram incluídos na comparação final porque uma comparação justa exigiria nova família de arquitetura, espaço próprio de hiperparâmetros, orçamento adicional de otimização de hiperparâmetros (HPO), avaliação com múltiplas sementes e decisões específicas de regularização para o tamanho e a qualidade do conjunto de dados Sapo. Além disso, a literatura não autoriza assumir que Transformers vencem automaticamente em séries temporais; \citeonline{zeng2023transformers} mostram que linhas de base simples podem superar Transformers em alguns cenários de previsão. Assim, o recorte deste TCC é comparar famílias recorrentes e modelos baseados em atributos derivados das janelas temporais sob um contrato causal rastreável, deixando Transformers como extensão natural para trabalhos futuros.
 
-A comparação com XGBoost exige uma ressalva metodológica. O modelo de referência tabular usa o mesmo contrato causal de entrada e é avaliado no mesmo bloco final de teste, mas seu treinamento com saída múltipla exige janelas com horizonte completo observado. Nos modelos neurais, a máscara de alvo observado permite ignorar pontos imputados da função de perda e das métricas. Assim, a avaliação de teste é comparável, mas o mecanismo de treino não é perfeitamente simétrico.
+A comparação com XGBoost exige uma ressalva metodológica. O modelo de referência baseado em árvores usa o mesmo contrato causal de entrada e é avaliado no mesmo bloco final de teste, mas seu treinamento com saída múltipla exige janelas com horizonte completo observado. Nos modelos neurais, a máscara de alvo observado permite ignorar pontos imputados da função de perda e das métricas. Assim, a avaliação de teste é comparável, mas o mecanismo de treino não é perfeitamente simétrico.
 
-Além da comparação principal, foram executados experimentos diagnósticos com o Seq2Seq atenção para investigar limites informacionais do problema. O primeiro é o \textit{oracle future auxiliary}: no decodificador, o modelo recebe PM10 e PTS reais do próprio horizonte futuro. Esse cenário não representa um uso causal de previsão, pois usa informação indisponível no instante de previsão, mas mede quanto desempenho poderia ser recuperado caso variáveis auxiliares futuras relevantes fossem conhecidas. O segundo é o Seq2Seq multi-alvo, no qual a rede continua prevendo PM2,5 como alvo principal, mas recebe uma cabeça auxiliar para prever PM10 e PTS futuros durante o treinamento. Esse teste avalia se aprender variáveis correlacionadas em conjunto ajuda a representação interna sem introduzir vazamento na avaliação causal.
+Além da comparação principal, foram executados experimentos diagnósticos com o Seq2Seq atenção para investigar limites informacionais do problema. O primeiro é o \textit{oracle future auxiliary}: no decodificador, o modelo recebe PM10 e partículas totais em suspensão (PTS) reais do próprio horizonte futuro. Esse cenário não representa um uso causal de previsão, pois usa informação indisponível no instante de previsão, mas mede quanto desempenho poderia ser recuperado caso variáveis auxiliares futuras relevantes fossem conhecidas. O segundo é o Seq2Seq multi-alvo, no qual a rede continua prevendo PM2,5 como alvo principal, mas recebe uma cabeça auxiliar para prever PM10 e PTS futuros durante o treinamento. Esse teste avalia se aprender variáveis correlacionadas em conjunto ajuda a representação interna sem introduzir vazamento na avaliação causal.
 
 Esses dois experimentos não substituem o protocolo final nem entram como candidatos a vencedor, porque usam contratos diferentes do contrato causal principal. Eles são apresentados nos resultados como análise de limite: o \textit{oracle} mostra o ganho máximo associado a variáveis futuras observadas, enquanto o multi-alvo testa se a própria arquitetura consegue aproximar esse ganho apenas aprendendo as auxiliares.
 
@@ -286,10 +286,10 @@ As variantes finais de Seq2Seq priorizaram um decodificador semidireto com horiz
 
 \section{Métricas de Avaliação}
 
-A avaliação final utiliza métricas no bloco final de teste. As métricas globais principais são MAE, RMSE, MAPE e \(R^2\). Também são reportadas métricas por horizonte, especialmente nos horizontes 1, 6, 12 e 24, para observar degradação ao longo da previsão. Como os picos são raros e importantes em qualidade do ar, a análise também considera métricas de cauda, como erro em eventos acima de 35, p99 previsto, razão entre desvio-padrão previsto e observado, viés médio e taxa de subestimação.
+A avaliação final utiliza métricas no bloco final de teste. As métricas globais principais são erro médio absoluto (MAE), raiz do erro quadrático médio (RMSE), erro percentual médio absoluto (MAPE) e coeficiente de determinação (\(R^2\)). Também são reportadas métricas por horizonte, especialmente nos horizontes 1, 6, 12 e 24, para observar degradação ao longo da previsão; os rótulos H1, H6, H12 e H24 indicam esses horizontes em horas. Como os picos são raros e importantes em qualidade do ar, a análise também considera métricas de cauda, como erro em eventos acima de 35, percentil 99 previsto (p99), razão entre desvio-padrão previsto e observado, viés médio medido pelo erro médio de viés (\textit{Mean Bias Error}, MBE) e taxa de subestimação. Nas tabelas, o rótulo Peak35 MAE indica o MAE calculado em pontos ou eventos com PM2,5 \(\geq 35\).
 
 A interpretação dos resultados combina métricas agregadas e inspeção visual das séries previstas. Essa combinação é necessária porque modelos que vencem em erro médio podem produzir previsões mais suaves, enquanto variantes voltadas a picos podem preservar mais amplitude ao custo de pequeno aumento no MAE global.
 
 \section{Reprodutibilidade}
 
-A reprodutibilidade foi tratada por meio de scripts determinísticos de geração de figuras, tabelas e diagnósticos, mantendo a separação entre treino, validação e teste. Os experimentos principais foram executados com identificadores de execução, sementes registradas quando aplicável, configuração explícita de HPO e exportação de métricas em formato tabular. No corpo do TCC, os valores reportados são apresentados diretamente nas tabelas e nas figuras; os caminhos técnicos e hashes dos arquivos ficam preservados como material de controle do projeto, sem substituir a descrição metodológica.
+A reprodutibilidade foi tratada por meio de scripts determinísticos de geração de figuras, tabelas e diagnósticos, mantendo a separação entre treino, validação e teste. Os experimentos principais foram executados com identificadores de execução, sementes registradas quando aplicável, configuração explícita de HPO e exportação de métricas em arquivos estruturados. No corpo do TCC, os valores reportados são apresentados diretamente nas tabelas e nas figuras; os caminhos técnicos e hashes dos arquivos ficam preservados como material de controle do projeto, sem substituir a descrição metodológica.

@@ -1,32 +1,32 @@
-# Matriz de Referencias do TCC
+# Matriz de Referências do TCC
 
-Esta matriz conecta cada referencia ao ponto do texto que ela sustenta. Ela e inicial: antes da versao final, `referencias.bib` deve ser limpo para manter apenas entradas citadas e receber as entradas pendentes marcadas abaixo.
+Esta matriz conecta cada referência ao ponto do texto que ela sustenta. A revisão bibliográfica final manteve apenas entradas citadas no relatório e conferiu a resolução dos DOIs ou links principais.
 
 ## Checklist da Matriz
 
-- [x] Blocos bibliograficos principais mapeados.
-- [x] Referencias ja existentes em `referencias.bib` identificadas.
-- [x] Lacunas bibliograficas criticas marcadas como pendentes.
+- [x] Blocos bibliográficos principais mapeados.
+- [x] Referências existentes em `referencias.bib` identificadas.
+- [x] Lacunas bibliográficas críticas tratadas.
 - [x] Entradas BibTeX pendentes adicionadas.
-- [x] Chaves nao usadas removidas ou rebaixadas.
-- [x] Citacoes finais conferidas contra os capitulos.
+- [x] Chaves não usadas removidas.
+- [x] Citações finais conferidas contra os capítulos.
 - [x] Referencias estruturantes de deep forecasting pesquisadas e adicionadas.
-- [x] Citacoes diretas curtas e citacoes indiretas distribuidas nos Caps. 2 e 3.
-- [x] Referencias para diagramas proprios dos modelos vinculadas no texto.
+- [x] Citações diretas curtas e citações indiretas distribuídas nos Caps. 2 e 3.
+- [x] Referências para diagramas próprios dos modelos vinculadas no texto.
+- [x] DOIs conferidos por Crossref ou doi.org; entradas sem DOI mantidas apenas quando possuem URL institucional, página do periódico ou documentação oficial.
 
 ## Matriz
 
-| Chave BibTeX | Tema | Secao prevista | Ideia sustentada | Status do PDF/link |
+| Chave BibTeX | Tema | Seção prevista | Ideia sustentada | Status do PDF/link |
 | --- | --- | --- | --- | --- |
-| `who2021air` | PM2.5 e saude | Cap. 1; Cap. 2 | PM2.5 e PM10 sao poluentes prioritarios e motivam monitoramento e previsao. | PDF salvo segundo `referencias_fundamentais`. |
-| `pope2006health` | PM2.5 e saude | Cap. 1; Cap. 2 | Material particulado fino esta associado a efeitos respiratorios e cardiovasculares. | Metadado/link salvo. |
-| `brook2010particulate` | PM2.5 e saude | Cap. 1; Cap. 2 | Evidencia cardiovascular para exposicao a particulados. | Metadado/link salvo. |
-| `cohen2017estimates` | Carga global de doenca | Cap. 1 | Poluicao atmosferica por particulados tem impacto global relevante. | Metadado/link. |
-| `requia2021health` | Brasil e queimadas | Cap. 1; Cap. 3 | Evidencia brasileira de impacto de poluicao relacionada a queimadas. | PDF salvo segundo curadoria. |
-| `requia2022short` | Brasil e PM2.5 | Cap. 1; Cap. 3 | Exposicao de curto prazo a PM2.5 de queimadas aumenta riscos de mortalidade. | PDF salvo segundo curadoria. |
-| `hyndman2021forecasting` | Forecasting | Cap. 2; Cap. 4 | Padroes de series temporais, decomposicao, autocorrelacao, avaliacao temporal, holdout e metricas de previsao. | Metadado/link salvo. |
-| `tashman2000out` | Avaliacao fora da amostra | Cap. 2; Cap. 4 | Teste fora da amostra e separacao entre treino/validacao/teste. | Metadado/link. |
-| `bergmeir2012crossvalidation` | Series temporais | Cap. 2; Cap. 4 | Cuidados com validacao cruzada e dependencia temporal. | Metadado/link. |
+| `who2021air` | PM2.5 e saúde | Cap. 1; Cap. 2 | PM2.5 e PM10 são poluentes prioritários e motivam monitoramento e previsão. | PDF salvo segundo `referencias_fundamentais`. |
+| `pope2006health` | PM2.5 e saúde | Cap. 1; Cap. 2 | Material particulado fino está associado a efeitos respiratórios e cardiovasculares. | Metadado/link salvo. |
+| `brook2010particulate` | PM2.5 e saúde | Cap. 1; Cap. 2 | Evidência cardiovascular para exposição a particulados. | Metadado/link salvo. |
+| `requia2021health` | Brasil e queimadas | Cap. 1; Cap. 3 | Evidência brasileira de impacto de poluição relacionada a queimadas. | PDF salvo segundo curadoria. |
+| `requia2022short` | Brasil e PM2.5 | Cap. 1; Cap. 3 | Exposição de curto prazo a PM2.5 de queimadas aumenta riscos de mortalidade. | PDF salvo segundo curadoria. |
+| `hyndman2021forecasting` | Forecasting | Cap. 2; Cap. 4 | Padrões de séries temporais, decomposição, autocorrelação, avaliação temporal, holdout e métricas de previsão. | Metadado/link salvo. |
+| `tashman2000out` | Avaliação fora da amostra | Cap. 2; Cap. 4 | Teste fora da amostra e separação entre treino/validação/teste. | Metadado/link. |
+| `bergmeir2012crossvalidation` | Séries temporais | Cap. 2; Cap. 4 | Cuidados com validação cruzada e dependência temporal. | Metadado/link. |
 | `hewamalage2021rnn` | RNNs para forecasting | Cap. 2; Cap. 3 | Referencia transversal para uso de redes recorrentes em previsao de series temporais, com ressalva de que nao ha arquitetura universal. | Adicionada apos pesquisa bibliografica de reforco. |
 | `benidis2022deep` | Deep forecasting | Cap. 2; Cap. 3 | Survey/tutorial amplo para justificar deep learning, janelas supervisionadas, covariaveis e comparacao de arquiteturas. | Adicionada apos pesquisa bibliografica de reforco. |
 | `lim2021survey` | Deep forecasting multi-horizonte | Cap. 2; Cap. 3 | Survey sobre desenhos de encoder/decoder para previsao um-passo e multi-horizonte. | Adicionada apos pesquisa bibliografica de reforco. |
@@ -47,13 +47,13 @@ Esta matriz conecta cada referencia ao ponto do texto que ela sustenta. Ela e in
 | `bengio2015scheduled` | Scheduled sampling | Cap. 2; Cap. 5 | Define scheduled sampling como transicao de teacher forcing para uso crescente das predicoes do modelo; tecnica avaliada em ablacões auxiliares, sem ser vencedora final. | PDF salvo segundo curadoria. |
 | `teutsch2022flipped` | Increasing Teacher Forcing | Cap. 2; Cap. 4 | Fundamenta a ablação de agenda crescente de teacher forcing em series temporais; paper reporta ganhos em forecasting multi-step com curriculos do tipo Flipped Classroom. | Fonte primaria: TMLR/OpenReview e arXiv. |
 | `kingma2014adam` | Otimizacao | Cap. 2; Cap. 4 | Otimizacao com Adam/AdamW nos modelos neurais. | PDF salvo segundo curadoria. |
-| `goodfellow2016deep` | Deep learning | Cap. 2 | Conceitos gerais de redes neurais profundas. | Removida da bibliografia final por nao ser mais citada. |
+| `goodfellow2016deep` | Deep learning | Cap. 2 | Conceitos gerais de redes neurais profundas. | URL institucional do livro. |
 | `yang2023attention` | PM2.5 com attention-LSTM | Cap. 3 | Exemplo de uso de atencao/LSTM em previsao horaria de PM2.5. | Entrada existente. |
 | `zhao2021pm2` | PM2.5 com LSTM | Cap. 3 | Exemplo de modelo hibrido/recorrente para PM2.5. | Entrada existente. |
 | `zhang2021deep` | PM2.5 com deep learning | Cap. 3 | Exemplo de deep learning aplicado a PM2.5. | Entrada existente. |
 | `song2018arima` | Baselines classicos | Cap. 3 | Exemplo de combinacao estatistica/ML para PM2.5. | Entrada existente; uso opcional. |
-| `guo2019pm2` | Baseline tabular | Cap. 3 | Random forest e variaveis meteorologicas para PM2.5. | Entrada existente; uso opcional. |
-| `chen2016xgboost` | XGBoost | Cap. 2; Cap. 4; Cap. 5 | Fundamenta o baseline tabular XGBoost multi-output. | Adicionado em `referencias.bib`. |
+| `guo2019pm2` | Baseline baseado em atributos | Cap. 3 | Random forest e variaveis meteorologicas para PM2.5. | Entrada existente; uso opcional. |
+| `chen2016xgboost` | XGBoost | Cap. 2; Cap. 4; Cap. 5 | Fundamenta o modelo XGBoost com saída múltipla sobre atributos derivados de janelas temporais. | Adicionado em `referencias.bib`. |
 | `akiba2019optuna` | HPO | Cap. 4 | Fundamenta a busca de hiperparametros via Optuna. | Adicionado em `referencias.bib`; PDF salvo segundo curadoria. |
 | `huber1964robust` | Funcao Huber | Cap. 2; Cap. 4 | Justifica uso de Huber loss em modelos principais. | Adicionado em `referencias.bib`. |
 | `luong2015effective` | Atencao Luong | Cap. 2; Cap. 5 | Necessaria se as ablacões Luong dot/general/local forem discutidas. | Adicionado em `referencias.bib`. |
@@ -81,8 +81,8 @@ Esta matriz conecta cada referencia ao ponto do texto que ela sustenta. Ela e in
 
 - `SAITS` deve sair do centro do texto; usar `du2023saits` apenas como relacionado de imputacao se a narrativa exigir.
 - Referencias de blogs ou paginas didaticas (`olah2015understanding`, `alammar2018visualizing`, `aprilliant2021walkforward`) foram removidas da bibliografia final porque as figuras antigas deixaram de ser usadas.
-- As entradas pendentes de XGBoost, Optuna, Huber e trabalhos recentes de PM2.5 foram adicionadas em `referencias.bib`; falta apenas conferir citacoes finais e remover chaves nao usadas.
-- A defesa do Seq2Seq foi reforcada com surveys e trabalhos de multi-horizon forecasting, mas o texto evita afirmar SOTA universal; a formulacao correta e que Seq2Seq e uma familia bem fundamentada e competitiva para tarefas sequencia-para-sequencia/multi-horizonte.
-- As figuras conceituais de LSTM, Seq2Seq com atencao e XGBoost foram geradas como elaboracao propria; as citacoes nas legendas indicam a base teorica, nao reaproveitamento de figuras externas.
-- Transformers foram reconhecidos como linha moderna relevante, mas ficaram fora do escopo experimental final por exigirem HPO proprio, validacao comparavel e nova bateria multi-seed.
-- Os pesos de atencao foram analisados como diagnostico interpretativo limitado; o texto evita tratar atencao como explicacao causal completa.
+- As entradas de XGBoost, Optuna, Huber e trabalhos recentes de PM2.5 foram adicionadas em `referencias.bib`; as citações finais foram conferidas e as chaves não usadas foram removidas.
+- A defesa do Seq2Seq foi reforçada com surveys e trabalhos de multi-horizon forecasting, mas o texto evita afirmar SOTA universal; a formulação correta é que Seq2Seq é uma família bem fundamentada e competitiva para tarefas sequência-para-sequência/multi-horizonte.
+- As figuras conceituais de LSTM, Seq2Seq com atenção e XGBoost foram geradas como elaboração própria; as citações nas legendas indicam a base teórica, não reaproveitamento de figuras externas.
+- Transformers foram reconhecidos como linha moderna relevante, mas ficaram fora do escopo experimental final por exigirem HPO próprio, validação comparável e nova bateria multi-seed.
+- Os pesos de atenção foram analisados como diagnóstico interpretativo limitado; o texto evita tratar atenção como explicação causal completa.

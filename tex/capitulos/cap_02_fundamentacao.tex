@@ -2,11 +2,11 @@
 \chapter{Fundamentação Teórica}
 \label{chap:fundamentacao_teorica}
 
-Este capítulo apresenta os conceitos teóricos necessários para fundamentar a previsão horária multi-horizonte de PM2,5 em séries temporais ambientais. O foco recai sobre dados faltantes, variáveis exógenas conhecidas no momento da previsão, redes neurais artificiais, modelos recorrentes, arquiteturas codificador-decodificador com atenção e modelos baseados em árvores com impulsionamento por gradiente (\textit{gradient boosting}).
+Este capítulo apresenta os conceitos teóricos necessários para fundamentar a previsão horária multi-horizonte de material particulado fino (PM2,5) em séries temporais ambientais. O foco recai sobre dados faltantes, variáveis exógenas conhecidas no momento da previsão, redes neurais artificiais, modelos recorrentes, arquiteturas codificador-decodificador com atenção e modelos baseados em árvores com impulsionamento por gradiente (\textit{gradient boosting}).
 
-\section{PM2,5 e Monitoramento da Qualidade do Ar}
+\section{Material Particulado Fino (PM2,5) e Monitoramento da Qualidade do Ar}
 
-PM2,5 designa o material particulado fino formado por partículas com diâmetro aerodinâmico de até 2,5 micrômetros. O diâmetro aerodinâmico é uma forma de expressar o comportamento da partícula no ar: partículas menores permanecem suspensas por mais tempo e podem ser inaladas com maior facilidade. Por seu tamanho reduzido, o PM2,5 pode atingir regiões profundas do sistema respiratório e está associado a efeitos respiratórios e cardiovasculares relevantes \cite{pope2006health,brook2010particulate}. As diretrizes globais da Organização Mundial da Saúde tratam PM2,5 e PM10 como poluentes prioritários para avaliação de qualidade do ar \cite{who2021air}.
+O material particulado fino (PM2,5) é formado por partículas com diâmetro aerodinâmico de até 2,5 micrômetros. O diâmetro aerodinâmico é uma forma de expressar o comportamento da partícula no ar: partículas menores permanecem suspensas por mais tempo e podem ser inaladas com maior facilidade. Por seu tamanho reduzido, o PM2,5 pode atingir regiões profundas do sistema respiratório e está associado a efeitos respiratórios e cardiovasculares relevantes \cite{pope2006health,brook2010particulate}. As diretrizes globais da Organização Mundial da Saúde tratam PM2,5 e material particulado com diâmetro aerodinâmico de até 10 micrômetros (PM10) como poluentes prioritários para avaliação de qualidade do ar \cite{who2021air}.
 
 PM10, por sua vez, representa partículas com diâmetro aerodinâmico de até 10 micrômetros. Embora seja uma fração mais grossa que PM2,5, sua concentração pode carregar informação sobre condições ambientais, emissão de partículas e episódios de maior concentração. Por isso, em problemas de previsão, PM10 pode ser usado como variável auxiliar quando está disponível de forma compatível com a série de PM2,5.
 
@@ -65,7 +65,7 @@ Uma adaptação comum é a validação cruzada temporal por janela expansiva, ta
     \mathcal{L}_{val}^{(k)}.
 \]
 
-Em desenhos experimentais com seleção de hiperparâmetros, a validação cruzada temporal pode ser aplicada dentro de um bloco de desenvolvimento. Ela não substitui uma avaliação cronológica final separada: esse conjunto permanece reservado para estimar o desempenho fora da amostra depois da seleção. A Figura~\ref{fig:validacao_cruzada_temporal_walk_forward} ilustra uma janela expansiva com três partições e avaliação final reservada.
+O subscrito \(CV\) indica \textit{cross-validation}, isto é, validação cruzada. Em desenhos experimentais com seleção de hiperparâmetros, a validação cruzada temporal pode ser aplicada dentro de um bloco de desenvolvimento. Ela não substitui uma avaliação cronológica final separada: esse conjunto permanece reservado para estimar o desempenho fora da amostra depois da seleção. A Figura~\ref{fig:validacao_cruzada_temporal_walk_forward} ilustra uma janela expansiva com três partições e avaliação final reservada.
 
 \begin{figure}[htbp]
     \centering
@@ -84,13 +84,13 @@ Na previsão multi-horizonte, o objetivo é estimar mais de um instante futuro. 
     \item \textbf{Codificador-decodificador:} uma rede codifica a janela de entrada e outra gera a sequência futura, possivelmente condicionada por variáveis conhecidas no horizonte. Essa formulação é natural para tarefas sequência-para-sequência.
 \end{itemize}
 
-Essas alternativas podem ser implementadas com modelos recorrentes, arquiteturas codificador-decodificador e modelos baseados em árvores com saída múltipla. Comparações desse tipo são necessárias porque a literatura de previsão não sustenta uma única arquitetura universalmente dominante; revisões de RNNs para séries temporais ressaltam que não existem soluções universais em previsão \cite{hewamalage2021rnn}.
+Essas alternativas podem ser implementadas com modelos recorrentes, arquiteturas codificador-decodificador e modelos baseados em árvores com saída múltipla. Comparações desse tipo são necessárias porque a literatura de previsão não sustenta uma única arquitetura universalmente dominante; revisões de redes neurais recorrentes para séries temporais ressaltam que não existem soluções universais em previsão \cite{hewamalage2021rnn}.
 
 \section{Dados Faltantes, Imputação e Vazamento Temporal}
 
 Dados ambientais reais frequentemente contêm lacunas por falhas de sensor, manutenção, comunicação ou filtragem de leituras inconsistentes. Uma lacuna significa que, em determinado instante, a medição esperada não foi observada. A ausência de dados deve ser tratada com cuidado porque pode afetar tanto o treinamento quanto a avaliação. A literatura de dados faltantes diferencia o valor não observado do valor realmente medido; tratá-los como equivalentes pode distorcer inferências e métricas \cite{rubin1976inference}.
 
-Imputação é o processo de preencher lacunas com estimativas. Métodos simples, como interpolação linear, preservam a estrutura temporal local e são transparentes; métodos multivariados, como MICE e MissForest, exploram relações entre variáveis \cite{vanbuuren2011mice,stekhoven2012missforest}. Métodos de imputação temporal, como BRITS e SAITS, também usam máscaras de observação para distinguir valores disponíveis de valores ausentes \cite{cao2018brits,du2023saits}. Neste contexto, máscara significa um indicador que informa se um valor foi originalmente observado ou se foi preenchido por algum método de imputação. Independentemente do método escolhido, essa distinção é importante: valores preenchidos não devem ser tratados automaticamente como observações reais. Por isso, protocolos de previsão com lacunas precisam preservar informação sobre ausência e explicitar como a imputação afeta treinamento e avaliação.
+Imputação é o processo de preencher lacunas com estimativas. Métodos simples, como interpolação linear, preservam a estrutura temporal local e são transparentes; métodos multivariados, como Multivariate Imputation by Chained Equations (MICE) e MissForest, exploram relações entre variáveis \cite{vanbuuren2011mice,stekhoven2012missforest}. Métodos de imputação temporal, como Bidirectional Recurrent Imputation for Time Series (BRITS) e Self-Attention-based Imputation for Time Series (SAITS), também usam máscaras de observação para distinguir valores disponíveis de valores ausentes \cite{cao2018brits,du2023saits}. Neste contexto, máscara significa um indicador que informa se um valor foi originalmente observado ou se foi preenchido por algum método de imputação. Independentemente do método escolhido, essa distinção é importante: valores preenchidos não devem ser tratados automaticamente como observações reais. Por isso, protocolos de previsão com lacunas precisam preservar informação sobre ausência e explicitar como a imputação afeta treinamento e avaliação.
 
 Outro risco é o vazamento temporal. A imputação, a normalização e a criação de atributos precisam ser ajustadas sem usar estatísticas futuras indisponíveis no instante de previsão. Em um protocolo cronológico, esses procedimentos devem ser definidos com informação anterior ao período avaliado.
 
@@ -134,7 +134,7 @@ Formalmente, para um vetor de entrada $\mathbf{x}=(x_1,\ldots,x_d)$, um neurôni
     h = \phi(a).
 \]
 
-Nessa expressão, $w_j$ são pesos, $b$ é o viés, $a$ é a ativação antes da não linearidade e $\phi$ é uma função de ativação, como sigmoide, tangente hiperbólica ou ReLU. Na Figura~\ref{fig:neuronio_artificial_perceptron}, o viés é representado por um peso \(w_0\) associado a uma entrada fixa \(x_0=1\), notação equivalente à adição explícita do termo \(b\). Os pesos e vieses são parâmetros aprendidos a partir dos dados. A função de ativação é importante porque introduz não linearidade; sem ela, uma composição de camadas lineares continuaria equivalente a uma única transformação linear.
+Nessa expressão, $w_j$ são pesos, $b$ é o viés, $a$ é a ativação antes da não linearidade e $\phi$ é uma função de ativação, como sigmoide, tangente hiperbólica ou unidade linear retificada (\textit{Rectified Linear Unit}, ReLU). Na Figura~\ref{fig:neuronio_artificial_perceptron}, o viés é representado por um peso \(w_0\) associado a uma entrada fixa \(x_0=1\), notação equivalente à adição explícita do termo \(b\). Os pesos e vieses são parâmetros aprendidos a partir dos dados. A função de ativação é importante porque introduz não linearidade; sem ela, uma composição de camadas lineares continuaria equivalente a uma única transformação linear.
 
 Uma rede neural organiza vários neurônios em camadas. A saída de uma camada alimenta a camada seguinte, permitindo que o modelo componha transformações simples em representações mais complexas. De forma resumida, uma camada pode ser escrita como:
 
@@ -152,10 +152,10 @@ em que \(W^{(\ell)}\) e \(\mathbf{b}^{(\ell)}\) são os parâmetros da camada \(
 
 Aprendizado profundo, ou \textit{deep learning}, refere-se ao treinamento de redes neurais com múltiplas camadas e representações sucessivas dos dados \cite{goodfellow2016deep,lecun2015deep}. Em séries temporais, essa ideia é útil porque o modelo pode aprender relações não lineares entre medições recentes, variáveis exógenas, padrões cíclicos e o horizonte previsto. As arquiteturas recorrentes e codificador-decodificador discutidas nas seções seguintes são casos específicos de redes profundas voltadas a sequências: elas compartilham parâmetros ao longo do tempo, mantêm estados internos e produzem previsões para um ou mais horizontes futuros.
 
-\section{Redes Neurais Recorrentes e LSTM}
+\section{Redes Neurais Recorrentes e Long Short-Term Memory (LSTM)}
 \label{sec:rnn_lstm}
 
-Redes neurais recorrentes são projetadas para dados sequenciais, pois atualizam um estado interno conforme processam cada instante da sequência. Em RNNs simples, o treinamento pode sofrer com desaparecimento ou explosão de gradientes, dificultando o aprendizado de dependências mais longas. A arquitetura Long Short-Term Memory (LSTM) introduz uma célula de memória e portões de entrada, esquecimento e saída para controlar o fluxo de informação \cite{hochreiter1997long}.
+Redes neurais recorrentes (Recurrent Neural Networks, RNNs) são projetadas para dados sequenciais, pois atualizam um estado interno conforme processam cada instante da sequência. Em RNNs simples, o treinamento pode sofrer com desaparecimento ou explosão de gradientes, dificultando o aprendizado de dependências mais longas. A arquitetura Long Short-Term Memory (LSTM) introduz uma célula de memória e portões de entrada, esquecimento e saída para controlar o fluxo de informação \cite{hochreiter1997long}.
 
 Uma célula LSTM pode ser descrita pelas seguintes equações, para entrada $\mathbf{x}_t$, estado oculto anterior $\mathbf{h}_{t-1}$ e memória anterior $\mathbf{c}_{t-1}$:
 
@@ -181,10 +181,10 @@ O portão de esquecimento $\mathbf{f}_t$ controla quanto da memória anterior é
 
 Em previsão multi-horizonte, a LSTM pode ser usada em estratégias recursivas ou diretas. Na estratégia recursiva, o modelo aprende a avançar ao longo do horizonte com realimentação. Na estratégia direta, o estado final da janela de entrada é projetado para todo o horizonte futuro. A comparação entre essas estratégias permite separar o efeito da arquitetura recorrente do efeito da forma de gerar o horizonte.
 
-\section{Seq2Seq e Atenção}
+\section{Sequence-to-Sequence (Seq2Seq) e Atenção}
 \label{sec:encoder_decoder_attention}
 
-Modelos Sequence-to-Sequence, ou Seq2Seq, foram propostos para mapear uma sequência de entrada em uma sequência de saída. \citeonline{sutskever2014sequence} descrevem a proposta como uma abordagem ``\textit{end-to-end}'' para aprendizado de sequências, em que um codificador transforma a entrada em representação latente e um decodificador gera a sequência de saída. Em séries temporais, essa estrutura é útil porque o decodificador pode produzir um horizonte completo e receber variáveis conhecidas para cada horizonte futuro.
+Modelos \textit{Sequence-to-Sequence} (Seq2Seq) foram propostos para mapear uma sequência de entrada em uma sequência de saída. \citeonline{sutskever2014sequence} descrevem a proposta como uma abordagem ``\textit{end-to-end}'' para aprendizado de sequências, em que um codificador transforma a entrada em representação latente e um decodificador gera a sequência de saída. Em séries temporais, essa estrutura é útil porque o decodificador pode produzir um horizonte completo e receber variáveis conhecidas para cada horizonte futuro.
 
 Sejam $\mathbf{h}_j$ os estados do codificador para os \(L\) instantes da janela de entrada. Uma formulação simplificada do codificador é:
 
@@ -213,7 +213,7 @@ O decodificador atualiza seu estado e produz a previsão:
 
 Nessas expressões, \(W_s\), \(W_h\), \(\mathbf{v}_a\) e \(\mathbf{b}_a\) são parâmetros aprendidos do mecanismo de atenção, enquanto \(\mathbf{s}_k\) representa o estado do decodificador no horizonte \(k\).
 
-Nesse caso, $\tilde{y}_{t+k-1}$ representa o valor real anterior durante \textit{teacher forcing} ou a previsão anterior durante inferência. Variações de atenção global e local também foram propostas, incluindo mecanismos do tipo Luong \cite{luong2015effective}. Para séries temporais multivariadas, arquiteturas como DA-RNN combinam atenção sobre variáveis de entrada e atenção temporal \cite{qin2017darnn}.
+Nesse caso, $\tilde{y}_{t+k-1}$ representa o valor real anterior durante \textit{teacher forcing} ou a previsão anterior durante inferência. Variações de atenção global e local também foram propostas, incluindo mecanismos do tipo Luong \cite{luong2015effective}. Para séries temporais multivariadas, arquiteturas como Dual-stage Attention-based Recurrent Neural Network (DA-RNN) combinam atenção sobre variáveis de entrada e atenção temporal \cite{qin2017darnn}.
 
 A utilidade de Seq2Seq em previsão não se apoia na ideia de que essa família seja sempre superior. A justificativa é mais específica: tarefas multi-horizonte podem se beneficiar de um decodificador condicionado por atributos futuros conhecidos e trabalhos de previsão adotam estruturas recorrentes sequência-para-sequência para prever uma sequência de horizontes futuros. Por exemplo, \citeonline{wen2017mqrnn} exploram a natureza temporal de ``\textit{Sequence-to-Sequence Neural Networks}'' em previsão multi-horizonte, enquanto DeepAR e Temporal Fusion Transformer exemplificam linhas modernas de previsão profunda com decodificadores autoregressivos, covariáveis e previsão multi-horizonte \cite{salinas2020deepar,lim2021tft}. A Figura~\ref{fig:seq2seq_attention_propria} sintetiza uma formulação conceitual de Seq2Seq com atenção.
 
@@ -242,7 +242,7 @@ Seja \(p_{TF}\) a probabilidade de usar o valor real anterior no decodificador. 
 
 Quando \(p_{TF}=1\), o modelo opera em \textit{teacher forcing} puro; quando \(p_{TF}=0\), ele treina de modo equivalente à inferência autoregressiva, sempre realimentando suas próprias previsões. O \textit{scheduled sampling} clássico propõe variar \(p_{TF}\) ao longo do treinamento, geralmente reduzindo essa probabilidade para deslocar gradualmente o decodificador de um regime totalmente guiado para um regime menos guiado e mais próximo da inferência \cite{bengio2015scheduled}.
 
-Para previsão de séries temporais contínuas, entretanto, há uma motivação adicional para testar a direção oposta. \citeonline{teutsch2022flipped} argumentam que o \textit{scheduled sampling} clássico, herdado de tarefas de NLP, pode não ser a estratégia mais adequada para previsão e propõem currículos de \textit{Increasing Teacher Forcing}, denominados \textit{Flipped Classroom}. Nessa família, o treinamento começa mais próximo de \textit{free running}, com baixo \(p_{TF}\), e aumenta gradualmente a presença de \textit{teacher forcing}. Em experimentos com sistemas dinâmicos, os autores relataram ganhos de aproximadamente 15\% a 80\% em NRMSE em previsão multi-horizonte em relação à melhor configuração de referência de \textit{teacher forcing} ou \textit{free running}, embora limitem a conclusão ao escopo experimental avaliado.
+Para previsão de séries temporais contínuas, entretanto, há uma motivação adicional para testar a direção oposta. \citeonline{teutsch2022flipped} argumentam que o \textit{scheduled sampling} clássico, herdado de tarefas de processamento de linguagem natural (Natural Language Processing, NLP), pode não ser a estratégia mais adequada para previsão e propõem currículos de \textit{Increasing Teacher Forcing}, denominados \textit{Flipped Classroom}. Nessa família, o treinamento começa mais próximo de \textit{free running}, com baixo \(p_{TF}\), e aumenta gradualmente a presença de \textit{teacher forcing}. Em experimentos com sistemas dinâmicos, os autores relataram ganhos de aproximadamente 15\% a 80\% na raiz do erro quadrático médio normalizado (Normalized Root Mean Squared Error, NRMSE) em previsão multi-horizonte em relação à melhor configuração de referência de \textit{teacher forcing} ou \textit{free running}, embora limitem a conclusão ao escopo experimental avaliado.
 
 \clearpage
 
@@ -257,9 +257,9 @@ A notação da Figura \ref{fig:teacher_forcing_scheduled_sampling} é importante
 
 \clearpage
 
-\section{Impulsionamento por Gradiente e XGBoost}
+\section{Impulsionamento por Gradiente e Extreme Gradient Boosting (XGBoost)}
 
-Modelos de árvores com impulsionamento (\textit{boosting}) constroem um preditor aditivo por meio de várias árvores fracas, ajustadas sequencialmente para corrigir erros residuais. O XGBoost é uma implementação eficiente de impulsionamento por gradiente (\textit{gradient boosting}) com regularização, paralelização e recursos práticos para dados tabulares \cite{chen2016xgboost}. Neste trabalho, dado tabular significa uma matriz em que cada linha representa uma janela temporal transformada em atributos numéricos. Por lidar bem com atributos defasados e variáveis derivadas, o XGBoost é frequentemente usado como modelo de referência para previsão de séries temporais transformadas nesse formato.
+Modelos de árvores com impulsionamento (\textit{boosting}) constroem um preditor aditivo por meio de várias árvores fracas, ajustadas sequencialmente para corrigir erros residuais. O \textit{Extreme Gradient Boosting} (XGBoost) é uma implementação eficiente de impulsionamento por gradiente (\textit{gradient boosting}) com regularização, paralelização e recursos práticos para matrizes de atributos \cite{chen2016xgboost}. Neste trabalho, essa matriz representa janelas temporais transformadas em atributos numéricos para uma tarefa supervisionada. Por lidar bem com atributos defasados e variáveis derivadas, o XGBoost é frequentemente usado como modelo de referência para previsão de séries temporais transformadas nesse formato.
 
 No impulsionamento aditivo, a predição após $K$ árvores pode ser escrita como:
 
@@ -267,7 +267,7 @@ No impulsionamento aditivo, a predição após $K$ árvores pode ser escrita com
     \hat{y}_i^{(K)} = \sum_{k=1}^{K} f_k(\mathbf{u}_i), \quad f_k \in \mathcal{F},
 \]
 
-em que $\mathbf{u}_i$ é o vetor tabular de atributos da janela. O objetivo regularizado do XGBoost pode ser representado por:
+em que $\mathbf{u}_i$ é o vetor de atributos derivado da janela temporal. O objetivo regularizado do XGBoost pode ser representado por:
 
 \[
     \mathcal{L}^{(K)}
@@ -279,16 +279,16 @@ em que $\mathbf{u}_i$ é o vetor tabular de atributos da janela. O objetivo regu
     \Omega(f_k)=\gamma T_k + \frac{1}{2}\lambda\lVert\mathbf{w}_k\rVert_2^2.
 \]
 
-Nessa expressão, $T_k$ é o número de folhas da árvore e $\mathbf{w}_k$ são os pesos das folhas. A regularização penaliza árvores excessivamente complexas e ajuda a controlar sobreajuste. Em problemas multi-horizonte, o XGBoost pode ser combinado com estratégias de saída múltipla para prever todo o horizonte futuro de uma vez; a Figura~\ref{fig:xgboost_multioutput_propria} ilustra essa conversão tabular.
+Nessa expressão, $T_k$ é o número de folhas da árvore e $\mathbf{w}_k$ são os pesos das folhas. A regularização penaliza árvores excessivamente complexas e ajuda a controlar sobreajuste. Em problemas multi-horizonte, o XGBoost pode ser combinado com estratégias de saída múltipla para prever todo o horizonte futuro de uma vez; a Figura~\ref{fig:xgboost_multioutput_propria} ilustra essa conversão por janelas.
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.90\textwidth]{diagrama_xgboost_multioutput_proprio.pdf}
-    \caption{Conversão de uma janela temporal em matriz tabular para XGBoost com saída múltipla. Elaboração própria com base em \citeonline{chen2016xgboost}.}
+    \caption{Conversão de uma janela temporal em matriz de atributos para XGBoost com saída múltipla. Elaboração própria com base em \citeonline{chen2016xgboost}.}
     \label{fig:xgboost_multioutput_propria}
 \end{figure}
 
-Em aplicações com dados faltantes, a conversão tabular precisa manter consistência entre as janelas de entrada, o horizonte previsto e os critérios de inclusão de alvos observados. Essa decisão afeta a comparabilidade entre modelos tabulares e modelos neurais quando há máscaras ou perdas definidas ponto a ponto.
+Em aplicações com dados faltantes, a conversão por janelas precisa manter consistência entre as entradas, o horizonte previsto e os critérios de inclusão de alvos observados. Essa decisão afeta a comparabilidade entre modelos baseados em árvores e modelos neurais quando há máscaras ou perdas definidas ponto a ponto.
 
 \section{Treinamento, Função de Perda e Otimização de Hiperparâmetros}
 \label{sec:otimizacao_hpo}
@@ -355,7 +355,7 @@ A poda, ou \textit{pruning}, é uma forma de parada antecipada no nível da HPO.
 \section{Métricas de Avaliação}
 \label{sec:metricas_avaliacao}
 
-A avaliação de modelos de regressão multi-horizonte deve combinar métricas globais e métricas por horizonte. Métricas como MAE, RMSE e MAPE são amplamente usadas para avaliar acurácia de previsão \cite{hyndman2021forecasting}. O erro médio absoluto (MAE) mede a magnitude média dos erros e é menos sensível a valores extremos que o erro quadrático:
+A avaliação de modelos de regressão multi-horizonte deve combinar métricas globais e métricas por horizonte. Métricas como erro médio absoluto (\textit{Mean Absolute Error}, MAE), raiz do erro quadrático médio (\textit{Root Mean Squared Error}, RMSE) e erro percentual médio absoluto (\textit{Mean Absolute Percentage Error}, MAPE) são amplamente usadas para avaliar desempenho preditivo \cite{hyndman2021forecasting}. O MAE mede a magnitude média dos erros e é menos sensível a valores extremos que o erro quadrático:
 
 \[
     \text{MAE}(y, \hat{y}) =
