@@ -9,7 +9,7 @@ As preferências abaixo são uma inferência prática a partir das correções, 
 ### Narrativa Central Esperada
 O TCC deve parecer um único estudo coerente: previsão horária de PM2.5 na estação Sapo, no recorte CMD, usando 48 horas de entrada para prever as 24 horas seguintes, split cronológico 70/15/15 e protocolo comparável entre modelos. Não deixe narrativas antigas sobre Cascata/Piratininga, horizonte de 12 horas, agregação diária, SAITS ou ablações iniciais voltarem ao centro do texto. Esses elementos só devem aparecer como histórico, contexto auxiliar ou exploração anterior, sempre identificados como não pertencentes ao resultado principal.
 
-A contribuição deve ser formulada como estudo experimental comparativo e rastreável, não como criação de uma nova arquitetura. A forma mais segura é afirmar que o trabalho consolida um protocolo reprodutível, compara abordagens neurais e tabulares sob o mesmo contrato de dados e analisa compromissos entre erro médio, horizonte de previsão, suavização e eventos de maior concentração.
+A contribuição deve ser formulada como estudo experimental comparativo e rastreável, não como criação de uma nova arquitetura. A forma mais segura é afirmar que o trabalho consolida um protocolo reprodutível, compara abordagens neurais e XGBoost sob o mesmo contrato supervisionado de janelas e analisa compromissos entre erro médio, horizonte de previsão, suavização e eventos de maior concentração.
 
 ### Postura Acadêmica Preferida
 - Prefira afirmações cautelosas e defensáveis. Evite dizer que o trabalho "prova", "garante", "resolve" ou estabelece uma arquitetura universalmente superior.
@@ -25,7 +25,7 @@ A contribuição deve ser formulada como estudo experimental comparativo e rastr
 Use termos que transmitam cautela metodológica:
 - "estudo experimental comparativo" em vez de "modelo proposto" para descrever a contribuição central;
 - "protocolo rastreável" ou "protocolo comparável" em vez de afirmações vagas de robustez;
-- "modelo de referência tabular forte" para o XGBoost, não "baseline simples" ou linha de base descartável;
+- "modelo de referência baseado em árvores" para o XGBoost, não "baseline simples" ou linha de base descartável;
 - "variáveis causalmente disponíveis" para entradas do decodificador conhecidas no instante da previsão;
 - "teste externo", "holdout cronológico" ou "avaliação fora da amostra" para o bloco final de teste;
 - "eventos de maior concentração", "picos" e "cauda" ao discutir comportamento em PM2.5 alto;
@@ -36,7 +36,7 @@ Evite ou qualifique expressões como "estado da arte", "produção", "operaciona
 ### Forma Esperada de Enquadrar Resultados
 O resultado final deve ser escrito com nuance:
 - A LSTM direta é a vencedora principal por erro médio no protocolo final.
-- O XGBoost continua sendo um modelo de referência tabular forte e é essencial para interpretar se os modelos neurais realmente agregam valor.
+- O XGBoost continua sendo um modelo de referência baseado em árvores e é essencial para interpretar se os modelos neurais realmente agregam valor sob o mesmo janelamento supervisionado.
 - O Seq2Seq com atenção e `weighted_l1` ficou competitivo e preservou melhor parte da amplitude/cauda, mas não deve ser descrito como vencedor global se MAE/RMSE/R2 não sustentarem isso.
 - Experimentos `oracle` com variáveis futuras mostram limite informacional do contrato atual, não resultado operacional, porque usam informação indisponível no instante real de previsão.
 

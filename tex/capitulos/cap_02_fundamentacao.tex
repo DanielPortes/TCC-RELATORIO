@@ -2,70 +2,95 @@
 \chapter{Fundamentação Teórica}
 \label{chap:fundamentacao_teorica}
 
-Este capítulo apresenta os conceitos teóricos necessários para fundamentar a previsão horária multi-horizonte de material particulado fino (PM2,5) em séries temporais ambientais. O foco recai sobre dados faltantes, variáveis exógenas conhecidas no momento da previsão, redes neurais artificiais, modelos recorrentes, arquiteturas codificador-decodificador com atenção e modelos baseados em árvores com impulsionamento por gradiente (\textit{gradient boosting}).
+Este capítulo apresenta os conceitos necessários para compreender a formulação do problema de previsão tratado neste trabalho. Como o contexto de PM2,5 e monitoramento da qualidade do ar já foi definido na introdução, a fundamentação parte da noção de série temporal, explica como uma sequência contínua é transformada em problema supervisionado por janelamento e, em seguida, apresenta validação cronológica, tratamento de lacunas, arquiteturas de previsão e métricas de avaliação.
 
-\section{Material Particulado Fino (PM2,5) e Monitoramento da Qualidade do Ar}
+\section{Séries Temporais}
 
-O material particulado fino (PM2,5) é formado por partículas com diâmetro aerodinâmico de até 2,5 micrômetros. O diâmetro aerodinâmico é uma forma de expressar o comportamento da partícula no ar: partículas menores permanecem suspensas por mais tempo e podem ser inaladas com maior facilidade. Por seu tamanho reduzido, o PM2,5 pode atingir regiões profundas do sistema respiratório e está associado a efeitos respiratórios e cardiovasculares relevantes \cite{pope2006health,brook2010particulate}. As diretrizes globais da Organização Mundial da Saúde tratam PM2,5 e material particulado com diâmetro aerodinâmico de até 10 micrômetros (PM10) como poluentes prioritários para avaliação de qualidade do ar \cite{who2021air}.
+Uma série temporal é uma sequência de observações indexadas no tempo. Em qualidade do ar, a concentração de um poluente pode apresentar autocorrelação, ciclos diários e semanais, mudanças de regime, ruído de medição e eventos de maior concentração. Quando múltiplas variáveis são observadas simultaneamente, como PM2,5, PM10 e atributos de calendário, a tarefa passa a ser multivariada: o modelo usa não apenas o histórico do alvo, mas também outras informações que podem ajudar a explicar sua variação.
 
-PM10, por sua vez, representa partículas com diâmetro aerodinâmico de até 10 micrômetros. Embora seja uma fração mais grossa que PM2,5, sua concentração pode carregar informação sobre condições ambientais, emissão de partículas e episódios de maior concentração. Por isso, em problemas de previsão, PM10 pode ser usado como variável auxiliar quando está disponível de forma compatível com a série de PM2,5.
+A análise de séries temporais costuma separar padrões em componentes interpretáveis. \citeonline{hyndman2021forecasting} distinguem tendência, sazonalidade, ciclos e variações remanescentes como padrões úteis para escolher métodos de previsão. Em uma decomposição aditiva simples, a observação no instante \(t\) pode ser representada pela Equação~\ref{eq:decomposicao_aditiva}.
 
-Em redes de monitoramento, sensores registram concentrações de poluentes em intervalos regulares e formam séries temporais. Uma série temporal de qualidade do ar, portanto, é uma sequência de medições ordenadas pelo tempo. A previsão de curto prazo busca estimar concentrações futuras a partir de medições recentes e de informações auxiliares conhecidas no momento da previsão. Em formulações horárias, é comum usar um bloco de observações passadas para prever um ou mais instantes futuros.
+\begin{equation}
+    y_t = T_t + S_t + R_t
+    \label{eq:decomposicao_aditiva}
+\end{equation}
 
-\section{Séries Temporais Multivariadas}
+Na Equação~\ref{eq:decomposicao_aditiva}, \(y_t\) é o valor observado no instante \(t\), \(T_t\) representa tendência ou tendência-ciclo, \(S_t\) representa sazonalidade de período conhecido e \(R_t\) representa o restante da série, incluindo ruído, mudanças abruptas e eventos raros. Em séries horárias, podem coexistir ciclos diários, semanais e anuais. Essa leitura fundamenta o uso de atributos temporais, termos periódicos e defasagens como formas de representar dependências temporais sem recorrer a informação futura.
 
-Uma série temporal é uma sequência de observações indexadas no tempo. Em qualidade do ar, a concentração de um poluente depende de autocorrelação, ciclos diários e semanais, condições meteorológicas, variações de emissão, mudanças de regime e eventos raros. Quando múltiplas variáveis são observadas simultaneamente, como PM2,5, PM10 e atributos de calendário, a tarefa passa a ser multivariada. Nesse caso, o modelo não observa apenas o histórico do alvo, mas também outras informações que podem ajudar a explicar sua variação.
+Outro conceito central é autocorrelação, isto é, a associação entre a série e versões defasadas dela mesma. Para uma defasagem \(\ell\), a autocorrelação amostral pode ser escrita conforme a Equação~\ref{eq:autocorrelacao}.
 
-A análise de séries temporais costuma separar padrões em componentes interpretáveis. \citeonline{hyndman2021forecasting} distinguem tendência, sazonalidade, ciclos e variações remanescentes como padrões úteis para escolher métodos de previsão. Em uma decomposição aditiva simples, uma observação pode ser representada por:
-
-\[
-    y_t = T_t + S_t + R_t,
-\]
-
-em que \(T_t\) representa tendência ou tendência-ciclo, \(S_t\) representa sazonalidade de período conhecido e \(R_t\) representa o restante da série, incluindo ruído, mudanças abruptas e eventos raros. Para séries horárias, pode haver mais de uma sazonalidade relevante, como ciclo diário, semanal e anual. Essa leitura fundamenta o uso de atributos temporais, termos periódicos e defasagens como formas de representar dependências temporais sem recorrer a informação futura.
-
-Outro conceito central é autocorrelação, isto é, a associação entre a série e versões defasadas dela mesma. Para uma defasagem \(\ell\), a autocorrelação amostral pode ser escrita como:
-
-\[
+\begin{equation}
     \rho(\ell)=
     \frac{
         \sum_t (y_t-\bar{y})(y_{t-\ell}-\bar{y})
     }{
         \sum_t (y_t-\bar{y})^2
-    }.
-\]
+    }
+    \label{eq:autocorrelacao}
+\end{equation}
 
-Valores altos de \(\rho(1)\), \(\rho(24)\) ou \(\rho(168)\) indicam, respectivamente, persistência de curto prazo, repetição diária e repetição semanal. Em problemas de previsão, essa leitura ajuda a escolher janelas históricas, defasagens sazonais e termos cíclicos adequados ao período de amostragem da série.
+Na Equação~\ref{eq:autocorrelacao}, \(\rho(\ell)\) é a autocorrelação na defasagem \(\ell\), \(y_t\) é o valor da série no instante \(t\), \(y_{t-\ell}\) é o valor observado \(\ell\) instantes antes e \(\bar{y}\) é a média da série no período considerado. Valores altos de \(\rho(1)\), \(\rho(24)\) ou \(\rho(168)\) indicam, respectivamente, persistência de curto prazo, repetição diária e repetição semanal em séries horárias.
 
-Formalmente, seja $\mathbf{x}_t \in \mathbb{R}^{d}$ o vetor de atributos observado no instante $t$, $y_t \in \mathbb{R}$ a concentração de PM2,5 e $\mathbf{z}_{t+k}$ o vetor de atributos futuros conhecidos no instante de emissão da previsão, como calendário, termos periódicos ou previsões meteorológicas disponíveis operacionalmente. Uma janela de entrada é o bloco de valores passados entregue ao modelo; o horizonte é o conjunto de instantes futuros que se deseja prever. Para uma janela de entrada de tamanho $L$ e horizonte $H$, o problema pode ser escrito como:
+\section{Janelas e Variáveis Exógenas}
+\label{sec:janelas_variaveis_exogenas}
 
-\[
+Modelos supervisionados não recebem uma série temporal contínua diretamente como uma única sequência sem estrutura. Primeiro, a série é convertida em pares de entrada e saída por janelas deslizantes. Cada amostra contém uma janela histórica de \(L\) instantes e um alvo futuro com \(H\) instantes. Em termos simples, o modelo recebe um trecho do passado e aprende a prever um trecho do futuro.
+
+Por exemplo, em uma série horária com \(L=48\) e \(H=24\), uma amostra pode usar as 48 horas anteriores como entrada e as 24 horas seguintes como alvo. A janela seguinte avança no tempo e repete essa construção. Assim, a sobreposição entre janelas aumenta o número de exemplos, mas a divisão entre treino, validação e teste precisa continuar cronológica para que uma janela de treino não alcance períodos reservados para avaliação.
+
+Formalmente, seja \(\mathbf{x}_t \in \mathbb{R}^{d}\) o vetor de atributos disponível no instante \(t\), \(y_t \in \mathbb{R}\) o alvo de previsão e \(\mathbf{z}_{t+k}\) o vetor de atributos futuros conhecidos no instante em que a previsão seria emitida, como calendário, termos periódicos ou previsões meteorológicas disponíveis operacionalmente. Para uma janela de entrada de tamanho \(L\) e um horizonte de previsão de tamanho \(H\), uma amostra supervisionada pode ser representada pela Equação~\ref{eq:janela_supervisionada}.
+
+\begin{equation}
     \hat{\mathbf{y}}_{t+1:t+H}
     =
     f_{\theta}\left(
         \mathbf{x}_{t-L+1:t},
         \mathbf{z}_{t+1:t+H}
-    \right),
-\]
+    \right)
+    \label{eq:janela_supervisionada}
+\end{equation}
 
-em que $f_{\theta}$ é o modelo treinado e $\hat{\mathbf{y}}_{t+1:t+H} = (\hat{y}_{t+1}, \ldots, \hat{y}_{t+H})$. Essa formulação explicita a diferença entre variáveis observadas apenas no passado e variáveis conhecidas para o horizonte futuro.
+Na Equação~\ref{eq:janela_supervisionada}, \(f_{\theta}\) é o modelo treinado, \(\theta\) representa seus parâmetros, \(\mathbf{x}_{t-L+1:t}\) é a janela histórica de entrada, \(\mathbf{z}_{t+1:t+H}\) contém variáveis conhecidas para o horizonte futuro e \(\hat{\mathbf{y}}_{t+1:t+H}=(\hat{y}_{t+1},\ldots,\hat{y}_{t+H})\) é a sequência prevista. O símbolo \(L\) indica quantos instantes passados entram no modelo, e \(H\) indica quantos instantes futuros são previstos.
 
-Em problemas de previsão, a ordem temporal dos dados deve ser preservada. Separações aleatórias, comuns em tarefas com registros independentes, podem introduzir vazamento de informação futura em séries temporais. Por isso, avaliações fora da amostra e divisões cronológicas são recomendadas para estimar desempenho em um cenário próximo ao uso real \cite{hyndman2021forecasting,tashman2000out,bergmeir2012crossvalidation}.
+A construção por janelas também explica a relação entre modelos neurais e modelos baseados em árvores. Ambos partem dos mesmos pares supervisionados de entrada e saída; o que muda é a forma como cada família processa esses atributos. Uma rede recorrente pode ler a janela como sequência, enquanto um modelo de árvores, como XGBoost, recebe atributos derivados da janela em formato vetorial. Portanto, a diferença principal não está na existência do janelamento, mas na forma como cada arquitetura parametriza a relação entre entradas e saídas.
 
-\subsection{Validação cruzada temporal e \textit{walk-forward}}
+Defasagem é o uso de valores passados de uma variável, como a concentração observada uma hora ou vinte e quatro horas antes. Variável exógena é uma informação externa ao alvo principal, como PM10, temperatura, vento ou atributos de calendário. Atributos de calendário indicam propriedades conhecidas previamente, como hora do dia, dia da semana ou mês. Termos periódicos, por sua vez, representam ciclos por funções seno e cosseno, evitando que horas próximas, como 23h e 0h, fiquem artificialmente distantes na representação numérica. Essas variáveis são úteis porque ajudam o modelo a representar padrões temporais e ambientais, desde que estejam disponíveis no instante real de previsão.
 
-A validação cruzada tradicional divide os dados em partições e assume exemplos aproximadamente independentes. Essa suposição não vale diretamente para séries temporais, nas quais observações vizinhas compartilham autocorrelação, sazonalidade e tendência. Em previsão, uma avaliação coerente deve respeitar a direção do tempo: o modelo só pode ser treinado com dados anteriores ao período validado. Essa preocupação é central em testes fora da amostra para previsão \cite{tashman2000out} e motiva adaptações da validação cruzada para séries temporais \cite{bergmeir2012crossvalidation,hyndman2021forecasting}.
+\section{Previsão Multi-Horizonte}
+\label{sec:previsao_multi_horizonte}
 
-Uma adaptação comum é a validação cruzada temporal por janela expansiva, também chamada de \textit{walk-forward validation}. Nesse procedimento, cada partição usa uma janela de treino que termina antes do bloco de validação seguinte. A cada nova partição, a janela de treino se expande e a validação avança para um período futuro. Assim, a avaliação considera várias origens temporais de previsão sem permitir que dados futuros influenciem o treinamento. Para \(K\) partições, a métrica de seleção pode ser resumida pela média:
+Na previsão multi-horizonte, o objetivo é estimar mais de um instante futuro a partir da mesma origem temporal. Em vez de prever apenas o próximo passo, o modelo produz uma sequência de \(H\) previsões futuras. Revisões recentes de previsão com aprendizado profundo descrevem arquiteturas de codificador e decodificador tanto para previsão de horizonte único quanto para previsão multi-horizonte \cite{lim2021survey,benidis2022deep}.
 
-\[
+Três estratégias são especialmente relevantes:
+
+\begin{itemize}
+    \item \textbf{Previsão recursiva:} o modelo aprende uma função de um passo, como \(\hat{y}_{t+1}=g_{\theta}(\mathbf{x}_{t-L+1:t})\), e usa previsões anteriores para avançar até \(\hat{y}_{t+H}\). Um exemplo é aplicar repetidamente um preditor de uma hora à frente. A vantagem é a simplicidade; a limitação é a possibilidade de acumular erros ao longo do horizonte.
+    \item \textbf{Previsão direta:} o modelo aprende diretamente a sequência futura. Um exemplo é uma configuração que recebe a janela histórica e devolve os \(H\) passos previstos em uma única saída. Essa formulação reduz a realimentação de erros, mas exige aprender a estrutura conjunta do horizonte.
+    \item \textbf{Codificador-decodificador:} uma rede codifica a janela de entrada e outra gera a sequência futura, possivelmente condicionada por variáveis conhecidas no horizonte. Um exemplo é a arquitetura Seq2Seq, em que o codificador resume o histórico e o decodificador produz a sequência prevista.
+\end{itemize}
+
+Essas alternativas podem ser implementadas com modelos recorrentes, arquiteturas codificador-decodificador ou modelos baseados em árvores com saída múltipla. A escolha precisa ser avaliada empiricamente, pois a literatura de previsão não sustenta uma única arquitetura universalmente dominante; revisões de redes neurais recorrentes para séries temporais ressaltam que não existem soluções universais em previsão \cite{hewamalage2021rnn}.
+
+\section{Validação Temporal e \textit{Walk-Forward}}
+\label{sec:validacao_temporal}
+
+Em problemas de previsão, a ordem temporal dos dados deve ser preservada. Separações aleatórias, comuns em tarefas com registros independentes, podem introduzir vazamento de informação futura em séries temporais. Por isso, avaliações fora da amostra e divisões cronológicas são recomendadas para estimar desempenho em cenário próximo ao uso real \cite{hyndman2021forecasting,tashman2000out,bergmeir2012crossvalidation}.
+
+A validação cruzada tradicional divide os dados em partições e assume exemplos aproximadamente independentes. Essa suposição não vale diretamente para séries temporais, nas quais observações vizinhas compartilham autocorrelação, sazonalidade e tendência. Uma adaptação comum é a validação cruzada temporal por janela expansiva, também chamada de \textit{walk-forward validation}. Nesse procedimento, cada partição usa uma janela de treino que termina antes do bloco de validação seguinte. A cada nova partição, a janela de treino se expande e a validação avança para um período futuro.
+
+Para \(K\) partições temporais, a métrica média de seleção pode ser representada pela Equação~\ref{eq:cv_temporal}.
+
+\begin{equation}
     \mathcal{L}_{CV}
     =
     \frac{1}{K}\sum_{k=1}^{K}
-    \mathcal{L}_{val}^{(k)}.
-\]
+    \mathcal{L}_{val}^{(k)}
+    \label{eq:cv_temporal}
+\end{equation}
 
-O subscrito \(CV\) indica \textit{cross-validation}, isto é, validação cruzada. Em desenhos experimentais com seleção de hiperparâmetros, a validação cruzada temporal pode ser aplicada dentro de um bloco de desenvolvimento. Ela não substitui uma avaliação cronológica final separada: esse conjunto permanece reservado para estimar o desempenho fora da amostra depois da seleção. A Figura~\ref{fig:validacao_cruzada_temporal_walk_forward} ilustra uma janela expansiva com três partições e avaliação final reservada.
+Na Equação~\ref{eq:cv_temporal}, \(\mathcal{L}_{CV}\) é a perda ou métrica média de validação cruzada temporal, \(K\) é o número de partições e \(\mathcal{L}_{val}^{(k)}\) é a métrica obtida na partição \(k\). O subscrito \(CV\) vem de \textit{cross-validation}, isto é, validação cruzada.
+
+A Figura~\ref{fig:validacao_cruzada_temporal_walk_forward} ilustra uma validação por janela expansiva com três partições e um conjunto final de teste. Na primeira partição, o modelo treina no primeiro bloco e valida no bloco seguinte. Na segunda, o treino passa a incluir os dois primeiros blocos, e a validação avança para o terceiro. Na terceira, a janela de treino se expande novamente. O bloco final permanece separado desde o início e funciona como conjunto de teste, usado apenas após a seleção de hiperparâmetros e modelos.
 
 \begin{figure}[htbp]
     \centering
@@ -74,148 +99,113 @@ O subscrito \(CV\) indica \textit{cross-validation}, isto é, validação cruzad
     \label{fig:validacao_cruzada_temporal_walk_forward}
 \end{figure}
 
-\section{Previsão Multi-Horizonte}
+\section{Lacunas, Imputação e Vazamento Temporal}
+\label{sec:dados_faltantes_imputacao}
 
-Na previsão multi-horizonte, o objetivo é estimar mais de um instante futuro. Para uma entrada $\mathbf{x}_{t-L+1:t}$ e um horizonte de \(H\) instantes, o modelo deve produzir $\hat{\mathbf{y}}_{t+1:t+H}$. Revisões recentes de previsão com aprendizado profundo descrevem arquiteturas de codificador e decodificador tanto para previsão de horizonte único quanto para previsão multi-horizonte \cite{lim2021survey,benidis2022deep}. Três estratégias são especialmente relevantes:
+Dados ambientais reais frequentemente contêm lacunas por falhas de sensor, manutenção, comunicação ou filtragem de leituras inconsistentes. Uma lacuna significa que, em determinado instante, a medição esperada não foi observada. A ausência de dados deve ser tratada com cuidado porque pode afetar tanto o treinamento quanto a avaliação do modelo de previsão.
 
-\begin{itemize}
-    \item \textbf{Previsão recursiva:} o modelo aprende uma função de horizonte único $\hat{y}_{t+1}=g_{\theta}(\mathbf{x}_{t-L+1:t})$ e realimenta suas próprias saídas para obter $\hat{y}_{t+2}, \ldots, \hat{y}_{t+H}$. A estratégia é simples, mas pode acumular erros ao longo do horizonte.
-    \item \textbf{Previsão direta:} o modelo aprende diretamente $\hat{\mathbf{y}}_{t+1:t+H}=g_{\theta}(\mathbf{x}_{t-L+1:t})$. Isso reduz a realimentação de erro, mas exige aprender a estrutura conjunta do horizonte.
-    \item \textbf{Codificador-decodificador:} uma rede codifica a janela de entrada e outra gera a sequência futura, possivelmente condicionada por variáveis conhecidas no horizonte. Essa formulação é natural para tarefas sequência-para-sequência.
-\end{itemize}
+Imputação é o processo de preencher lacunas com estimativas. Métodos simples, como interpolação linear, preservam a estrutura temporal local e são transparentes; métodos multivariados, como Multivariate Imputation by Chained Equations (MICE) e MissForest, exploram relações entre variáveis \cite{vanbuuren2011mice,stekhoven2012missforest}. Métodos de imputação temporal, como Bidirectional Recurrent Imputation for Time Series (BRITS) e Self-Attention-based Imputation for Time Series (SAITS), também usam máscaras de observação para distinguir valores disponíveis de valores ausentes \cite{cao2018brits,du2023saits}.
 
-Essas alternativas podem ser implementadas com modelos recorrentes, arquiteturas codificador-decodificador e modelos baseados em árvores com saída múltipla. Comparações desse tipo são necessárias porque a literatura de previsão não sustenta uma única arquitetura universalmente dominante; revisões de redes neurais recorrentes para séries temporais ressaltam que não existem soluções universais em previsão \cite{hewamalage2021rnn}.
+Neste trabalho, a distinção entre valor observado e valor preenchido não é tratada como prática universal da área. Ela é adotada como decisão metodológica do protocolo experimental: além da série preenchida para viabilizar a construção das janelas, preserva-se uma máscara de observação. O indicador vale 1 quando o valor foi originalmente medido e 0 quando foi preenchido por imputação. Essa escolha é compatível com a preocupação de \citeonline{rubin1976inference} de diferenciar observações reais de valores não observados e com métodos modernos que carregam máscaras de observação \cite{cao2018brits,du2023saits}. No protocolo, a máscara permite impedir que alvos imputados sejam avaliados como se fossem medições reais nas métricas principais.
 
-\section{Dados Faltantes, Imputação e Vazamento Temporal}
+Vazamento temporal ocorre quando uma etapa de preparação usa informação que não estaria disponível no instante real da previsão. Um exemplo simples é normalizar a série usando média e desvio-padrão calculados com todo o conjunto, incluindo validação e teste; nesse caso, estatísticas do futuro influenciam o treinamento. Outro exemplo é interpolar uma lacuna no bloco de validação usando uma medição posterior à origem da previsão. A criação de atributos também pode vazar informação se usar médias, tendências ou agregações calculadas com dados futuros.
 
-Dados ambientais reais frequentemente contêm lacunas por falhas de sensor, manutenção, comunicação ou filtragem de leituras inconsistentes. Uma lacuna significa que, em determinado instante, a medição esperada não foi observada. A ausência de dados deve ser tratada com cuidado porque pode afetar tanto o treinamento quanto a avaliação. A literatura de dados faltantes diferencia o valor não observado do valor realmente medido; tratá-los como equivalentes pode distorcer inferências e métricas \cite{rubin1976inference}.
-
-Imputação é o processo de preencher lacunas com estimativas. Métodos simples, como interpolação linear, preservam a estrutura temporal local e são transparentes; métodos multivariados, como Multivariate Imputation by Chained Equations (MICE) e MissForest, exploram relações entre variáveis \cite{vanbuuren2011mice,stekhoven2012missforest}. Métodos de imputação temporal, como Bidirectional Recurrent Imputation for Time Series (BRITS) e Self-Attention-based Imputation for Time Series (SAITS), também usam máscaras de observação para distinguir valores disponíveis de valores ausentes \cite{cao2018brits,du2023saits}. Neste contexto, máscara significa um indicador que informa se um valor foi originalmente observado ou se foi preenchido por algum método de imputação. Independentemente do método escolhido, essa distinção é importante: valores preenchidos não devem ser tratados automaticamente como observações reais. Por isso, protocolos de previsão com lacunas precisam preservar informação sobre ausência e explicitar como a imputação afeta treinamento e avaliação.
-
-Outro risco é o vazamento temporal. A imputação, a normalização e a criação de atributos precisam ser ajustadas sem usar estatísticas futuras indisponíveis no instante de previsão. Em um protocolo cronológico, esses procedimentos devem ser definidos com informação anterior ao período avaliado.
-
-\section{Janelas e Variáveis Exógenas}
-
-Modelos supervisionados de séries temporais costumam converter uma sequência contínua em pares de entrada e saída por janelas deslizantes. Cada amostra é formada por uma janela histórica de \(L\) instantes e por um alvo futuro com \(H\) instantes. Em termos simples, o modelo recebe um trecho do passado e aprende a produzir um trecho do futuro. A sobreposição entre janelas aumenta o número de exemplos, mas exige cuidado para manter a divisão temporal e evitar que uma janela de treino alcance o período de validação ou teste.
-
-Defasagens explícitas e variáveis exógenas podem aumentar a informação disponível para o modelo. Defasagem é o uso de valores passados de uma variável, como a concentração observada uma hora ou vinte e quatro horas antes. Variável exógena é uma informação externa ao alvo principal, como PM10, temperatura, vento ou atributos de calendário. No entanto, uma variável exógena só pode entrar no decodificador se estiver disponível no momento em que a previsão seria feita. Atributos de calendário, termos periódicos e previsões meteorológicas publicadas antes da emissão da previsão são exemplos de informação potencialmente disponível. Já variáveis observadas apenas no futuro, como medições futuras de outro poluente, não devem ser usadas diretamente.
+Para evitar esse problema, imputação, normalização e criação de atributos devem ser ajustadas apenas com dados anteriores ao período avaliado ou com informações conhecidas operacionalmente naquele instante. Em uma validação \textit{walk-forward}, por exemplo, o normalizador deve ser estimado no bloco de treino de cada partição e depois aplicado ao bloco de validação; a imputação de validação não deve olhar medições posteriores que não estariam disponíveis no momento da previsão; e variáveis futuras só podem ser usadas quando forem conhecidas antes da emissão da previsão, como calendário ou uma previsão meteorológica já publicada.
 
 \section{Redes Neurais e Aprendizado Profundo}
 \label{sec:redes_neurais_deep_learning}
 
-Redes neurais artificiais são modelos paramétricos compostos por unidades simples conectadas por pesos. A inspiração histórica vem de modelos computacionais do neurônio biológico, como o neurônio lógico de \citeonline{mcculloch1943logical} e o perceptron de \citeonline{rosenblatt1958perceptron}. Essa relação, porém, deve ser entendida como uma analogia didática. Redes neurais usadas em aprendizado de máquina não simulam de forma completa a fisiologia de neurônios reais; elas usam uma abstração matemática capaz de combinar entradas, ajustar pesos e produzir saídas.
+Redes neurais artificiais são modelos paramétricos compostos por unidades simples conectadas por pesos. A inspiração histórica vem de modelos computacionais do neurônio biológico, como o neurônio lógico de \citeonline{mcculloch1943logical} e o perceptron de \citeonline{rosenblatt1958perceptron}. Essa relação deve ser entendida como analogia didática: redes neurais usadas em aprendizado de máquina não simulam de forma completa a fisiologia de neurônios reais, mas usam uma abstração matemática capaz de combinar entradas, ajustar pesos e produzir saídas.
 
-Em um neurônio biológico, dendritos recebem sinais, o corpo celular integra parte dessas informações e o axônio transmite sinais para outras células. Em um neurônio artificial, a operação análoga é representada por entradas numéricas, pesos, viés e uma função de ativação. A Figura~\ref{fig:neuronio_biologico_artificial} apresenta essa relação de forma visual.
+Em um neurônio biológico, dendritos recebem sinais, o corpo celular integra parte dessas informações e o axônio transmite sinais para outras células. Em um neurônio artificial, a operação análoga é representada por entradas numéricas, pesos, viés ou limiar, soma ponderada e função de ativação. A Figura~\ref{fig:neuronio_biologico_artificial} mostra essa analogia: à esquerda aparece o neurônio biológico; à direita, o neurônio artificial recebe entradas \(x_j\), pondera essas entradas por pesos \(w_{ij}\), combina os termos em uma entrada líquida e aplica uma função de ativação para produzir a saída da unidade.
 
 \begin{figure}[htbp]
     \centering
-    \begin{subfigure}[t]{0.48\linewidth}
+    \begin{subfigure}[t]{0.42\linewidth}
         \centering
         \includegraphics[width=\linewidth,trim=100 500 320 520,clip]{neuronio-biologico-wikimedia-ptbr.png}
         \caption{Neurônio biológico.}
         \label{fig:neuronio_biologico}
     \end{subfigure}
     \hfill
-    \begin{subfigure}[t]{0.48\linewidth}
+    \begin{subfigure}[t]{0.54\linewidth}
         \centering
-        \includegraphics[width=0.86\linewidth]{neuronio-artificial-perceptron-wikimedia.png}
+        \includegraphics[width=\linewidth]{artificial_neuron_model_chrislb_wikimedia.png}
         \caption{Neurônio artificial.}
         \label{fig:neuronio_artificial_perceptron}
     \end{subfigure}
-    \caption[Comparação visual entre neurônio biológico e neurônio artificial]{Comparação visual entre neurônio biológico e neurônio artificial. A imagem do neurônio biológico possui rótulos em português do Brasil e foi obtida de \citeonline{vasconcelos2008neuronPt}; a imagem do perceptron explicita entradas \(x_i\), pesos \(w_i\), soma ponderada, função de ativação \(\varphi\) e saída \(o\), conforme \citeonline{thoma2014perceptronUnit}.}
+    \caption[Comparação visual entre neurônio biológico e neurônio artificial]{Comparação visual entre neurônio biológico e neurônio artificial. A imagem do neurônio biológico possui rótulos em português do Brasil e foi obtida de \citeonline{vasconcelos2008neuronPt}; a imagem do neurônio artificial foi obtida de \citeonline{chrislb2006artificialNeuronModel}.}
     \label{fig:neuronio_biologico_artificial}
 \end{figure}
+\FloatBarrier
 
-Formalmente, para um vetor de entrada $\mathbf{x}=(x_1,\ldots,x_d)$, um neurônio artificial calcula uma soma ponderada e aplica uma função de ativação:
+Para manter a notação consistente, este texto usa \(\hat{y}\) para a saída prevista do modelo e \(\mathbf{h}\) para ativações internas de camadas ocultas. A fonte visual da Figura~\ref{fig:neuronio_artificial_perceptron} usa \(o_j\) para indicar a saída de uma unidade genérica; neste trabalho, quando a unidade representa a camada final de regressão, essa saída será escrita como \(\hat{y}\). Quando a mesma operação aparece dentro de uma camada intermediária, a quantidade produzida será indicada por \(\mathbf{h}\).
 
-\[
+\begin{equation}
     a = \sum_{j=1}^{d} w_jx_j + b,
-    \quad
-    h = \phi(a).
-\]
+    \qquad
+    \hat{y} = \phi(a)
+    \label{eq:neuronio_artificial}
+\end{equation}
 
-Nessa expressão, $w_j$ são pesos, $b$ é o viés, $a$ é a ativação antes da não linearidade e $\phi$ é uma função de ativação, como sigmoide, tangente hiperbólica ou unidade linear retificada (\textit{Rectified Linear Unit}, ReLU). Na Figura~\ref{fig:neuronio_artificial_perceptron}, o viés é representado por um peso \(w_0\) associado a uma entrada fixa \(x_0=1\), notação equivalente à adição explícita do termo \(b\). Os pesos e vieses são parâmetros aprendidos a partir dos dados. A função de ativação é importante porque introduz não linearidade; sem ela, uma composição de camadas lineares continuaria equivalente a uma única transformação linear.
+Na Equação~\ref{eq:neuronio_artificial}, \(x_j\) é a entrada \(j\), \(w_j\) é o peso associado a essa entrada, \(d\) é o número de entradas, \(b\) é o viés, \(a\) é a soma ponderada antes da não linearidade, \(\phi\) é a função de ativação e \(\hat{y}\) é a saída prevista. Em camadas ocultas, a mesma forma matemática produz uma ativação interna \(h\), não a previsão final.
 
-Uma rede neural organiza vários neurônios em camadas. A saída de uma camada alimenta a camada seguinte, permitindo que o modelo componha transformações simples em representações mais complexas. De forma resumida, uma camada pode ser escrita como:
+Uma rede neural organiza vários neurônios em camadas. A saída de uma camada alimenta a camada seguinte, permitindo que o modelo componha transformações simples em representações mais complexas. Uma camada \(\ell\) pode ser escrita conforme a Equação~\ref{eq:camada_neural}.
 
-\[
+\begin{equation}
     \mathbf{h}^{(\ell)}
     =
     \phi\left(
         W^{(\ell)}\mathbf{h}^{(\ell-1)}
         +
         \mathbf{b}^{(\ell)}
-    \right),
-\]
+    \right)
+    \label{eq:camada_neural}
+\end{equation}
 
-em que \(W^{(\ell)}\) e \(\mathbf{b}^{(\ell)}\) são os parâmetros da camada \(\ell\). O treinamento ajusta esses parâmetros para minimizar uma função de perda nos exemplos observados. Em tarefas de regressão, essa perda mede a distância entre os valores previstos e observados.
+Na Equação~\ref{eq:camada_neural}, \(\mathbf{h}^{(\ell-1)}\) é o vetor de ativações da camada anterior, \(W^{(\ell)}\) é a matriz de pesos da camada \(\ell\), \(\mathbf{b}^{(\ell)}\) é o vetor de vieses e \(\mathbf{h}^{(\ell)}\) é a representação produzida por essa camada. O treinamento ajusta pesos e vieses para minimizar uma função de perda. Em tarefas de regressão, essa perda mede a distância entre valores previstos e observados.
 
-Aprendizado profundo, ou \textit{deep learning}, refere-se ao treinamento de redes neurais com múltiplas camadas e representações sucessivas dos dados \cite{goodfellow2016deep,lecun2015deep}. Em séries temporais, essa ideia é útil porque o modelo pode aprender relações não lineares entre medições recentes, variáveis exógenas, padrões cíclicos e o horizonte previsto. As arquiteturas recorrentes e codificador-decodificador discutidas nas seções seguintes são casos específicos de redes profundas voltadas a sequências: elas compartilham parâmetros ao longo do tempo, mantêm estados internos e produzem previsões para um ou mais horizontes futuros.
+Aprendizado profundo, ou \textit{deep learning}, refere-se ao treinamento de redes neurais com múltiplas camadas e representações sucessivas dos dados \cite{goodfellow2016deep,lecun2015deep}. Em séries temporais, essa ideia é útil porque o modelo pode aprender relações não lineares entre medições recentes, variáveis exógenas, padrões cíclicos e horizonte previsto.
 
 \section{Redes Neurais Recorrentes e Long Short-Term Memory (LSTM)}
 \label{sec:rnn_lstm}
 
-Redes neurais recorrentes (Recurrent Neural Networks, RNNs) são projetadas para dados sequenciais, pois atualizam um estado interno conforme processam cada instante da sequência. Em RNNs simples, o treinamento pode sofrer com desaparecimento ou explosão de gradientes, dificultando o aprendizado de dependências mais longas. A arquitetura Long Short-Term Memory (LSTM) introduz uma célula de memória e portões de entrada, esquecimento e saída para controlar o fluxo de informação \cite{hochreiter1997long}.
+Redes neurais recorrentes (Recurrent Neural Networks, RNNs) são projetadas para dados sequenciais porque mantêm um estado interno ao processar os instantes da sequência. Esse estado interno, também chamado de estado oculto, funciona como uma memória resumida do que foi lido até o instante atual e é repassado para o próximo passo da sequência. Em RNNs simples, o treinamento pode sofrer com desaparecimento ou explosão de gradientes, isto é, com sinais de ajuste que se tornam muito pequenos ou muito grandes ao atravessar muitos passos temporais. Isso dificulta aprender dependências longas.
 
-Uma célula LSTM pode ser descrita pelas seguintes equações, para entrada $\mathbf{x}_t$, estado oculto anterior $\mathbf{h}_{t-1}$ e memória anterior $\mathbf{c}_{t-1}$:
-
-\[
-\begin{aligned}
-    \mathbf{i}_t &= \sigma(W_i\mathbf{x}_t + U_i\mathbf{h}_{t-1} + \mathbf{b}_i),\\
-    \mathbf{f}_t &= \sigma(W_f\mathbf{x}_t + U_f\mathbf{h}_{t-1} + \mathbf{b}_f),\\
-    \mathbf{o}_t &= \sigma(W_o\mathbf{x}_t + U_o\mathbf{h}_{t-1} + \mathbf{b}_o),\\
-    \tilde{\mathbf{c}}_t &= \tanh(W_c\mathbf{x}_t + U_c\mathbf{h}_{t-1} + \mathbf{b}_c),\\
-    \mathbf{c}_t &= \mathbf{f}_t \odot \mathbf{c}_{t-1} + \mathbf{i}_t \odot \tilde{\mathbf{c}}_t,\\
-    \mathbf{h}_t &= \mathbf{o}_t \odot \tanh(\mathbf{c}_t).
-\end{aligned}
-\]
-
-O portão de esquecimento $\mathbf{f}_t$ controla quanto da memória anterior é preservado; o portão de entrada $\mathbf{i}_t$ controla quanto da nova informação candidata é incorporado; e o portão de saída $\mathbf{o}_t$ controla a parte da memória exposta no estado oculto. A Figura~\ref{fig:lstm_propria} resume essa estrutura.
+A arquitetura LSTM introduz uma célula de memória e portões de entrada, esquecimento e saída para controlar o fluxo de informação \cite{hochreiter1997long}. A Figura~\ref{fig:lstm_cell} mostra a estrutura interna no instante \(t\). A linha superior carrega a memória da célula, de \(\mathbf{c}_{t-1}\) para \(\mathbf{c}_t\). A linha inferior recebe a entrada atual \(\mathbf{x}_t\) e o estado oculto anterior \(\mathbf{h}_{t-1}\). O primeiro bloco sigmoide controla o esquecimento, indicado como \(F_t\) na figura e \(\mathbf{f}_t\) na Equação~\ref{eq:lstm}. O segundo bloco sigmoide e o bloco \(\tanh\) controlam, respectivamente, a entrada \(I_t\), escrita como \(\mathbf{i}_t\), e o conteúdo candidato \(\tilde{\mathbf{c}}_t\). O bloco sigmoide à direita é o portão de saída \(O_t\), escrito como \(\mathbf{o}_t\) na formulação, e define quanto da memória atual será exposto como estado oculto \(\mathbf{h}_t\). Os círculos rosa \(o_{t-1}\), \(o_t\) e \(o_{t+1}\) representam saídas externas associadas aos instantes da sequência; eles não são o portão de saída \(O_t\).
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{diagrama_lstm_proprio.pdf}
-    \caption{Diagrama conceitual de uma célula LSTM. Elaboração própria com base em \citeonline{hochreiter1997long}.}
-    \label{fig:lstm_propria}
+    \includegraphics[width=0.94\textwidth]{lstm_fdeloche_wikimedia.png}
+    \caption[Estrutura interna de uma célula LSTM]{Estrutura interna de uma célula LSTM, com memória, estado oculto, portões sigmoides e operações elemento a elemento. Fonte: \citeonline{fdeloche2017lstmCell}.}
+    \label{fig:lstm_cell}
 \end{figure}
+\FloatBarrier
 
-Em previsão multi-horizonte, a LSTM pode ser usada em estratégias recursivas ou diretas. Na estratégia recursiva, o modelo aprende a avançar ao longo do horizonte com realimentação. Na estratégia direta, o estado final da janela de entrada é projetado para todo o horizonte futuro. A comparação entre essas estratégias permite separar o efeito da arquitetura recorrente do efeito da forma de gerar o horizonte.
+Uma célula LSTM pode ser descrita pela Equação~\ref{eq:lstm}, para entrada \(\mathbf{x}_t\), estado oculto anterior \(\mathbf{h}_{t-1}\) e memória anterior \(\mathbf{c}_{t-1}\).
+
+\begin{equation}
+\begin{aligned}
+    \mathbf{f}_t &= \sigma(W_f\mathbf{x}_t + U_f\mathbf{h}_{t-1} + \mathbf{b}_f),\\
+    \mathbf{i}_t &= \sigma(W_i\mathbf{x}_t + U_i\mathbf{h}_{t-1} + \mathbf{b}_i),\\
+    \tilde{\mathbf{c}}_t &= \tanh(W_c\mathbf{x}_t + U_c\mathbf{h}_{t-1} + \mathbf{b}_c),\\
+    \mathbf{o}_t &= \sigma(W_o\mathbf{x}_t + U_o\mathbf{h}_{t-1} + \mathbf{b}_o),\\
+    \mathbf{c}_t &= \mathbf{f}_t \odot \mathbf{c}_{t-1} + \mathbf{i}_t \odot \tilde{\mathbf{c}}_t,\\
+    \mathbf{h}_t &= \mathbf{o}_t \odot \tanh(\mathbf{c}_t).
+\end{aligned}
+\label{eq:lstm}
+\end{equation}
+
+Na Equação~\ref{eq:lstm}, \(\sigma\) é a função sigmoide, \(\tanh\) é a tangente hiperbólica e \(\odot\) indica multiplicação elemento a elemento. O portão de esquecimento \(\mathbf{f}_t\) controla quanto da memória anterior é preservado; o portão de entrada \(\mathbf{i}_t\) controla quanto do conteúdo candidato \(\tilde{\mathbf{c}}_t\) entra na memória; e o portão de saída \(\mathbf{o}_t\) controla quanto da memória atual \(\mathbf{c}_t\) será exposto no estado oculto \(\mathbf{h}_t\). As matrizes \(W\), \(U\) e os vetores \(\mathbf{b}\) são parâmetros aprendidos no treinamento.
+
+Em previsão multi-horizonte, uma LSTM pode ser usada de forma recursiva ou direta. Na forma recursiva, uma previsão de um passo, como \(\hat{y}_{t+1}\), pode ser realimentada para avançar até \(\hat{y}_{t+H}\), com risco de acumular erros. Na forma direta, o estado final da janela de entrada alimenta uma camada de saída que produz \((\hat{y}_{t+1},\ldots,\hat{y}_{t+H})\) de uma vez. Essa distinção é importante porque separa o efeito da arquitetura recorrente do efeito da estratégia usada para gerar o horizonte.
 
 \section{Sequence-to-Sequence (Seq2Seq) e Atenção}
 \label{sec:encoder_decoder_attention}
 
-Modelos \textit{Sequence-to-Sequence} (Seq2Seq) foram propostos para mapear uma sequência de entrada em uma sequência de saída. \citeonline{sutskever2014sequence} descrevem a proposta como uma abordagem ``\textit{end-to-end}'' para aprendizado de sequências, em que um codificador transforma a entrada em representação latente e um decodificador gera a sequência de saída. Em séries temporais, essa estrutura é útil porque o decodificador pode produzir um horizonte completo e receber variáveis conhecidas para cada horizonte futuro.
+Modelos \textit{Sequence-to-Sequence} (Seq2Seq) foram propostos para mapear uma sequência de entrada em uma sequência de saída. \citeonline{sutskever2014sequence} descrevem a proposta como uma abordagem ``\textit{end-to-end}'' para aprendizado de sequências, em que um codificador transforma a entrada em representação latente e um decodificador gera a sequência de saída. Em previsão multi-horizonte, a janela histórica funciona como sequência de entrada e o horizonte previsto funciona como sequência de saída.
 
-Sejam $\mathbf{h}_j$ os estados do codificador para os \(L\) instantes da janela de entrada. Uma formulação simplificada do codificador é:
-
-\[
-    \mathbf{h}_j = Enc_{\theta}(\mathbf{x}_{t-L+j}, \mathbf{h}_{j-1}), \quad j=1,\ldots,L.
-\]
-
-Sem atenção, o decodificador depende principalmente de um vetor de contexto, frequentemente associado ao último estado do codificador. A atenção reduz esse gargalo. O próprio trabalho de \citeonline{bahdanau2014neural} caracteriza o ``\textit{fixed-length vector}'' como uma limitação em tarefas sequência-para-sequência. Com atenção aditiva, para cada horizonte futuro \(k\), calculam-se escores, pesos normalizados e um contexto:
-
-\[
-\begin{aligned}
-    e_{k,j} &= \mathbf{v}_a^{\top}\tanh(W_s\mathbf{s}_{k-1} + W_h\mathbf{h}_{j} + \mathbf{b}_a),\\
-    \alpha_{k,j} &= \frac{\exp(e_{k,j})}{\sum_{\ell=1}^{L}\exp(e_{k,\ell})},\\
-    \mathbf{c}_k &= \sum_{j=1}^{L}\alpha_{k,j}\mathbf{h}_j.
-\end{aligned}
-\]
-
-O decodificador atualiza seu estado e produz a previsão:
-
-\[
-\begin{aligned}
-    \mathbf{s}_k &= Dec_{\theta}(\mathbf{s}_{k-1}, \tilde{y}_{t+k-1}, \mathbf{z}_{t+k}, \mathbf{c}_k),\\
-    \hat{y}_{t+k} &= g_{\theta}(\mathbf{s}_k, \mathbf{c}_k, \mathbf{z}_{t+k}).
-\end{aligned}
-\]
-
-Nessas expressões, \(W_s\), \(W_h\), \(\mathbf{v}_a\) e \(\mathbf{b}_a\) são parâmetros aprendidos do mecanismo de atenção, enquanto \(\mathbf{s}_k\) representa o estado do decodificador no horizonte \(k\).
-
-Nesse caso, $\tilde{y}_{t+k-1}$ representa o valor real anterior durante \textit{teacher forcing} ou a previsão anterior durante inferência. Variações de atenção global e local também foram propostas, incluindo mecanismos do tipo Luong \cite{luong2015effective}. Para séries temporais multivariadas, arquiteturas como Dual-stage Attention-based Recurrent Neural Network (DA-RNN) combinam atenção sobre variáveis de entrada e atenção temporal \cite{qin2017darnn}.
-
-A utilidade de Seq2Seq em previsão não se apoia na ideia de que essa família seja sempre superior. A justificativa é mais específica: tarefas multi-horizonte podem se beneficiar de um decodificador condicionado por atributos futuros conhecidos e trabalhos de previsão adotam estruturas recorrentes sequência-para-sequência para prever uma sequência de horizontes futuros. Por exemplo, \citeonline{wen2017mqrnn} exploram a natureza temporal de ``\textit{Sequence-to-Sequence Neural Networks}'' em previsão multi-horizonte, enquanto DeepAR e Temporal Fusion Transformer exemplificam linhas modernas de previsão profunda com decodificadores autoregressivos, covariáveis e previsão multi-horizonte \cite{salinas2020deepar,lim2021tft}. A Figura~\ref{fig:seq2seq_attention_propria} sintetiza uma formulação conceitual de Seq2Seq com atenção.
+A Figura~\ref{fig:seq2seq_attention_propria} apresenta uma leitura conceitual de Seq2Seq com atenção. No bloco esquerdo, o codificador lê os \(L\) instantes da janela histórica e produz estados \(\mathbf{h}_1,\ldots,\mathbf{h}_L\). No bloco central, a atenção calcula pesos \(\alpha_{k,j}\) para indicar quanto cada estado do codificador contribui para o horizonte futuro \(k\). No bloco direito, o decodificador usa o contexto \(\mathbf{c}_k\), o estado do decodificador e as covariáveis futuras conhecidas para produzir \(\hat{y}_{t+k}\).
 
 \begin{figure}[htbp]
     \centering
@@ -224,179 +214,240 @@ A utilidade de Seq2Seq em previsão não se apoia na ideia de que essa família 
     \label{fig:seq2seq_attention_propria}
 \end{figure}
 
-Pesos de atenção não devem ser interpretados automaticamente como explicação causal \cite{jain2019attention} nem como garantia de superioridade. Eles podem ser pouco informativos quando ficam quase uniformes ou quando não produzem ganho mensurável em avaliação fora da amostra.
+Sejam \(\mathbf{h}_j\) os estados do codificador para os \(L\) instantes da janela de entrada. Uma formulação simplificada do codificador é dada pela Equação~\ref{eq:seq2seq_encoder}.
+
+\begin{equation}
+    \mathbf{h}_j = Enc_{\theta}(\mathbf{x}_{t-L+j}, \mathbf{h}_{j-1}),
+    \qquad
+    j=1,\ldots,L
+    \label{eq:seq2seq_encoder}
+\end{equation}
+
+Na Equação~\ref{eq:seq2seq_encoder}, \(Enc_{\theta}\) é o codificador, \(\mathbf{x}_{t-L+j}\) é a entrada do passo \(j\) da janela e \(\mathbf{h}_{j-1}\) é o estado anterior do codificador. Sem atenção, o decodificador depende principalmente de um vetor de contexto, frequentemente associado ao último estado do codificador. A atenção reduz esse gargalo ao calcular, para cada horizonte \(k\), uma combinação ponderada dos estados do codificador. A atenção aditiva de \citeonline{bahdanau2014neural} pode ser resumida pela Equação~\ref{eq:atencao_aditiva}.
+
+\begin{equation}
+\begin{aligned}
+    e_{k,j} &= \mathbf{v}_a^{\top}\tanh(W_s\mathbf{s}_{k-1} + W_h\mathbf{h}_{j} + \mathbf{b}_a),\\
+    \alpha_{k,j} &= \frac{\exp(e_{k,j})}{\sum_{\ell=1}^{L}\exp(e_{k,\ell})},\\
+    \mathbf{c}_k &= \sum_{j=1}^{L}\alpha_{k,j}\mathbf{h}_j.
+\end{aligned}
+\label{eq:atencao_aditiva}
+\end{equation}
+
+Na Equação~\ref{eq:atencao_aditiva}, \(e_{k,j}\) é o escore de atenção entre o horizonte \(k\) e o estado \(j\) do codificador, \(\alpha_{k,j}\) é o peso normalizado correspondente, \(\mathbf{c}_k\) é o contexto usado no horizonte \(k\), \(\mathbf{s}_{k-1}\) é o estado anterior do decodificador, e \(W_s\), \(W_h\), \(\mathbf{v}_a\) e \(\mathbf{b}_a\) são parâmetros aprendidos.
+
+A atualização do decodificador é dada pela Equação~\ref{eq:seq2seq_decoder}.
+
+\begin{equation}
+\begin{aligned}
+    \mathbf{s}_k &= Dec_{\theta}(\mathbf{s}_{k-1}, \tilde{y}_{t+k-1}, \mathbf{z}_{t+k}, \mathbf{c}_k),\\
+    \hat{y}_{t+k} &= g_{\theta}(\mathbf{s}_k, \mathbf{c}_k, \mathbf{z}_{t+k}).
+\end{aligned}
+\label{eq:seq2seq_decoder}
+\end{equation}
+
+Na Equação~\ref{eq:seq2seq_decoder}, \(Dec_{\theta}\) é o decodificador, \(\tilde{y}_{t+k-1}\) é o valor real anterior usado durante treino ou a previsão anterior usada em inferência, \(\mathbf{z}_{t+k}\) representa variáveis conhecidas para o horizonte \(k\), e \(g_{\theta}\) transforma o estado do decodificador na previsão final. Aplicações específicas de Seq2Seq em séries temporais e arquiteturas modernas relacionadas são discutidas no capítulo de trabalhos relacionados; aqui, o objetivo é apenas definir o funcionamento da arquitetura.
 
 \section{\textit{Teacher Forcing} e \textit{Scheduled Sampling}}
+\label{sec:teacher_forcing_scheduled_sampling}
 
-Em modelos com decodificador autoregressivo, o treinamento pode usar \textit{teacher forcing}: em vez de alimentar a previsão anterior do próprio modelo, usa-se o valor observado anterior como entrada do próximo instante. Isso acelera o treinamento, mas cria diferença entre treino e inferência, já que o valor real futuro não está disponível no momento da previsão. \citeonline{bengio2015scheduled} descrevem esse problema como discrepância entre treinamento e inferência, pois o item anterior verdadeiro está disponível no treino, mas é substituído por uma saída gerada pelo próprio modelo na inferência.
+Em um decodificador autoregressivo, a previsão de um passo pode ser usada como entrada para o passo seguinte. Durante o treinamento, porém, o valor real anterior está disponível. \textit{Teacher forcing} é a técnica de alimentar o decodificador com esse valor real anterior, em vez de usar a previsão anterior do próprio modelo. Isso pode acelerar o treinamento, mas cria diferença entre treino e inferência, porque em uso real o valor futuro verdadeiro ainda não é conhecido \cite{bengio2015scheduled}.
 
-Seja \(p_{TF}\) a probabilidade de usar o valor real anterior no decodificador. Em cada horizonte futuro \(k\), pode-se sortear \(b_{i,k}\sim\text{Bernoulli}(p_{TF})\) e definir a entrada autoregressiva como:
+A Figura~\ref{fig:teacher_forcing_regimes} compara três regimes. Na primeira linha, \textit{teacher forcing} usa o valor real anterior. Na segunda, \textit{free running} usa a previsão anterior do próprio modelo. Na terceira, \textit{scheduled sampling} sorteia qual desses dois valores será usado em cada passo do decodificador.
 
-\[
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.98\linewidth]{teacher_forcing_regimes.pdf}
+    \caption[\textit{Teacher forcing} e \textit{scheduled sampling}]{Comparação entre \textit{teacher forcing}, inferência autoregressiva e \textit{scheduled sampling}. O azul indica uso do valor real anterior, o verde indica uso da previsão anterior do próprio modelo e o amarelo indica o sorteio usado pelo \textit{scheduled sampling}. Elaboração própria com base em \citeonline{bengio2015scheduled}.}
+    \label{fig:teacher_forcing_regimes}
+\end{figure}
+
+A probabilidade \(p_{TF}\) representa a chance de usar o valor real anterior durante o treinamento; portanto, \(1-p_{TF}\) representa a chance de usar a previsão anterior do próprio modelo. A Figura~\ref{fig:teacher_forcing_agendas} mostra, de forma esquemática, duas direções de agenda: no \textit{scheduled sampling} clássico, \(p_{TF}\) diminui ao longo do treinamento, aproximando gradualmente o treino da inferência autoregressiva; na agenda crescente, \(p_{TF}\) aumenta, começando com maior exposição às próprias previsões do modelo e terminando com maior uso do valor real anterior. Como o eixo vertical é \(p_{TF}\), o \textit{free running} puro não aparece como uma terceira curva: ele corresponde ao limite \(p_{TF}=0\). De modo análogo, \textit{teacher forcing} puro corresponde ao limite \(p_{TF}=1\).
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.82\linewidth]{teacher_forcing_agendas.pdf}
+    \caption[Agendas de probabilidade de realimentação]{Direções esquemáticas de \(p_{TF}\) no decodificador. A curva azul representa o \textit{scheduled sampling} clássico, com \(p_{TF}\) decrescendo de 1 para 0, e a curva vermelha tracejada representa uma agenda crescente de \textit{teacher forcing}, com \(p_{TF}\) crescendo de 0 para 1. Como o gráfico mostra \(p_{TF}\), o limite \(p_{TF}=0\) corresponde ao \textit{free running} puro, e o limite \(p_{TF}=1\) corresponde ao \textit{teacher forcing} puro. A figura não representa número de épocas, hiperparâmetros ou resultados experimentais deste trabalho. Elaboração própria com base em \citeonline{bengio2015scheduled} e \citeonline{teutsch2022flipped}.}
+    \label{fig:teacher_forcing_agendas}
+\end{figure}
+\FloatBarrier
+
+Uma forma de escrever essa escolha é apresentada na Equação~\ref{eq:teacher_forcing_mix}.
+
+\begin{equation}
     \tilde{y}_{t+k-1}
     =
     b_{i,k}y_{t+k-1}
     +
-    (1-b_{i,k})\hat{y}_{t+k-1}.
-\]
+    (1-b_{i,k})\hat{y}_{t+k-1},
+    \qquad
+    b_{i,k}\sim\text{Bernoulli}(p_{TF})
+    \label{eq:teacher_forcing_mix}
+\end{equation}
 
-Quando \(p_{TF}=1\), o modelo opera em \textit{teacher forcing} puro; quando \(p_{TF}=0\), ele treina de modo equivalente à inferência autoregressiva, sempre realimentando suas próprias previsões. O \textit{scheduled sampling} clássico propõe variar \(p_{TF}\) ao longo do treinamento, geralmente reduzindo essa probabilidade para deslocar gradualmente o decodificador de um regime totalmente guiado para um regime menos guiado e mais próximo da inferência \cite{bengio2015scheduled}.
+Na Equação~\ref{eq:teacher_forcing_mix}, \(p_{TF}\) é a probabilidade de usar o valor real anterior, e \(b_{i,k}\) é uma variável binária sorteada para o exemplo \(i\) e horizonte \(k\). A distribuição de Bernoulli representa um sorteio com dois resultados: 1, quando o valor real \(y_{t+k-1}\) é usado, e 0, quando a previsão anterior \(\hat{y}_{t+k-1}\) é usada. Quando \(p_{TF}=1\), o treino usa \textit{teacher forcing} puro; quando \(p_{TF}=0\), o treino se aproxima da inferência autoregressiva.
 
-Para previsão de séries temporais contínuas, entretanto, há uma motivação adicional para testar a direção oposta. \citeonline{teutsch2022flipped} argumentam que o \textit{scheduled sampling} clássico, herdado de tarefas de processamento de linguagem natural (Natural Language Processing, NLP), pode não ser a estratégia mais adequada para previsão e propõem currículos de \textit{Increasing Teacher Forcing}, denominados \textit{Flipped Classroom}. Nessa família, o treinamento começa mais próximo de \textit{free running}, com baixo \(p_{TF}\), e aumenta gradualmente a presença de \textit{teacher forcing}. Em experimentos com sistemas dinâmicos, os autores relataram ganhos de aproximadamente 15\% a 80\% na raiz do erro quadrático médio normalizado (Normalized Root Mean Squared Error, NRMSE) em previsão multi-horizonte em relação à melhor configuração de referência de \textit{teacher forcing} ou \textit{free running}, embora limitem a conclusão ao escopo experimental avaliado.
+O \textit{scheduled sampling} clássico reduz \(p_{TF}\) ao longo do treinamento para aproximar gradualmente treino e inferência \cite{bengio2015scheduled}. Para séries temporais contínuas, \citeonline{teutsch2022flipped} investigam a direção oposta, chamada \textit{Increasing Teacher Forcing}, na qual o treinamento começa mais próximo de \textit{free running} e aumenta gradualmente \(p_{TF}\). Essa discussão é relevante porque altera o modo como o decodificador aprende a lidar com seus próprios erros ao longo do horizonte.
 
-\clearpage
+\section{Impulsionamento por Gradiente e XGBoost}
+\label{sec:xgboost}
 
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=\linewidth]{teacher_forcing_scheduled_sampling.pdf}
-    \caption[\textit{Teacher forcing}, \textit{scheduled sampling} e agenda crescente]{Comparação entre \textit{teacher forcing}, inferência autoregressiva, \textit{scheduled sampling} clássico e agenda crescente de \textit{teacher forcing}. Elaboração própria com base em \citeonline{bengio2015scheduled} e \citeonline{teutsch2022flipped}.}
-    \label{fig:teacher_forcing_scheduled_sampling}
-\end{figure}
+Impulsionamento, ou \textit{boosting}, é uma estratégia de combinar vários modelos fracos em um preditor aditivo. No impulsionamento por gradiente (\textit{gradient boosting}), novos modelos são ajustados sequencialmente para reduzir erros residuais do conjunto já construído. O \textit{Extreme Gradient Boosting} (XGBoost) é uma implementação eficiente dessa família, com regularização, paralelização e recursos práticos para matrizes de atributos \cite{chen2016xgboost}. Portanto, XGBoost não é uma técnica separada do impulsionamento por gradiente; ele é uma implementação específica e amplamente usada dessa abordagem.
 
-A notação da Figura \ref{fig:teacher_forcing_scheduled_sampling} é importante: \(p_{TF}\) representa a probabilidade de usar o valor real anterior. Assim, uma agenda decrescente de \(p_{TF}\) aumenta o uso das próprias previsões do modelo e corresponde à intuição original do \textit{scheduled sampling}; já uma agenda crescente de \(p_{TF}\) aumenta a dependência de \textit{teacher forcing} e se aproxima da hipótese de \textit{Increasing Teacher Forcing}. Essa distinção evita confundir a direção da agenda de treinamento com a interpretação do regime autoregressivo.
+No contexto deste trabalho, a janela temporal descrita na Seção~\ref{sec:janelas_variaveis_exogenas} é convertida em um vetor de atributos \(\mathbf{u}_i\) para cada exemplo \(i\). Essa conversão não é exclusiva do XGBoost: ela é a forma supervisionada da tarefa. O que caracteriza o XGBoost é o uso de árvores impulsionadas para mapear esse vetor de atributos para uma ou mais saídas futuras.
 
-\clearpage
+No impulsionamento aditivo, a predição após \(K\) árvores pode ser escrita conforme a Equação~\ref{eq:xgboost_aditivo}.
 
-\section{Impulsionamento por Gradiente e Extreme Gradient Boosting (XGBoost)}
+\begin{equation}
+    \hat{y}_i^{(K)} = \sum_{k=1}^{K} f_k(\mathbf{u}_i),
+    \qquad
+    f_k \in \mathcal{F}
+    \label{eq:xgboost_aditivo}
+\end{equation}
 
-Modelos de árvores com impulsionamento (\textit{boosting}) constroem um preditor aditivo por meio de várias árvores fracas, ajustadas sequencialmente para corrigir erros residuais. O \textit{Extreme Gradient Boosting} (XGBoost) é uma implementação eficiente de impulsionamento por gradiente (\textit{gradient boosting}) com regularização, paralelização e recursos práticos para matrizes de atributos \cite{chen2016xgboost}. Neste trabalho, essa matriz representa janelas temporais transformadas em atributos numéricos para uma tarefa supervisionada. Por lidar bem com atributos defasados e variáveis derivadas, o XGBoost é frequentemente usado como modelo de referência para previsão de séries temporais transformadas nesse formato.
+Na Equação~\ref{eq:xgboost_aditivo}, \(\hat{y}_i^{(K)}\) é a previsão do exemplo \(i\) após \(K\) árvores, \(\mathbf{u}_i\) é o vetor de atributos derivado da janela temporal, \(f_k\) é a árvore adicionada na etapa \(k\) e \(\mathcal{F}\) é o conjunto de árvores possíveis. O objetivo regularizado do XGBoost pode ser representado pela Equação~\ref{eq:xgboost_objetivo}.
 
-No impulsionamento aditivo, a predição após $K$ árvores pode ser escrita como:
-
-\[
-    \hat{y}_i^{(K)} = \sum_{k=1}^{K} f_k(\mathbf{u}_i), \quad f_k \in \mathcal{F},
-\]
-
-em que $\mathbf{u}_i$ é o vetor de atributos derivado da janela temporal. O objetivo regularizado do XGBoost pode ser representado por:
-
-\[
+\begin{equation}
     \mathcal{L}^{(K)}
     =
     \sum_i \ell(y_i, \hat{y}_i^{(K)})
     +
     \sum_{k=1}^{K}\Omega(f_k),
-    \quad
-    \Omega(f_k)=\gamma T_k + \frac{1}{2}\lambda\lVert\mathbf{w}_k\rVert_2^2.
-\]
+    \qquad
+    \Omega(f_k)=\gamma T_k + \frac{1}{2}\lambda\lVert\mathbf{w}_k\rVert_2^2
+    \label{eq:xgboost_objetivo}
+\end{equation}
 
-Nessa expressão, $T_k$ é o número de folhas da árvore e $\mathbf{w}_k$ são os pesos das folhas. A regularização penaliza árvores excessivamente complexas e ajuda a controlar sobreajuste. Em problemas multi-horizonte, o XGBoost pode ser combinado com estratégias de saída múltipla para prever todo o horizonte futuro de uma vez; a Figura~\ref{fig:xgboost_multioutput_propria} ilustra essa conversão por janelas.
+Na Equação~\ref{eq:xgboost_objetivo}, \(\ell\) é a função de perda, \(T_k\) é o número de folhas da árvore \(k\), \(\mathbf{w}_k\) são os pesos das folhas, \(\gamma\) penaliza a inclusão de folhas e \(\lambda\) controla a penalização dos pesos. A regularização reduz sobreajuste ao penalizar árvores excessivamente complexas.
+
+A Figura~\ref{fig:xgboost_multioutput_propria} mostra essa leitura para saída múltipla. A janela temporal é vetorizada em atributos derivados de alvo, variáveis exógenas e tempo; esse vetor alimenta árvores impulsionadas; e a saída contém \(H\) previsões, uma para cada horizonte.
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.90\textwidth]{diagrama_xgboost_multioutput_proprio.pdf}
-    \caption{Conversão de uma janela temporal em matriz de atributos para XGBoost com saída múltipla. Elaboração própria com base em \citeonline{chen2016xgboost}.}
+    \caption{Conversão de uma janela temporal em vetor de atributos para XGBoost com saída múltipla. Elaboração própria com base em \citeonline{chen2016xgboost}.}
     \label{fig:xgboost_multioutput_propria}
 \end{figure}
 
-Em aplicações com dados faltantes, a conversão por janelas precisa manter consistência entre as entradas, o horizonte previsto e os critérios de inclusão de alvos observados. Essa decisão afeta a comparabilidade entre modelos baseados em árvores e modelos neurais quando há máscaras ou perdas definidas ponto a ponto.
-
-\section{Treinamento, Função de Perda e Otimização de Hiperparâmetros}
+\section{Treinamento, Perda e Hiperparâmetros}
 \label{sec:otimizacao_hpo}
 
-Parâmetros são aprendidos pelo modelo durante o treinamento; hiperparâmetros, como taxa de aprendizado, número de camadas, tamanho do estado oculto e \textit{dropout}, são definidos antes ou buscados por procedimento externo. Essa busca é chamada de otimização de hiperparâmetros, indicada neste trabalho pela sigla HPO, do inglês \textit{Hyperparameter Optimization}. Redes neurais são frequentemente treinadas com otimizadores baseados em gradiente, como Adam e AdamW \cite{kingma2014adam,loshchilov2019decoupled}, e podem usar monitoramento em validação para seleção de ponto de controle.
+Parâmetros são aprendidos pelo modelo durante o treinamento. Hiperparâmetros, como taxa de aprendizado, número de camadas, tamanho do estado oculto, profundidade de árvores e \textit{dropout}, são definidos antes do treinamento ou buscados por um procedimento externo. Essa busca é chamada de otimização de hiperparâmetros, indicada neste trabalho pela sigla HPO, do inglês \textit{Hyperparameter Optimization}. A dificuldade prática é que muitos hiperparâmetros interagem entre si; por isso, a seleção manual pode ser limitada e pouco rastreável.
 
-A taxa de aprendizado controla o tamanho do passo aplicado aos parâmetros a cada atualização por gradiente. Ela pode ser mantida constante ou seguir uma agenda ao longo das épocas. Uma estratégia comum combina aquecimento linear (\textit{linear warm-up}) e decaimento cosseno: o aquecimento linear aparece em protocolos de treinamento com lotes grandes \cite{goyal2017accurate}, enquanto agendas cossenoidais são discutidas no contexto de reinícios quentes \cite{loshchilov2017sgdr}. Com \(E_w\) épocas de aquecimento, \(E\) épocas máximas, taxa máxima \(\eta_{\max}\) e taxa mínima \(\eta_{\min}\), a forma idealizada é:
+Redes neurais são frequentemente treinadas com otimizadores baseados em gradiente, como Adam e AdamW \cite{kingma2014adam,loshchilov2019decoupled}. A taxa de aprendizado controla o tamanho do passo aplicado aos parâmetros a cada atualização. Ela pode ser constante ou seguir uma agenda ao longo das épocas. Uma estratégia comum combina aquecimento linear (\textit{linear warm-up}) e decaimento cosseno \cite{goyal2017accurate,loshchilov2017sgdr}. Com \(E_w\) épocas de aquecimento, \(E\) épocas máximas, taxa máxima \(\eta_{\max}\) e taxa mínima \(\eta_{\min}\), a forma idealizada é dada pela Equação~\ref{eq:agenda_taxa_aprendizado}.
 
-\[
+\begin{equation}
     \eta_t =
     \begin{cases}
         \eta_{\max}\left(10^{-5} + (1-10^{-5})\frac{t}{E_w}\right), & 0 \leq t \leq E_w,\\
         \eta_{\min} + \frac{1}{2}(\eta_{\max}-\eta_{\min})\left[1+\cos\left(\pi\frac{t-E_w}{E-E_w}\right)\right], & E_w < t \leq E.
     \end{cases}
-\]
+    \label{eq:agenda_taxa_aprendizado}
+\end{equation}
 
-Assim, as primeiras épocas usam passos pequenos e aumentam gradualmente a taxa até \(\eta_{\max}\). Depois do aquecimento, a taxa decai suavemente até \(\eta_{\min}\). Essa variação ocorre por época durante o treinamento. A etapa de validação, por sua vez, não aplica retropropagação nem atualiza os pesos; ela avalia o modelo no fim das épocas e fornece métricas para parada antecipada, escolha de ponto de controle e poda de tentativas na HPO. Portanto, a validação influencia a seleção e a interrupção de treinamentos, mas não ajusta diretamente a taxa de aprendizado como ocorreria em uma agenda dependente da métrica de validação.
+Na Equação~\ref{eq:agenda_taxa_aprendizado}, \(\eta_t\) é a taxa de aprendizado na época \(t\). Durante o aquecimento, a taxa aumenta gradualmente até \(\eta_{\max}\); depois, decai suavemente até \(\eta_{\min}\). A validação não atualiza pesos: ela apenas mede desempenho no fim das épocas e pode orientar parada antecipada, escolha de ponto de controle e poda de tentativas na HPO.
 
-Também são usadas funções de perda robustas ou ponderadas. A perda de Huber combina comportamento quadrático para erros pequenos e linear para erros grandes, reduzindo a sensibilidade a outliers em comparação com o erro quadrático puro \cite{huber1964robust}. Para erro $e=y-\hat{y}$, ela é definida por:
+Também são usadas funções de perda robustas ou ponderadas. A perda de Huber combina comportamento quadrático para erros pequenos e linear para erros grandes, reduzindo a sensibilidade a outliers em comparação com o erro quadrático puro \cite{huber1964robust}. Para erro \(e=y-\hat{y}\), ela é definida pela Equação~\ref{eq:huber}.
 
-\[
+\begin{equation}
     \ell_{\delta}(e)=
     \begin{cases}
         \frac{1}{2}e^2, & \text{se } |e| \leq \delta,\\
         \delta\left(|e|-\frac{1}{2}\delta\right), & \text{caso contrário}.
     \end{cases}
-\]
+    \label{eq:huber}
+\end{equation}
 
-Quando um conjunto de dados contém valores imputados no alvo, a função de perda e as métricas de avaliação podem usar uma máscara \(m_{i,k}\) que vale 1 quando o alvo do exemplo \(i\) e horizonte \(k\) foi observado e 0 quando foi imputado. Essa escolha segue a distinção entre valor observado e valor ausente ou estimado, além do uso de máscaras de observação em métodos de imputação temporal \cite{rubin1976inference,cao2018brits,du2023saits}:
+Na Equação~\ref{eq:huber}, \(\delta\) define o ponto de transição entre o comportamento quadrático e o linear. Quando há valores imputados no alvo, este trabalho pode usar uma máscara \(m_{i,k}\) para calcular perdas apenas nos alvos originalmente observados. A Equação~\ref{eq:perda_mascarada} formaliza essa escolha metodológica.
 
-\[
+\begin{equation}
     \mathcal{J}(\theta)
     =
     \frac{\sum_{i,k}m_{i,k}\ell(y_{i,k}, \hat{y}_{i,k})}
-    {\sum_{i,k}m_{i,k}}.
-\]
+    {\sum_{i,k}m_{i,k}}
+    \label{eq:perda_mascarada}
+\end{equation}
 
-Uma perda absoluta ponderada altera explicitamente o objetivo para atribuir maior peso a determinados regimes de concentração ou tipos de erro:
+Na Equação~\ref{eq:perda_mascarada}, \(m_{i,k}=1\) quando o alvo do exemplo \(i\) no horizonte \(k\) foi observado e \(m_{i,k}=0\) quando foi imputado. Essa escolha segue a decisão do protocolo de não otimizar ou avaliar o modelo como se alvos preenchidos fossem medições reais.
 
-\[
+A Equação~\ref{eq:perda_absoluta_ponderada} mostra uma perda absoluta ponderada, que atribui maior peso a determinados regimes de concentração ou tipos de erro.
+
+\begin{equation}
     \mathcal{J}_{w}(\theta)
     =
     \frac{\sum_{i,k}m_{i,k}w_{i,k}|y_{i,k}-\hat{y}_{i,k}|}
-    {\sum_{i,k}m_{i,k}w_{i,k}}.
-\]
+    {\sum_{i,k}m_{i,k}w_{i,k}}
+    \label{eq:perda_absoluta_ponderada}
+\end{equation}
 
-Essa formulação não é regularização L1 dos parâmetros; é uma perda absoluta ponderada no espaço das previsões. Por isso, eventuais mudanças de comportamento em picos ou cauda devem ser interpretadas como consequência de uma mudança de objetivo, e não como simples ganho arquitetural.
+Na Equação~\ref{eq:perda_absoluta_ponderada}, \(w_{i,k}\) é um peso definido pelo protocolo para o exemplo \(i\) e horizonte \(k\). Essa formulação não é regularização L1 dos parâmetros; é uma perda absoluta ponderada no espaço das previsões.
 
-O Optuna é uma ferramenta para HPO com definição dinâmica de espaços de busca, estratégias de amostragem e poda de tentativas pouco promissoras \cite{akiba2019optuna}. Formalmente, seja $\lambda \in \Lambda$ um vetor de hiperparâmetros no espaço de busca $\Lambda$ e seja $A(D_{treino};\lambda)$ o algoritmo de treinamento com essa configuração. Em uma validação simples, o objetivo da HPO seria selecionar a configuração com menor erro de validação:
+O Optuna é uma ferramenta para HPO com definição dinâmica de espaços de busca, estratégias de amostragem e poda de tentativas pouco promissoras \cite{akiba2019optuna}. Formalmente, seja \(\lambda \in \Lambda\) um vetor de hiperparâmetros no espaço de busca \(\Lambda\), e seja \(A(D_{treino};\lambda)\) o algoritmo de treinamento com essa configuração. Em uma validação simples, o objetivo da HPO seria selecionar a configuração com menor erro de validação, como na Equação~\ref{eq:hpo_objetivo}.
 
-\[
+\begin{equation}
     \lambda^{*}
     =
     \arg\min_{\lambda \in \Lambda}
-    \mathcal{L}_{val}\left(A(D_{treino};\lambda), D_{val}\right).
-\]
+    \mathcal{L}_{val}\left(A(D_{treino};\lambda), D_{val}\right)
+    \label{eq:hpo_objetivo}
+\end{equation}
 
-Em séries temporais, esse termo de validação pode ser substituído pela média das partições temporais, isto é, pela métrica \(\mathcal{L}_{CV}\) da validação \textit{walk-forward}. Assim, a escolha de \(\lambda^{*}\) pode usar várias origens temporais dentro do desenvolvimento, sem consultar uma avaliação final reservada.
-
-No Optuna, cada tentativa, ou \textit{trial}, escolhe um ponto $\lambda$ do espaço de busca, treina o modelo com esse ponto e retorna uma métrica objetivo. O conjunto de tentativas forma um estudo (\textit{study}). A cada tentativa, o amostrador usa o histórico de configurações já avaliadas para propor novos hiperparâmetros. No caso padrão de otimização mono-objetivo, o Optuna usa o \texttt{TPESampler} como amostrador padrão \cite{optunaDocsEfficient2026}. O TPE, ou \textit{Tree-structured Parzen Estimator}, separa os valores de hiperparâmetros associados aos melhores resultados dos demais, ajusta modelos probabilísticos para esses dois grupos e tende a escolher novos valores que maximizem a razão entre regiões promissoras e não promissoras \cite{optunaDocsTPE2026}.
-
-A poda, ou \textit{pruning}, é uma forma de parada antecipada no nível da HPO. Em vez de treinar todas as configurações até o orçamento máximo, o treinamento reporta valores intermediários de validação; o mecanismo de poda decide se uma tentativa deve continuar ou ser interrompida. O \texttt{HyperbandPruner} combina múltiplas instâncias de \textit{Successive Halving}, chamadas de chaves (\textit{brackets}), para distribuir orçamento entre muitas configurações baratas e poucas configurações que recebem mais épocas \cite{li2018hyperband,optunaDocsHyperband2026}. A própria documentação do Optuna apresenta o \texttt{HyperbandPruner} como uma combinação recomendada com \texttt{TPESampler} em resultados de referência para tarefas mono-objetivo \cite{optunaDocsEfficient2026}. Mesmo assim, HPO com orçamento limitado não deve ser interpretada como garantia de ótimo global.
+Em séries temporais, o termo de validação pode ser substituído pela média das partições temporais, isto é, pela métrica \(\mathcal{L}_{CV}\) da validação \textit{walk-forward}. No Optuna, cada tentativa, ou \textit{trial}, escolhe um ponto \(\lambda\), treina o modelo e retorna uma métrica objetivo. O conjunto de tentativas forma um estudo (\textit{study}). O amostrador Tree-structured Parzen Estimator (TPE) separa configurações associadas aos melhores resultados das demais e propõe novos pontos promissores \cite{optunaDocsEfficient2026,optunaDocsTPE2026}. A poda, ou \textit{pruning}, interrompe tentativas pouco promissoras antes do orçamento máximo; o \texttt{HyperbandPruner} combina múltiplas instâncias de \textit{Successive Halving} para distribuir orçamento entre configurações \cite{li2018hyperband,optunaDocsHyperband2026}. Mesmo assim, HPO com orçamento limitado não deve ser interpretada como garantia de ótimo global.
 
 \section{Métricas de Avaliação}
 \label{sec:metricas_avaliacao}
 
-A avaliação de modelos de regressão multi-horizonte deve combinar métricas globais e métricas por horizonte. Métricas como erro médio absoluto (\textit{Mean Absolute Error}, MAE), raiz do erro quadrático médio (\textit{Root Mean Squared Error}, RMSE) e erro percentual médio absoluto (\textit{Mean Absolute Percentage Error}, MAPE) são amplamente usadas para avaliar desempenho preditivo \cite{hyndman2021forecasting}. O MAE mede a magnitude média dos erros e é menos sensível a valores extremos que o erro quadrático:
+A avaliação de modelos de regressão multi-horizonte deve combinar métricas globais e métricas por horizonte. Métricas como erro médio absoluto (\textit{Mean Absolute Error}, MAE), raiz do erro quadrático médio (\textit{Root Mean Squared Error}, RMSE) e erro percentual médio absoluto (\textit{Mean Absolute Percentage Error}, MAPE) são amplamente usadas para avaliar desempenho preditivo \cite{hyndman2021forecasting}. Nesta seção, \(N\) representa o número de previsões avaliadas, \(y_i\) é o valor observado, \(\hat{y}_i\) é o valor previsto e \(\bar{y}\) é a média dos valores observados no conjunto avaliado.
 
-\[
+O MAE mede a magnitude média dos erros e é menos sensível a valores extremos que o erro quadrático, conforme a Equação~\ref{eq:mae}.
+
+\begin{equation}
     \text{MAE}(y, \hat{y}) =
-    \frac{1}{N}\sum_{i=1}^{N}|y_i - \hat{y}_i|.
-\]
+    \frac{1}{N}\sum_{i=1}^{N}|y_i - \hat{y}_i|
+    \label{eq:mae}
+\end{equation}
 
-A raiz do erro quadrático médio (RMSE) penaliza erros grandes com mais intensidade:
+A Equação~\ref{eq:rmse} define a RMSE, que penaliza erros grandes com mais intensidade.
 
-\[
+\begin{equation}
     \text{RMSE}(y, \hat{y}) =
-    \sqrt{\frac{1}{N}\sum_{i=1}^{N}(y_i - \hat{y}_i)^2}.
-\]
+    \sqrt{\frac{1}{N}\sum_{i=1}^{N}(y_i - \hat{y}_i)^2}
+    \label{eq:rmse}
+\end{equation}
 
-O erro percentual médio absoluto (MAPE) expressa o erro relativo em percentual, com cuidado adicional para valores próximos de zero:
+O MAPE expressa o erro relativo em percentual, conforme a Equação~\ref{eq:mape}. Como a divisão depende de \(y_i\), a métrica exige cuidado quando há valores observados iguais ou muito próximos de zero. Nesses casos, MAE e RMSE tendem a ser mais estáveis para a interpretação principal.
 
-\[
+\begin{equation}
     \text{MAPE}(y, \hat{y}) =
-    \frac{100}{N}\sum_{i=1}^{N}\left|\frac{y_i-\hat{y}_i}{|y_i|+\epsilon}\right|.
-\]
+    \frac{100}{N}\sum_{i=1}^{N}\left|\frac{y_i-\hat{y}_i}{y_i}\right|
+    \label{eq:mape}
+\end{equation}
 
-O coeficiente de determinação ($R^2$) compara o erro do modelo com a variância do alvo:
+O coeficiente de determinação, \(R^2\), compara o erro do modelo com a variância do alvo, conforme a Equação~\ref{eq:r2}.
 
-\[
+\begin{equation}
     R^2(y, \hat{y}) =
-    1 - \frac{\sum_{i=1}^{N}(y_i - \hat{y}_i)^2}{\sum_{i=1}^{N}(y_i - \bar{y})^2}.
-\]
+    1 - \frac{\sum_{i=1}^{N}(y_i - \hat{y}_i)^2}{\sum_{i=1}^{N}(y_i - \bar{y})^2}
+    \label{eq:r2}
+\end{equation}
 
-Quando há valores imputados no alvo, as métricas devem ser calculadas apenas sobre os pontos originalmente observados, usando a mesma lógica da máscara \(m_i\). Para o MAE observado, por exemplo:
+Quando há valores imputados no alvo, este trabalho calcula métricas principais sobre os pontos originalmente observados, usando a máscara \(m_i\). Para o MAE observado, por exemplo, usa-se a Equação~\ref{eq:mae_observado}.
 
-\[
+\begin{equation}
     \text{MAE}_{obs}(y, \hat{y}) =
     \frac{\sum_{i=1}^{N}m_i|y_i-\hat{y}_i|}
-    {\sum_{i=1}^{N}m_i}.
-\]
+    {\sum_{i=1}^{N}m_i}
+    \label{eq:mae_observado}
+\end{equation}
 
-O mesmo princípio se aplica a RMSE, MAPE e métricas por horizonte. No caso do \(R^2\), a média \(\bar{y}\) e as somas do numerador e do denominador devem ser calculadas no mesmo subconjunto observado. Isso evita tratar valores imputados como verdade de referência e mantém a avaliação vinculada às medições efetivamente observadas \cite{rubin1976inference,cao2018brits,du2023saits}.
+Na Equação~\ref{eq:mae_observado}, \(m_i=1\) indica que o alvo foi originalmente observado, e \(m_i=0\) indica que ele foi preenchido por imputação. O mesmo princípio pode ser aplicado a RMSE e \(R^2\), sempre calculando médias e somas no mesmo subconjunto observado. Essa decisão mantém a avaliação vinculada às medições efetivamente observadas e evita tratar valores preenchidos como verdade de referência.
 
-Além dessas métricas globais, análises por horizonte, viés médio, percentis altos previstos e erro em eventos de maior concentração podem complementar a avaliação. Essa combinação é necessária porque um modelo pode vencer em erro médio e ainda produzir curvas excessivamente suavizadas, subestimando picos relevantes para a interpretação ambiental.
+Métricas por horizonte analisam separadamente cada passo previsto. Para um horizonte específico \(h\), com \(h=1,\ldots,H\), o MAE por horizonte pode ser escrito como na Equação~\ref{eq:mae_horizonte}.
 
-\clearpage
+\begin{equation}
+    \text{MAE}_{h} =
+    \frac{1}{N_h}\sum_{i=1}^{N_h}|y_{i,h}-\hat{y}_{i,h}|
+    \label{eq:mae_horizonte}
+\end{equation}
 
-\section{Resumo do Capítulo}
-
-Este capítulo definiu a base teórica do estudo: PM2,5 como série temporal ambiental, componentes temporais, autocorrelação, previsão multi-horizonte, tratamento de dados faltantes sem vazamento, janelas supervisionadas, variáveis exógenas disponíveis no momento da previsão, redes neurais artificiais, aprendizado profundo, LSTM, Seq2Seq com atenção, \textit{scheduled sampling}, XGBoost, HPO e métricas. A formulação matemática deixa explícita a distinção entre arquiteturas recorrentes, codificador-decodificador e modelos baseados em árvores, preparando a metodologia comparativa dos capítulos seguintes.
+Na Equação~\ref{eq:mae_horizonte}, \(N_h\) é o número de previsões avaliadas no horizonte \(h\), \(y_{i,h}\) é o valor observado do exemplo \(i\) nesse horizonte e \(\hat{y}_{i,h}\) é a previsão correspondente. Essa análise mostra se o erro cresce com a distância temporal da previsão e evita que uma média global esconda degradações nos últimos passos. Viés médio, percentis altos previstos e erro em eventos de maior concentração podem complementar a avaliação de picos.

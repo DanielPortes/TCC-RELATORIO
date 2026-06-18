@@ -126,69 +126,6 @@ def group(ax, x, y, w, h, title, color):
     return patch
 
 
-def draw_lstm():
-    fig, ax = setup_ax(15.8, 7.6)
-
-    def op_circle(x, y, text, ec=COLORS["line"], fc=COLORS["white"], fs=11):
-        ax.add_patch(Circle((x, y), 2.05, facecolor=fc, edgecolor=ec, linewidth=1.5))
-        label(ax, x, y, text, fs=fs, weight="bold", color=ec)
-
-    label(ax, 50, 95, "Célula LSTM: portas, memória e estado oculto", fs=17, weight="bold")
-    label(ax, 50, 90, "Fluxo clássico no instante t para entrada x_t, memória c_t e estado h_t", fs=10, color=COLORS["muted"])
-
-    group(ax, 3, 18, 18, 64, "Entradas", COLORS["blue"])
-    box(ax, 6.2, 66, 11.5, 8.5, "$c_{t-1}$\nmemória", COLORS["blue_light"], COLORS["blue"], fs=10.2, weight="bold")
-    box(ax, 6.2, 45, 11.5, 8.5, "$x_t$\natributos", COLORS["blue_light"], COLORS["blue"], fs=10.2, weight="bold")
-    box(ax, 6.2, 25, 11.5, 8.5, "$h_{t-1}$\nestado", COLORS["blue_light"], COLORS["blue"], fs=10.2, weight="bold")
-
-    group(ax, 24, 13, 56, 73, "Transformações internas", COLORS["violet"])
-    box(ax, 28, 46, 11.5, 9.5, "$[x_t;h_{t-1}]$\nconcat", COLORS["slate_light"], COLORS["line"], fs=10, weight="bold")
-    label(ax, 33.8, 41, "entrada comum\ndas portas", fs=8.8, color=COLORS["muted"])
-
-    gates = [
-        ("$f_t=\\sigma(\\cdot)$\nesquecer", COLORS["red_light"], COLORS["red"], 70),
-        ("$i_t=\\sigma(\\cdot)$\nentrada", COLORS["green_light"], COLORS["green"], 57),
-        ("$\\tilde{c}_t=\\tanh(\\cdot)$\ncandidato", COLORS["amber_light"], COLORS["amber"], 44),
-        ("$o_t=\\sigma(\\cdot)$\nsaída", COLORS["violet_light"], COLORS["violet"], 31),
-    ]
-    for text, fc, ec, y in gates:
-        box(ax, 43, y - 4.2, 15.8, 8.4, text, fc, ec, fs=9.2, weight="bold")
-        arrow(ax, (39.5, 50.8), (43, y), COLORS["blue"], lw=1.5)
-
-    op_circle(64.5, 71, "$\\odot$", COLORS["red"], COLORS["red_light"])
-    op_circle(64.5, 50, "$\\odot$", COLORS["green"], COLORS["green_light"])
-    op_circle(71, 64, "$+$", COLORS["line"], COLORS["slate_light"], fs=12)
-    box(ax, 71.7, 42, 9.8, 8, "$\\tanh(c_t)$", COLORS["slate_light"], COLORS["line"], fs=9.4, weight="bold")
-    op_circle(75, 32, "$\\odot$", COLORS["violet"], COLORS["violet_light"])
-
-    arrow(ax, (17.7, 49.2), (28, 51.5), COLORS["blue"], lw=1.8, rad=-0.02)
-    arrow(ax, (17.7, 29.2), (28, 48.8), COLORS["blue"], lw=1.8, rad=0.08)
-
-    ax.plot([17.7, 32, 62.2], [70.2, 78, 78], color=COLORS["line"], linewidth=2.0)
-    arrow(ax, (62.2, 78), (64.0, 73.1), COLORS["line"], lw=2.0)
-    label(ax, 42, 74.5, "memória anterior", fs=8.8, color=COLORS["muted"])
-
-    arrow(ax, (58.8, 70), (62.5, 71), COLORS["red"], lw=1.9)
-    arrow(ax, (58.8, 57), (62.5, 50.7), COLORS["green"], lw=1.8, rad=-0.05)
-    arrow(ax, (58.8, 44), (62.5, 49.3), COLORS["amber"], lw=1.8, rad=0.05)
-    arrow(ax, (66.4, 70.6), (69, 65.2), COLORS["line"], lw=1.8)
-    arrow(ax, (66.4, 50), (69, 62.9), COLORS["line"], lw=1.8, rad=0.08)
-    arrow(ax, (58.8, 31), (72.9, 32), COLORS["violet"], lw=1.9, rad=-0.04)
-
-    ax.plot([73.1, 84], [64, 64], color=COLORS["green"], linewidth=2.0)
-    arrow(ax, (71, 64), (72.9, 45.5), COLORS["line"], lw=1.8)
-    arrow(ax, (76.6, 42), (75.5, 34.1), COLORS["line"], lw=1.8)
-
-    group(ax, 84, 18, 13, 64, "Saídas", COLORS["green"])
-    box(ax, 86.2, 59.5, 8.5, 8.5, "$c_t$\nmemória", COLORS["green_light"], COLORS["green"], fs=9.7, weight="bold")
-    box(ax, 86.2, 27.5, 8.5, 8.5, "$h_t$\nestado", COLORS["green_light"], COLORS["green"], fs=9.7, weight="bold")
-    arrow(ax, (84, 64), (86.2, 63.8), COLORS["green"], lw=2.0)
-    arrow(ax, (77.0, 32), (86.2, 31.8), COLORS["green"], lw=2.0)
-
-    label(ax, 50, 7, "As portas σ controlam esquecimento, entrada e saída; tanh gera candidato e exposição da memória.", fs=9.6, color=COLORS["muted"])
-    save(fig, "diagrama_lstm_proprio")
-
-
 def draw_seq2seq_attention():
     fig, ax = setup_ax(15.4, 7.7)
 
@@ -268,8 +205,8 @@ def draw_tree(ax, x, y, scale=1.0, color=None):
 def draw_xgboost():
     fig, ax = setup_ax(15.4, 6.4)
 
-    label(ax, 50, 94, "XGBoost com saída múltipla: série temporal como matriz supervisionada", fs=16.5, weight="bold")
-    label(ax, 50, 89, "Uma janela com L instantes é transformada em vetor tabular; a saída contém H previsões", fs=10, color=COLORS["muted"])
+    label(ax, 50, 94, "XGBoost com saída múltipla: janela temporal supervisionada", fs=16.5, weight="bold")
+    label(ax, 50, 89, "Uma janela com L instantes é transformada em vetor de atributos; a saída contém H previsões", fs=10, color=COLORS["muted"])
 
     group(ax, 3, 18, 26, 62, "Janela temporal com L instantes", COLORS["blue"])
     table_x, table_y = 5.4, 33
@@ -288,7 +225,7 @@ def draw_xgboost():
     arrow(ax, (29, 49), (36, 49), COLORS["line"], lw=2.4)
     label(ax, 32.4, 55, "vetorização +\natributos", fs=9, color=COLORS["muted"])
 
-    group(ax, 36, 18, 23, 62, "Vetor tabular", COLORS["violet"])
+    group(ax, 36, 18, 23, 62, "Vetor de atributos", COLORS["violet"])
     for idx, y in enumerate([62, 53, 44, 35]):
         box(ax, 41.5, y, 12, 6.5, f"$u_{{i,{idx+1}}}$", COLORS["violet_light"], COLORS["violet"], fs=11, weight="bold")
     label(ax, 47.5, 28, "$\\mathbf{u}_i \\in \\mathbb{R}^{p}$", fs=12, weight="bold", color=COLORS["violet"])
@@ -320,6 +257,5 @@ def draw_xgboost():
 
 if __name__ == "__main__":
     FIG_DIR.mkdir(parents=True, exist_ok=True)
-    draw_lstm()
     draw_seq2seq_attention()
     draw_xgboost()

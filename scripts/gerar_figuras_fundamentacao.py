@@ -7,7 +7,6 @@ import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from matplotlib.gridspec import GridSpec
 from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
 
 
@@ -213,92 +212,100 @@ def draw_time_series_components() -> None:
 
 
 def draw_teacher_forcing_scheduled_sampling() -> None:
-    fig = plt.figure(figsize=(13.0, 7.1))
-    gs = GridSpec(1, 2, figure=fig, width_ratios=[1.52, 1.0], wspace=0.22)
-    ax = fig.add_subplot(gs[0, 0])
-    ax_curve = fig.add_subplot(gs[0, 1])
+    fig, ax = plt.subplots(figsize=(11.4, 4.7))
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.axis("off")
 
     ax.text(
         0.5,
-        0.97,
-        "Técnicas de realimentação no treinamento",
+        0.965,
+        "Regimes de realimentação no decodificador",
         ha="center",
         va="top",
-        fontsize=14.5,
+        fontsize=14.0,
         weight="bold",
         color=COLORS["ink"],
     )
     ax.text(
         0.5,
-        0.92,
-        "A diferença está no valor realimentado para o próximo instante do decodificador",
+        0.905,
+        "A diferença entre os regimes está no valor usado como entrada do próximo passo",
         ha="center",
         va="top",
         fontsize=9.8,
         color=COLORS["muted"],
     )
 
+    headers = [
+        (0.085, "regime"),
+        (0.365, "entrada realimentada"),
+        (0.635, "decodificador"),
+        (0.865, "saída"),
+    ]
+    for x, label in headers:
+        ax.text(x, 0.82, label, ha="center", va="center", fontsize=9.4, color=COLORS["muted"], weight="bold")
+
     rows = [
-        (0.72, r"$\it{teacher\ forcing}$", "$y_{t+k-1}$\nvalor real", COLORS["blue_light"], COLORS["blue"]),
-        (0.47, r"$\it{free\ running}$", "$\\hat{y}_{t+k-1}$\npredição", COLORS["green_light"], COLORS["green"]),
-        (0.22, "$\\it{scheduled}$\n$\\it{sampling}$", "sorteio\n$u \\sim U(0,1)$", COLORS["amber_light"], COLORS["amber"]),
+        (0.66, r"$\it{teacher\ forcing}$", "$y_{t+k-1}$\nvalor real", COLORS["blue_light"], COLORS["blue"]),
+        (0.46, r"$\it{free\ running}$", "$\\hat{y}_{t+k-1}$\npredição", COLORS["green_light"], COLORS["green"]),
     ]
     for y, title, left_text, fc, ec in rows:
-        ax.text(0.02, y + 0.065, title, ha="left", va="center", fontsize=11.2, weight="bold", color=ec, linespacing=1.0)
-        _box(ax, 0.28, y, 0.16, 0.12, left_text, fc, ec, fs=10.0, weight="bold")
-        _arrow(ax, (0.44, y + 0.06), (0.54, y + 0.06), COLORS["line"])
-        _box(ax, 0.54, y, 0.16, 0.12, "Decodificador\n$Dec_\\theta$", COLORS["slate_light"], COLORS["line"], fs=10.0, weight="bold")
-        _arrow(ax, (0.70, y + 0.06), (0.81, y + 0.06), COLORS["line"])
-        _box(ax, 0.81, y, 0.13, 0.12, "$\\hat{y}_{t+k}$\nsaída", COLORS["violet_light"], COLORS["violet"], fs=10.0, weight="bold")
+        ax.text(0.085, y + 0.055, title, ha="center", va="center", fontsize=11.0, weight="bold", color=ec, linespacing=1.0)
+        _box(ax, 0.255, y, 0.22, 0.11, left_text, fc, ec, fs=10.1, weight="bold")
+        _arrow(ax, (0.475, y + 0.055), (0.545, y + 0.055), COLORS["line"], lw=1.5)
+        _box(ax, 0.545, y, 0.18, 0.11, "Decodificador\n$Dec_\\theta$", COLORS["slate_light"], COLORS["line"], fs=10.0, weight="bold")
+        _arrow(ax, (0.725, y + 0.055), (0.795, y + 0.055), COLORS["line"], lw=1.5)
+        _box(ax, 0.795, y, 0.14, 0.11, "$\\hat{y}_{t+k}$\nsaída", COLORS["violet_light"], COLORS["violet"], fs=10.1, weight="bold")
 
-    _box(ax, 0.18, 0.13, 0.22, 0.07, "se $u < p_{TF}$:\nusa valor real", COLORS["blue_light"], COLORS["blue"], fs=8.8)
-    _box(ax, 0.43, 0.13, 0.24, 0.07, "caso contrário:\nusa predição", COLORS["green_light"], COLORS["green"], fs=8.8)
-    _arrow(ax, (0.29, 0.20), (0.34, 0.22), COLORS["amber"], lw=1.4, rad=0.08)
-    _arrow(ax, (0.55, 0.20), (0.38, 0.22), COLORS["amber"], lw=1.4, rad=-0.12)
+    y = 0.235
+    ax.text(0.085, y + 0.07, "$\\it{scheduled}$\n$\\it{sampling}$", ha="center", va="center", fontsize=11.0, weight="bold", color=COLORS["amber"], linespacing=0.95)
+    _box(ax, 0.245, y, 0.24, 0.14, "sorteio $u\\sim U(0,1)$\n$u<p_{TF}$: valor real\n$u\\geq p_{TF}$: predição", COLORS["amber_light"], COLORS["amber"], fs=8.7, weight="bold")
+    _arrow(ax, (0.485, y + 0.07), (0.545, y + 0.07), COLORS["line"], lw=1.5)
+    _box(ax, 0.545, y + 0.01, 0.18, 0.12, "Decodificador\n$Dec_\\theta$", COLORS["slate_light"], COLORS["line"], fs=10.0, weight="bold")
+    _arrow(ax, (0.725, y + 0.07), (0.795, y + 0.07), COLORS["line"], lw=1.5)
+    _box(ax, 0.795, y + 0.01, 0.14, 0.12, "$\\hat{y}_{t+k}$\nsaída", COLORS["violet_light"], COLORS["violet"], fs=10.1, weight="bold")
 
-    ax.text(
-        0.5,
-        0.055,
-        "$p_{TF}=1$ usa valor real; $p_{TF}=0$ equivale a treino igual à inferência autoregressiva.",
-        ha="center",
-        va="center",
-        fontsize=9.7,
-        color=COLORS["muted"],
-    )
+    ax.plot([0.225, 0.35], [0.18, 0.18], color=COLORS["blue"], linewidth=3.0, solid_capstyle="round")
+    ax.text(0.36, 0.18, "$p_{TF}$: usa valor real", ha="left", va="center", fontsize=9.2, color=COLORS["muted"])
+    ax.plot([0.57, 0.695], [0.18, 0.18], color=COLORS["green"], linewidth=3.0, solid_capstyle="round")
+    ax.text(0.705, 0.18, "$1-p_{TF}$: usa predição", ha="left", va="center", fontsize=9.2, color=COLORS["muted"])
 
-    epochs = np.arange(0, 21)
-    p_tf_original = np.maximum(0.2, 1.0 - 0.04 * epochs)
-    p_model = 1.0 - p_tf_original
-    p_tf_increase = np.minimum(1.0, 0.05 * epochs)
-    ax_curve.plot(epochs, p_tf_original, color=COLORS["blue"], linewidth=2.4, label="$p_{TF}$ decrescente")
-    ax_curve.plot(epochs, p_model, color=COLORS["green"], linewidth=2.4, label="$1-p_{TF}$")
+    ax.text(0.5, 0.075, "$p_{TF}=1$ resulta em valor real sempre; $p_{TF}=0$ resulta em treino igual à inferência autoregressiva.", ha="center", va="center", fontsize=9.2, color=COLORS["muted"])
+    _save(fig, "teacher_forcing_regimes")
+
+    fig_curve, ax_curve = plt.subplots(figsize=(8.4, 5.2))
+    progress = np.linspace(0.0, 1.0, 200)
+    p_tf_decrease = 1.0 - progress
+    p_tf_increase = progress
     ax_curve.plot(
-        epochs,
+        progress,
+        p_tf_decrease,
+        color=COLORS["blue"],
+        linewidth=2.6,
+        label="$p_{TF}$ decrescente ($1\\to0$)",
+    )
+    ax_curve.plot(
+        progress,
         p_tf_increase,
         color=COLORS["red"],
-        linewidth=1.9,
+        linewidth=2.2,
         linestyle="--",
-        label="$p_{TF}$ crescente (ITF)",
+        label="$p_{TF}$ crescente ($0\\to1$)",
     )
-    ax_curve.set_title("Agendas de probabilidade", fontsize=13, weight="bold")
-    ax_curve.set_xlabel("Época de treinamento")
-    ax_curve.set_ylabel("Probabilidade")
-    ax_curve.set_ylim(-0.03, 1.03)
-    ax_curve.set_xlim(epochs.min(), epochs.max())
+    ax_curve.set_title("Direções conceituais de $p_{TF}$", fontsize=13.5, weight="bold")
+    ax_curve.set_xlabel("Progresso do treinamento")
+    ax_curve.set_ylabel("$p_{TF}$: probabilidade de usar o valor real")
+    ax_curve.set_ylim(0.0, 1.0)
+    ax_curve.set_xlim(0.0, 1.0)
+    ax_curve.set_xticks([0.0, 1.0])
+    ax_curve.set_xticklabels(["início", "fim"])
+    ax_curve.set_yticks([0.0, 1.0])
+    ax_curve.set_yticklabels(["0", "1"])
     ax_curve.grid(alpha=0.25)
-    ax_curve.legend(frameon=False, loc="center right")
-    ax_curve.text(
-        0.03,
-        0.05,
-        "Bengio: $p_{TF}$ diminui.\nITF: $p_{TF}$ aumenta.",
-        transform=ax_curve.transAxes,
-        fontsize=9,
-        color=COLORS["muted"],
-    )
-    _save(fig, "teacher_forcing_scheduled_sampling")
+    ax_curve.legend(frameon=True, facecolor=COLORS["white"], framealpha=0.92, edgecolor="#cbd5e1", loc="upper center", bbox_to_anchor=(0.5, -0.17), ncol=2)
+    fig_curve.subplots_adjust(bottom=0.28)
+    _save(fig_curve, "teacher_forcing_agendas")
 
 
 def draw_walk_forward_validation() -> None:

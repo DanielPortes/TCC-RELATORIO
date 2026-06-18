@@ -83,6 +83,6 @@ Esta matriz conecta cada referência ao ponto do texto que ela sustenta. A revis
 - Referencias de blogs ou paginas didaticas (`olah2015understanding`, `alammar2018visualizing`, `aprilliant2021walkforward`) foram removidas da bibliografia final porque as figuras antigas deixaram de ser usadas.
 - As entradas de XGBoost, Optuna, Huber e trabalhos recentes de PM2.5 foram adicionadas em `referencias.bib`; as citações finais foram conferidas e as chaves não usadas foram removidas.
 - A defesa do Seq2Seq foi reforçada com surveys e trabalhos de multi-horizon forecasting, mas o texto evita afirmar SOTA universal; a formulação correta é que Seq2Seq é uma família bem fundamentada e competitiva para tarefas sequência-para-sequência/multi-horizonte.
-- As figuras conceituais de LSTM, Seq2Seq com atenção e XGBoost foram geradas como elaboração própria; as citações nas legendas indicam a base teórica, não reaproveitamento de figuras externas.
+- As figuras conceituais de neurônio artificial e célula LSTM no capítulo 2 usam referências visuais externas citadas (`chrislb2006artificialNeuronModel` e `fdeloche2017lstmCell`); as figuras de Seq2Seq com atenção e XGBoost seguem como elaboração própria baseada na literatura citada.
 - Transformers foram reconhecidos como linha moderna relevante, mas ficaram fora do escopo experimental final por exigirem HPO próprio, validação comparável e nova bateria multi-seed.
 - Os pesos de atenção foram analisados como diagnóstico interpretativo limitado; o texto evita tratar atenção como explicação causal completa.

@@ -99,7 +99,7 @@ Este manifesto registra quais artefatos podem sustentar a escrita final do TCC. 
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
 | `lstm_direct_clean_pm10_final_seed_42` | ver `final_model_seed42_ranking.csv` | 2.7713 | 3.8346 | 23.01 | 0.5154 | 2.6725 | 2.8670 | 13.6112 | 28.57 | Vencedor por MAE no seed canonico. |
 | `seq2seq_attention_new_clean_pm10_final_seed_42` | ver `final_model_seed42_ranking.csv` | 2.8132 | 3.8799 | 23.23 | 0.5039 | 2.6222 | 2.9138 | 11.0815 | 32.50 | Melhor compromisso para picos; substitui `weighted_l1` antigo. |
-| `xgboost_clean_pm10_final_seed_42` | ver `final_model_seed42_ranking.csv` | 2.8786 | 3.9793 | 23.80 | 0.4781 | 2.5618 | 3.0273 | 12.2583 | 30.73 | Baseline tabular forte; melhor H1. |
+| `xgboost_clean_pm10_final_seed_42` | ver `final_model_seed42_ranking.csv` | 2.8786 | 3.9793 | 23.80 | 0.4781 | 2.5618 | 3.0273 | 12.2583 | 30.73 | Referência baseada em árvores; melhor H1. |
 | `seq2seq_attention_canonical_clean_pm10_final_seed_42` | ver `final_model_seed42_ranking.csv` | 2.8811 | 3.9859 | 23.79 | 0.4764 | 2.7155 | 2.9743 | 14.7027 | 29.13 | Referencia Seq2Seq attention canônica. |
 | `lstm_recursive_clean_pm10_final_seed_42` | ver `final_model_seed42_ranking.csv` | 2.8876 | 3.8380 | 24.39 | 0.5146 | 2.7380 | 3.1492 | 12.0392 | 30.49 | Melhor RMSE/R2 medio multi-seed, mas MAE e vies piores. |
 | `seq2seq_basic_clean_pm10_final_seed_42` | ver `final_model_seed42_ranking.csv` | 2.9553 | 4.0967 | 23.99 | 0.4469 | 2.6519 | 3.1514 | 12.9806 | 30.65 | Linha de base encoder-decoder sem atencao. |
@@ -132,9 +132,12 @@ Este manifesto registra quais artefatos podem sustentar a escrita final do TCC. 
 | `figuras/eda_sapo_distribuicao_pm25.pdf` / `.png` | Artefato `clean_pm10_decoder_proxy`; fonte em `scripts/gerar_figuras_eda_sapo.py`. | Capitulo 4, distribuicao observada e eventos altos por split. |
 | `figuras/erro_por_horizonte_sapo.png` / `.pdf` | `per_horizon_metrics.csv` dos modelos da suite final 2026-05-22; fonte em `scripts/gerar_figuras_eda_sapo.py`. | Capitulo 5, MAE por horizonte. |
 | `figuras/predito_observado_pico_sapo.png` / `.pdf` | `test_predictions_timeline.csv` dos modelos seed 42 da suite final 2026-05-22; fonte em `scripts/gerar_figuras_eda_sapo.py`. | Capitulo 5, suavizacao e evento alto em paineis por modelo. |
-| `figuras/diagrama_lstm_proprio.pdf` / `.png` | Elaboracao propria redesenhada com base na formulacao da LSTM; fonte em `scripts/gerar_diagramas_modelos.py`. | Capitulo 2, celula LSTM e portoes. |
+| `figuras/artificial_neuron_model_chrislb_wikimedia.png` | Imagem do modelo de neurônio artificial de Chrislb no Wikimedia Commons, citada em `referencias.bib`. | Capitulo 2, analogia entre neuronio biologico e artificial. |
+| `figuras/lstm_fdeloche_wikimedia.png` | Imagem da celula LSTM de fdeloche no Wikimedia Commons, citada em `referencias.bib`. | Capitulo 2, celula LSTM e portoes. |
 | `figuras/diagrama_seq2seq_attention_proprio.pdf` / `.png` | Elaboracao propria redesenhada com base em Seq2Seq e mecanismos de atencao; fonte em `scripts/gerar_diagramas_modelos.py`. | Capitulo 2, encoder-decoder com atencao para tarefa 48 -> 24. |
-| `figuras/diagrama_xgboost_multioutput_proprio.pdf` / `.png` | Elaboracao propria redesenhada com base no baseline XGBoost multi-output; fonte em `scripts/gerar_diagramas_modelos.py`. | Capitulo 2, conversao de janela temporal para matriz tabular. |
+| `figuras/teacher_forcing_regimes.pdf` / `.png` | Elaboracao propria gerada por `scripts/gerar_figuras_fundamentacao.py`, com base em Bengio et al. (2015). | Capitulo 2, regimes de realimentacao no decodificador. |
+| `figuras/teacher_forcing_agendas.pdf` / `.png` | Elaboracao propria gerada por `scripts/gerar_figuras_fundamentacao.py`, com base em Bengio et al. (2015) e Teutsch e Mäder (2022). | Capitulo 2, direcoes esquematicas de agenda de teacher forcing; nao representa hiperparametros ou resultados do experimento. |
+| `figuras/diagrama_xgboost_multioutput_proprio.pdf` / `.png` | Elaboracao propria redesenhada com base no XGBoost multi-output; fonte em `scripts/gerar_diagramas_modelos.py`. | Capitulo 2, conversao de janela temporal para vetor de atributos. |
 | `figuras/perfil_medio_atencao_seq2seq.pdf` / `.png` | Pesos de atencao extraidos dos checkpoints anteriores; fonte em `scripts/gerar_figuras_atencao.py`. | Figura auxiliar historica; nao sustenta a conclusao final do novo Seq2Seq. |
 | `figuras/heatmap_medio_atencao_weighted_l1.pdf` / `.png` | Pesos de atencao extraidos do checkpoint `weighted_l1_hpo_mae`; fonte em `scripts/gerar_figuras_atencao.py`. | Figura auxiliar historica; removida da narrativa principal atualizada. |
 | `figuras/diagnosticos_atencao_seq2seq.pdf` / `.png` | Diagnosticos agregados dos pesos de atencao; fonte em `scripts/gerar_figuras_atencao.py`. | Figura auxiliar; a conclusao final usa metricas de erro, cauda e eventos. |
@@ -144,7 +147,7 @@ Este manifesto registra quais artefatos podem sustentar a escrita final do TCC. 
 - A tabela principal do TCC deve usar `runtime/reports/sapo_final_new_seq2seq_suite_20260522/final_model_seed42_ranking.csv`.
 - A tabela multi-seed deve usar `runtime/reports/sapo_final_new_seq2seq_suite_20260522/final_model_aggregate.csv`.
 - O benchmark `sapo_70_15_15_4dl_xgb_multi_resume_20260507_215828` deve ser rotulado como historico, sem HPO e sem declarar vencedor final.
-- O XGBoost pode ser comparado como baseline tabular forte, com a ressalva de que o treinamento multi-output exige janelas com horizonte completo observado.
+- O XGBoost pode ser comparado como referência baseada em árvores, com a ressalva de que o treinamento multi-output exige janelas com horizonte completo observado.
 - `weighted_l1` deve ser descrito como funcao de perda ponderada por regime/erro, nao como regularizacao L1; no texto final, ela entra dentro da nova variante Seq2Seq, nao como modelo final separado.
 - Blends devem ser apresentados como combinacoes de predicoes, nao como modelos individuais.
 - Figuras finais foram selecionadas/exportadas e registradas neste manifesto.

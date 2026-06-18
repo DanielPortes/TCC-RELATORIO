@@ -15,7 +15,7 @@ Esta seção tem prioridade sobre textos antigos do relatório. O projeto evolui
 | Melhor modelo por MAE no seed canônico | `cv_hpo_lstm_direct_clean_pm10` |
 | Melhor modelo por MAE médio multi-seed | `cv_hpo_lstm_direct_clean_pm10` |
 | Melhor RMSE/R2 médio multi-seed | `cv_hpo_lstm_recursive_clean_pm10`, com viés positivo |
-| Melhor baseline tabular final | `cv_hpo_xgboost_clean_pm10` |
+| Melhor referência baseada em árvores | `cv_hpo_xgboost_clean_pm10` |
 | Melhor Seq2Seq attention final | `cv_hpo_weighted_l1_clean_pm10` |
 | Melhor variante para picos/cauda, não MAE global | LSTM recursiva e Seq2Seq weighted L1 |
 
@@ -25,7 +25,7 @@ Números principais atuais no dataset `clean_pm10_decoder_proxy`:
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
 | `cv_hpo_lstm_direct_clean_pm10` | 2.7713 | 3.8346 | 0.5154 | 23.01 | 13.6112 | 28.57 | Vencedor por MAE no seed canônico. |
 | `cv_hpo_weighted_l1_clean_pm10` | 2.8658 | 3.9641 | 0.4821 | 23.90 | 12.3697 | 31.57 | Melhor Seq2Seq final; melhora cauda, não vence MAE. |
-| `cv_hpo_xgboost_clean_pm10` | 2.8786 | 3.9793 | 0.4781 | 23.80 | 12.2583 | 30.73 | Baseline tabular forte; melhor H1. |
+| `cv_hpo_xgboost_clean_pm10` | 2.8786 | 3.9793 | 0.4781 | 23.80 | 12.2583 | 30.73 | Referência baseada em árvores; melhor H1. |
 | `cv_hpo_lstm_recursive_clean_pm10` | 2.8876 | 3.8380 | 0.5146 | 24.39 | 12.0392 | 30.49 | Bom em RMSE/R2 e picos, mas com MAE e viés piores. |
 
 Leitura obrigatória dos plots contra métricas:
@@ -121,7 +121,7 @@ Escopo oficial:
 | Imputação do contrato atual | `linear`, com alvo imputado excluído de loss/métricas observadas |
 | Feature set principal | `clean_pm10_decoder_proxy` |
 | Modelos DL principais | `lstm_recursive`, `lstm_direct`, `seq2seq_basic`, `seq2seq_attention` |
-| Baseline tabular | XGBoost `multi_output_tree` |
+| Referência baseada em árvores | XGBoost `multi_output_tree` |
 | Busca de hiperparâmetros no resultado atual | ativada para DL e XGBoost |
 | Seleção de checkpoint | validação, preferencialmente `val/mae` ou métrica explicitamente justificada |
 | Avaliação final | métricas no holdout de teste |
@@ -142,7 +142,7 @@ Esses elementos devem ser removidos do núcleo do relatório ou rebaixados a his
 2. o trabalho fixa um protocolo temporal comparável para a estação Sapo;
 3. diferentes famílias de modelos são avaliadas sob o mesmo contrato de dados;
 4. ablações metodológicas explicam decisões de imputação, features, treino e desenho do Seq2Seq;
-5. os resultados são discutidos com honestidade, separando o vencedor global por erro médio, o baseline tabular forte e o comportamento em picos/cauda.
+5. os resultados são discutidos com honestidade, separando o vencedor global por erro médio, a referência baseada em árvores e o comportamento em picos/cauda.
 
 ## 3. Fontes de Verdade
 
@@ -198,7 +198,7 @@ A tabela principal do TCC deve partir do contrato `clean_pm10_decoder_proxy` com
 Esses valores devem ser conferidos diretamente no CSV oficial no momento da escrita final. A interpretação esperada é:
 
 - `cv_hpo_lstm_direct_clean_pm10` é o vencedor atual por MAE no seed canônico e na média multi-seed;
-- XGBoost continua sendo baseline tabular forte, mas o HPO walk-forward final dele teve apenas quatro trials completos;
+- XGBoost continua sendo referência baseada em árvores, mas o HPO walk-forward final dele teve apenas quatro trials completos;
 - `cv_hpo_weighted_l1_clean_pm10` fica competitivo e melhora amplitude/picos, mas abaixo da LSTM direta em MAE;
 - `cv_hpo_lstm_recursive_clean_pm10` tem comportamento interessante em RMSE/R2 e picos, mas perde em MAE e apresenta viés positivo;
 - a comparação atual inclui HPO walk-forward, multi-seed, baselines ingênuos e ablações de PM10/máscara; não misturar com o benchmark fixo sem HPO como se o orçamento experimental fosse igual.
@@ -315,7 +315,7 @@ XGB pode ser comparado como baseline forte, mas o texto deve explicitar que o co
 
 Frase recomendada:
 
-> O XGBoost multi-output foi tratado como baseline tabular forte sob contrato causal equivalente de entrada, embora seu treinamento multi-output exija janelas com horizonte completo observado.
+> O XGBoost multi-output foi tratado como referência baseada em árvores sob contrato causal equivalente de entrada, embora seu treinamento multi-output exija janelas com horizonte completo observado.
 
 Outra frase recomendada para métricas vs plots:
 
@@ -342,7 +342,7 @@ Não comparar diretamente, na mesma tabela principal:
 
 Formulação recomendada:
 
-> Em uma tarefa horária de previsão de PM2.5 na estação Sapo, com entrada de 48 horas, horizonte de 24 horas e split temporal fixo, como diferentes escolhas de modelagem - arquiteturas sequenciais, baseline tabular, imputação, variáveis exógenas e estratégias de treinamento - afetam o desempenho preditivo e os erros por horizonte?
+> Em uma tarefa horária de previsão de PM2.5 na estação Sapo, com entrada de 48 horas, horizonte de 24 horas e split temporal fixo, como diferentes escolhas de modelagem - arquiteturas sequenciais, XGBoost, imputação, variáveis exógenas e estratégias de treinamento - afetam o desempenho preditivo e os erros por horizonte?
 
 ### Objetivo Geral
 
@@ -364,7 +364,7 @@ Avaliar, sob um protocolo experimental rastreável e comparável, o desempenho d
 Não vender o trabalho como criação de um novo modelo. A contribuição mais defensável é:
 
 - um estudo comparável e rastreável em dados ambientais reais;
-- uma análise honesta de modelos sequenciais e baseline tabular;
+- uma análise honesta de modelos sequenciais e XGBoost;
 - documentação de trade-offs entre erro médio, horizonte de previsão, suavização visual e eventos de maior concentração;
 - consolidação de uma pipeline que evita vazamento em imputação, normalização, janelamento e avaliação.
 
@@ -408,7 +408,7 @@ Estrutura:
 6. LSTM.
 7. Seq2Seq e atenção.
 8. Teacher forcing e scheduled sampling.
-9. Baselines tabulares e gradient boosting.
+9. Modelos baseados em árvores e gradient boosting.
 10. Métricas: MAE, RMSE, MAPE, R2, métricas por horizonte e viés.
 
 Cuidados:
@@ -428,7 +428,7 @@ Estrutura:
 3. LSTM, atenção e modelos encoder-decoder em séries ambientais.
 4. Tratamento de dados faltantes em séries temporais ambientais.
 5. Protocolos de avaliação temporal e problemas de comparabilidade.
-6. Como este TCC se diferencia: escopo fixo, pipeline rastreável, ablações e baseline tabular.
+6. Como este TCC se diferencia: escopo fixo, pipeline rastreável, ablações e referência baseada em árvores.
 
 Evitar uma lista de artigos. Cada trabalho citado deve sustentar uma decisão ou lacuna.
 
@@ -478,7 +478,7 @@ Cuidados:
 - Não escrever split por ano calendário para o benchmark Sapo.
 - Não escrever Cascata/Piratininga na seção de dados principal.
 - Não dizer que `fs_physics` mede impacto isolado de física.
-- Explicar que XGB é baseline tabular forte com ressalva de contrato de treino.
+- Explicar que XGB é referência baseada em árvores com ressalva de contrato de treino.
 - Explicar que o `weighted_l1` é uma função de perda ponderada, não regularização L1.
 
 ### Capítulo 5 - Resultados e Discussão
@@ -492,7 +492,7 @@ Estrutura recomendada:
 3. Métricas por horizonte.
 4. Discussão do `lstm_direct_clean_pm10_hpo` como vencedor global por MAE/RMSE/R2.
 5. Comparação entre modelos DL.
-6. Discussão do XGBoost como baseline tabular forte.
+6. Discussão do XGBoost como referência baseada em árvores.
 7. Discussão do Seq2Seq attention:
    - attention HPO canônico ficou competitivo, mas não venceu;
    - `weighted_l1_hpo_mae` foi o melhor Seq2Seq attention individual;
@@ -543,7 +543,7 @@ Estrutura:
 2. Responder com base no benchmark Sapo.
 3. Destacar principais achados:
    - LSTM direct foi o vencedor global atual por erro médio;
-   - XGBoost permanece baseline tabular forte;
+   - XGBoost permanece referência baseada em árvores;
    - Seq2Seq attention não venceu globalmente, mas o `weighted_l1` o tornou competitivo;
    - Seq2Seq weighted L1 apresentou comportamento visual menos suavizado e melhor em parte dos picos;
    - escolhas de decoder e features importam;
