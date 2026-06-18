@@ -119,6 +119,8 @@ Redes neurais artificiais são modelos paramétricos compostos por unidades simp
 
 Em um neurônio biológico, dendritos recebem sinais, o corpo celular integra parte dessas informações e o axônio transmite sinais para outras células. Em um neurônio artificial, a operação análoga é representada por entradas numéricas, pesos, viés ou limiar, soma ponderada e função de ativação. A Figura~\ref{fig:neuronio_biologico_artificial} mostra essa analogia: à esquerda aparece o neurônio biológico; à direita, o neurônio artificial recebe entradas \(x_j\), pondera essas entradas por pesos \(w_{ij}\), combina os termos em uma entrada líquida e aplica uma função de ativação para produzir a saída da unidade.
 
+\clearpage
+
 \begin{figure}[htbp]
     \centering
     \begin{subfigure}[t]{0.42\linewidth}
@@ -137,8 +139,6 @@ Em um neurônio biológico, dendritos recebem sinais, o corpo celular integra pa
     \caption[Comparação visual entre neurônio biológico e neurônio artificial]{Comparação visual entre neurônio biológico e neurônio artificial. A imagem do neurônio biológico possui rótulos em português do Brasil e foi obtida de \citeonline{vasconcelos2008neuronPt}; a imagem do neurônio artificial foi obtida de \citeonline{chrislb2006artificialNeuronModel}.}
     \label{fig:neuronio_biologico_artificial}
 \end{figure}
-\FloatBarrier
-
 Para manter a notação consistente, este texto usa \(\hat{y}\) para a saída prevista do modelo e \(\mathbf{h}\) para ativações internas de camadas ocultas. A fonte visual da Figura~\ref{fig:neuronio_artificial_perceptron} usa \(o_j\) para indicar a saída de uma unidade genérica; neste trabalho, quando a unidade representa a camada final de regressão, essa saída será escrita como \(\hat{y}\). Quando a mesma operação aparece dentro de uma camada intermediária, a quantidade produzida será indicada por \(\mathbf{h}\).
 
 \begin{equation}
@@ -174,14 +174,14 @@ Redes neurais recorrentes (Recurrent Neural Networks, RNNs) são projetadas para
 
 A arquitetura LSTM introduz uma célula de memória e portões de entrada, esquecimento e saída para controlar o fluxo de informação \cite{hochreiter1997long}. A Figura~\ref{fig:lstm_cell} mostra a estrutura interna no instante \(t\). A linha superior carrega a memória da célula, de \(\mathbf{c}_{t-1}\) para \(\mathbf{c}_t\). A linha inferior recebe a entrada atual \(\mathbf{x}_t\) e o estado oculto anterior \(\mathbf{h}_{t-1}\). O primeiro bloco sigmoide controla o esquecimento, indicado como \(F_t\) na figura e \(\mathbf{f}_t\) na Equação~\ref{eq:lstm}. O segundo bloco sigmoide e o bloco \(\tanh\) controlam, respectivamente, a entrada \(I_t\), escrita como \(\mathbf{i}_t\), e o conteúdo candidato \(\tilde{\mathbf{c}}_t\). O bloco sigmoide à direita é o portão de saída \(O_t\), escrito como \(\mathbf{o}_t\) na formulação, e define quanto da memória atual será exposto como estado oculto \(\mathbf{h}_t\). Os círculos rosa \(o_{t-1}\), \(o_t\) e \(o_{t+1}\) representam saídas externas associadas aos instantes da sequência; eles não são o portão de saída \(O_t\).
 
+\clearpage
+
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.94\textwidth]{lstm_fdeloche_wikimedia.png}
     \caption[Estrutura interna de uma célula LSTM]{Estrutura interna de uma célula LSTM, com memória, estado oculto, portões sigmoides e operações elemento a elemento. Fonte: \citeonline{fdeloche2017lstmCell}.}
     \label{fig:lstm_cell}
 \end{figure}
-\FloatBarrier
-
 Uma célula LSTM pode ser descrita pela Equação~\ref{eq:lstm}, para entrada \(\mathbf{x}_t\), estado oculto anterior \(\mathbf{h}_{t-1}\) e memória anterior \(\mathbf{c}_{t-1}\).
 
 \begin{equation}
@@ -270,8 +270,6 @@ A probabilidade \(p_{TF}\) representa a chance de usar o valor real anterior dur
     \caption[Agendas de probabilidade de realimentação]{Direções esquemáticas de \(p_{TF}\) no decodificador. A curva azul representa o \textit{scheduled sampling} clássico, com \(p_{TF}\) decrescendo de 1 para 0, e a curva vermelha tracejada representa uma agenda crescente de \textit{teacher forcing}, com \(p_{TF}\) crescendo de 0 para 1. Como o gráfico mostra \(p_{TF}\), o limite \(p_{TF}=0\) corresponde ao \textit{free running} puro, e o limite \(p_{TF}=1\) corresponde ao \textit{teacher forcing} puro. A figura não representa número de épocas, hiperparâmetros ou resultados experimentais deste trabalho. Elaboração própria com base em \citeonline{bengio2015scheduled} e \citeonline{teutsch2022flipped}.}
     \label{fig:teacher_forcing_agendas}
 \end{figure}
-\FloatBarrier
-
 Uma forma de escrever essa escolha é apresentada na Equação~\ref{eq:teacher_forcing_mix}.
 
 \begin{equation}
