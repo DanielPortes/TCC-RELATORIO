@@ -4,17 +4,17 @@
 
 Este capítulo apresenta os resultados do protocolo Sapo descrito no Capítulo \ref{chap:materiais_metodos}. A discussão separa quatro níveis de evidência: a comparação principal com hiperparâmetros selecionados no bloco de desenvolvimento, a estabilidade com múltiplas sementes dos modelos selecionados, as linhas de base ingênuas e as ablações usadas para interpretar decisões de modelagem.
 
-As métricas usadas no capítulo seguem as definições da Seção \ref{sec:metricas_avaliacao}: erro médio absoluto (MAE), raiz do erro quadrático médio (RMSE), erro percentual médio absoluto (MAPE), coeficiente de determinação (\(R^2\)), erro médio de viés (MBE) e MAE em eventos com PM2,5 \(\geq 35\) (Peak35 MAE).
+As métricas usadas no capítulo seguem as definições da Seção \ref{sec:metricas_avaliacao}: erro médio absoluto (MAE), raiz do erro quadrático médio (RMSE), erro percentual médio absoluto (MAPE), coeficiente de determinação (\(R^2\)), erro médio de viés (MBE) e MAE em eventos com PM2,5 \(\geq 35\) (Peak35 MAE). Em todos os casos, a referência de avaliação é a medição real de PM2,5 disponível no teste.
 
 \section{Caracterização da Comparação Principal}
 
-A comparação principal usa a estação Sapo, tarefa 48 para 24 horas e divisão cronológica 70/15/15. A seleção de hiperparâmetros e ablações ocorre no bloco de desenvolvimento, e a avaliação é feita no bloco final de teste. O conjunto de dados final contém 34.991 registros horários. No conjunto consolidado, a proporção de valores originalmente ausentes é de aproximadamente 19,26\% para material particulado fino (PM2,5) e 19,58\% para material particulado com diâmetro de até 10 micrômetros (PM10). Esses percentuais reforçam a importância de manter indicadores de ausência e de excluir o alvo imputado da função de perda e das métricas observadas.
+A comparação principal usa a estação Sapo, tarefa 48 para 24 horas e divisão cronológica 70/15/15. A seleção de hiperparâmetros e ablações ocorre no bloco de desenvolvimento, e a avaliação é feita no bloco final de teste. O conjunto de dados final contém 34.991 registros horários. No conjunto consolidado, a proporção de valores originalmente ausentes é de aproximadamente 19,26\% para material particulado fino (PM2,5) e 19,58\% para material particulado com diâmetro de até 10 micrômetros (PM10). Esses percentuais reforçam a importância de manter indicadores de ausência e de avaliar os modelos contra medições reais disponíveis.
 
 Os eventos altos são raros no teste. Na caracterização exploratória do bloco final, pontos observados com PM2,5 \(\geq 35\) representam cerca de 0,96\% do teste. Portanto, o MAE global é dominado por regimes baixos e moderados. A análise de cauda é apresentada separadamente para evitar que o melhor erro médio seja confundido com melhor resposta a picos.
 
 \section{Resultado Principal no Protocolo Final}
 
-A Tabela \ref{tab:resultado_principal_sapo_hpo} apresenta os resultados principais no bloco final de teste. Todos os modelos foram reexecutados no mesmo contrato final, com 48 horas de entrada, 24 horas de horizonte, conjunto \texttt{clean\_pm10\_decoder\_proxy}, mesma divisão cronológica e máscara de alvo observado. As LSTMs e o XGBoost usam hiperparâmetros selecionados por validação temporal \textit{walk-forward}; o novo Seq2Seq atenção usa a variante selecionada pelas ablações de arquitetura, perda e janela de entrada, reexecutada aqui no mesmo protocolo comparável. O melhor desempenho global na semente canônica foi obtido pela LSTM direta, enquanto o novo Seq2Seq atenção ficou em segundo por MAE e apresentou melhor comportamento em picos.
+A Tabela \ref{tab:resultado_principal_sapo_hpo} apresenta os resultados principais no bloco final de teste. Todos os modelos foram reexecutados no mesmo contrato final, com 48 horas de entrada, 24 horas de horizonte, conjunto \texttt{clean\_pm10\_decoder\_proxy}, mesma divisão cronológica e as mesmas medições de PM2,5 como referência. As LSTMs e o XGBoost usam hiperparâmetros selecionados por validação temporal \textit{walk-forward}; o novo Seq2Seq atenção usa a variante selecionada pelas ablações de arquitetura, perda e janela de entrada, reexecutada aqui no mesmo protocolo comparável. O melhor desempenho global na semente canônica foi obtido pela LSTM direta, enquanto o novo Seq2Seq atenção ficou em segundo por MAE e apresentou melhor comportamento em picos.
 
 \begin{table}[htb]
     \centering
@@ -64,7 +64,7 @@ A Tabela \ref{tab:multi_seed_sapo} resume a sensibilidade à semente aleatória 
     }
 \end{table}
 
-A média com múltiplas sementes mantém a LSTM direta como melhor modelo por MAE, mas o novo Seq2Seq atenção passa a ser o segundo colocado com margem pequena: MAE médio 2,8218 contra 2,8055. A LSTM recursiva passa a ter melhor RMSE e \(R^2\) médios, ao custo de viés positivo consistente. Essa diferença confirma que a escolha do vencedor depende da métrica priorizada. Para o objetivo principal do TCC, que usa MAE observado como métrica central de erro médio, a LSTM direta continua sendo a escolha principal; para eventos altos, a análise de cauda favorece o novo Seq2Seq.
+A média com múltiplas sementes mantém a LSTM direta como melhor modelo por MAE, mas o novo Seq2Seq atenção passa a ser o segundo colocado com margem pequena: MAE médio 2,8218 contra 2,8055. A LSTM recursiva passa a ter melhor RMSE e \(R^2\) médios, ao custo de viés positivo consistente. Essa diferença confirma que a escolha do vencedor depende da métrica priorizada. Para o objetivo principal do TCC, que usa MAE como métrica central de erro médio no teste, a LSTM direta continua sendo a escolha principal; para eventos altos, a análise de cauda favorece o novo Seq2Seq.
 
 \section{Linhas de Base Ingênuas}
 
@@ -288,29 +288,6 @@ Também foi testada uma adaptação do Seq2Seq atenção para prever PM2,5 como 
 O melhor multi-alvo reduziu o MAE em relação ao controle causal com PM10 e PTS, de 2,8758 para 2,7689, e elevou o \(R^2\) de 0,4741 para 0,4891. Esse é um indício positivo de que a tarefa auxiliar pode regularizar a representação do Seq2Seq. Porém, o ganho não reproduziu o salto observado no \textit{oracle} e ainda piorou a métrica de pico em relação ao controle causal. Em termos práticos, aprender PM10 e PTS futuros não equivale a conhecer PM10 e PTS futuros.
 
 Esses dois diagnósticos convergem para a mesma interpretação. A arquitetura pode extrair algum ganho adicional, mas o principal gargalo para \(R^2\) muito alto está na informação disponível. Sem variáveis meteorológicas e espaciais observadas de forma confiável, e sem acesso causal ao futuro dos poluentes auxiliares, o modelo tende a suavizar a variância horária e subestimar parte dos picos.
-
-\section{Ablação de Máscara e Imputação}
-
-A Tabela \ref{tab:ablation_mascara_imputacao} avalia a decisão de manter imputação linear e excluir alvos originalmente imputados da função de perda e das métricas observadas. A linha ``linear + máscara'' é o contrato principal; as demais linhas alteram somente a política de máscara ou o método de imputação.
-
-\begin{table}[htb]
-    \centering
-    \caption{Ablação de máscara do alvo e imputação.}
-    \label{tab:ablation_mascara_imputacao}
-    \resizebox{\textwidth}{!}{%
-    \begin{tabular}{lrrrrr}
-        \toprule
-        \textbf{Variante} & \textbf{MAE} & \textbf{\(\Delta\) MAE} & \textbf{RMSE} & \textbf{\(R^2\)} & \textbf{MBE} \\
-        \midrule
-        Linear + máscara atual & \textbf{2,7713} & 0,0000 & \textbf{3,8346} & \textbf{0,5154} & -0,1366 \\
-        Linear sem máscara na função de perda/métricas & 2,9911 & +0,2197 & 4,0692 & 0,4592 & 0,2998 \\
-        KNN (\textit{k-nearest neighbors}) + máscara & 2,9245 & +0,1531 & 4,1430 & 0,4343 & 0,1849 \\
-        \bottomrule
-    \end{tabular}%
-    }
-\end{table}
-
-O resultado reforça uma decisão metodológica importante do TCC. Tratar valores imputados do alvo como observações reais piorou o MAE observado em 0,2197 e reduziu o \(R^2\). Trocar a imputação linear por KNN mantendo a máscara também piorou o resultado. A combinação linear + máscara, portanto, não é apenas uma escolha conveniente de pré-processamento; ela protege a avaliação contra uma fonte concreta de distorção.
 
 \section{Interpretação da Atenção}
 
