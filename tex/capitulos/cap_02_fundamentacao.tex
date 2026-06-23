@@ -117,7 +117,7 @@ Para evitar esse problema, imputação, normalização e criação de atributos 
 
 Redes neurais artificiais são modelos paramétricos compostos por unidades simples conectadas por pesos. A inspiração histórica vem de modelos computacionais do neurônio biológico, como o neurônio lógico de \citeonline{mcculloch1943logical} e o perceptron de \citeonline{rosenblatt1958perceptron}. Essa relação deve ser entendida como analogia didática: redes neurais usadas em aprendizado de máquina não simulam de forma completa a fisiologia de neurônios reais, mas usam uma abstração matemática capaz de combinar entradas, ajustar pesos e produzir saídas.
 
-Em um neurônio biológico, dendritos recebem sinais, o corpo celular integra parte dessas informações e o axônio transmite sinais para outras células. Em um neurônio artificial, a operação análoga é representada por entradas numéricas, pesos, viés ou limiar, soma ponderada e função de ativação. A Figura~\ref{fig:neuronio_biologico_artificial} mostra essa analogia: à esquerda aparece o neurônio biológico; à direita, o neurônio artificial recebe entradas \(x_j\), pondera essas entradas por pesos \(w_{ij}\), combina os termos em uma entrada líquida e aplica uma função de ativação para produzir a saída da unidade.
+Em um neurônio biológico, dendritos recebem sinais, o corpo celular integra parte dessas informações e o axônio transmite sinais para outras células. Em um neurônio artificial, a operação análoga é representada por entradas numéricas, pesos, viés ou limiar, soma ponderada e função de ativação. A Figura~\ref{fig:neuronio_biologico_artificial} mostra essa analogia: à esquerda aparece o neurônio biológico; à direita, o neurônio artificial recebe entradas \(x_j\), pondera essas entradas por pesos \(w_j\), combina os termos em uma soma ponderada \(a\) e aplica uma função de ativação para produzir a saída \(\hat{y}\).
 
 \clearpage
 
@@ -132,14 +132,14 @@ Em um neurônio biológico, dendritos recebem sinais, o corpo celular integra pa
     \hfill
     \begin{subfigure}[t]{0.54\linewidth}
         \centering
-        \includegraphics[width=\linewidth]{artificial_neuron_model_chrislb_wikimedia.png}
+        \includegraphics[width=\linewidth]{diagrama_neuronio_artificial_proprio.pdf}
         \caption{Neurônio artificial.}
         \label{fig:neuronio_artificial_perceptron}
     \end{subfigure}
-    \caption[Comparação visual entre neurônio biológico e neurônio artificial]{Comparação visual entre neurônio biológico e neurônio artificial. A imagem do neurônio biológico possui rótulos em português do Brasil e foi obtida de \citeonline{vasconcelos2008neuronPt}; a imagem do neurônio artificial foi obtida de \citeonline{chrislb2006artificialNeuronModel}.}
+    \caption[Comparação visual entre neurônio biológico e neurônio artificial]{Comparação visual entre neurônio biológico e neurônio artificial. A imagem do neurônio biológico possui rótulos em português do Brasil e foi obtida de \citeonline{vasconcelos2008neuronPt}; a representação do neurônio artificial é elaboração própria adaptada de \citeonline{tzanis2021representativePM}, com correção da notação dos pesos e saída compatível com a Equação~\ref{eq:neuronio_artificial}.}
     \label{fig:neuronio_biologico_artificial}
 \end{figure}
-Para manter a notação consistente, este texto usa \(\hat{y}\) para a saída prevista do modelo e \(\mathbf{h}\) para ativações internas de camadas ocultas. A fonte visual da Figura~\ref{fig:neuronio_artificial_perceptron} usa \(o_j\) para indicar a saída de uma unidade genérica; neste trabalho, quando a unidade representa a camada final de regressão, essa saída será escrita como \(\hat{y}\). Quando a mesma operação aparece dentro de uma camada intermediária, a quantidade produzida será indicada por \(\mathbf{h}\).
+Para manter a notação consistente, este texto usa \(\hat{y}\) para a saída prevista da camada final e \(\mathbf{h}\) para ativações internas de camadas ocultas. Assim, quando a unidade da Figura~\ref{fig:neuronio_artificial_perceptron} representa a camada final de regressão, sua saída é escrita como \(\hat{y}\); quando a mesma operação aparece dentro de uma camada intermediária, a quantidade produzida é um componente do vetor \(\mathbf{h}\).
 
 \begin{equation}
     a = \sum_{j=1}^{d} w_jx_j + b,
@@ -148,7 +148,7 @@ Para manter a notação consistente, este texto usa \(\hat{y}\) para a saída pr
     \label{eq:neuronio_artificial}
 \end{equation}
 
-Na Equação~\ref{eq:neuronio_artificial}, \(x_j\) é a entrada \(j\), \(w_j\) é o peso associado a essa entrada, \(d\) é o número de entradas, \(b\) é o viés, \(a\) é a soma ponderada antes da não linearidade, \(\phi\) é a função de ativação e \(\hat{y}\) é a saída prevista. Em camadas ocultas, a mesma forma matemática produz uma ativação interna \(h\), não a previsão final.
+Na Equação~\ref{eq:neuronio_artificial}, \(x_j\) é a entrada \(j\), \(w_j\) é o peso associado a essa entrada, \(d\) é o número de entradas, \(b\) é o viés, \(a\) é a soma ponderada antes da não linearidade, \(\phi\) é a função de ativação e \(\hat{y}\) é a saída prevista. Em camadas ocultas, a mesma forma matemática produz uma ativação interna, isto é, um componente de \(\mathbf{h}\), não a previsão final.
 
 Uma rede neural organiza vários neurônios em camadas. A saída de uma camada alimenta a camada seguinte, permitindo que o modelo componha transformações simples em representações mais complexas. Uma camada \(\ell\) pode ser escrita conforme a Equação~\ref{eq:camada_neural}.
 
@@ -205,12 +205,12 @@ Em previsão multi-horizonte, uma LSTM pode ser usada de forma recursiva ou dire
 
 Modelos \textit{Sequence-to-Sequence} (Seq2Seq) foram propostos para mapear uma sequência de entrada em uma sequência de saída. \citeonline{sutskever2014sequence} descrevem a proposta como uma abordagem ``\textit{end-to-end}'' para aprendizado de sequências, em que um codificador transforma a entrada em representação latente e um decodificador gera a sequência de saída. Em previsão multi-horizonte, a janela histórica funciona como sequência de entrada e o horizonte previsto funciona como sequência de saída.
 
-A Figura~\ref{fig:seq2seq_attention_propria} apresenta uma leitura conceitual de Seq2Seq com atenção. No bloco esquerdo, o codificador lê os \(L\) instantes da janela histórica e produz estados \(\mathbf{h}_1,\ldots,\mathbf{h}_L\). No bloco central, a atenção calcula pesos \(\alpha_{k,j}\) para indicar quanto cada estado do codificador contribui para o horizonte futuro \(k\). No bloco direito, o decodificador usa o contexto \(\mathbf{c}_k\), o estado do decodificador e as covariáveis futuras conhecidas para produzir \(\hat{y}_{t+k}\).
+A Figura~\ref{fig:seq2seq_attention_propria} apresenta uma leitura conceitual de Seq2Seq com atenção. No bloco esquerdo, o codificador lê os \(L\) instantes da janela histórica e produz estados \(\mathbf{h}_1,\ldots,\mathbf{h}_L\). No bloco central, a atenção temporal calcula pesos \(\alpha_{k,j}\) para indicar quanto cada estado do codificador contribui para o horizonte futuro \(k\), formando o contexto \(\mathbf{c}_k\). No bloco direito, o decodificador combina esse contexto com o estado recorrente, a entrada anterior \(\tilde{y}_{t+k-1}\) e covariáveis futuras conhecidas \(\mathbf{z}_{t+k}\) para produzir \(\hat{y}_{t+k}\).
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{diagrama_seq2seq_attention_proprio.pdf}
-    \caption[Seq2Seq com atenção]{Diagrama conceitual de Seq2Seq com atenção para previsão multi-horizonte. Elaboração própria com base em \citeonline{sutskever2014sequence}, \citeonline{bahdanau2014neural}, \citeonline{luong2015effective} e \citeonline{qin2017darnn}.}
+    \includegraphics[width=\textwidth]{diagrama_seq2seq_attention_proprio.pdf}
+    \caption[Seq2Seq com atenção]{Diagrama conceitual de Seq2Seq com atenção para previsão multi-horizonte. Elaboração própria com base em \citeonline{sutskever2014sequence}, \citeonline{bahdanau2014neural}, \citeonline{luong2015effective}, \citeonline{lim2021survey}, \citeonline{wen2017mqrnn} e \citeonline{qin2017darnn}.}
     \label{fig:seq2seq_attention_propria}
 \end{figure}
 
@@ -330,7 +330,7 @@ A Figura~\ref{fig:xgboost_multioutput_propria} mostra essa leitura para saída m
 \section{Treinamento, Perda e Hiperparâmetros}
 \label{sec:otimizacao_hpo}
 
-Parâmetros são aprendidos pelo modelo durante o treinamento. Hiperparâmetros, como taxa de aprendizado, número de camadas, tamanho do estado oculto, profundidade de árvores e \textit{dropout}, são definidos antes do treinamento ou buscados por um procedimento externo. Essa busca é chamada de otimização de hiperparâmetros, indicada neste trabalho pela sigla HPO, do inglês \textit{Hyperparameter Optimization}. A dificuldade prática é que muitos hiperparâmetros interagem entre si; por isso, a seleção manual pode ser limitada e pouco rastreável.
+Parâmetros são aprendidos pelo modelo durante o treinamento. Hiperparâmetros, como taxa de aprendizado, número de camadas, tamanho do estado oculto, profundidade de árvores e \textit{dropout}, são definidos antes do treinamento ou buscados por um procedimento externo. Essa busca é chamada de otimização de hiperparâmetros (HPO, do inglês \textit{Hyperparameter Optimization}). A dificuldade prática é que muitos hiperparâmetros interagem entre si; por isso, a seleção manual pode ser limitada e pouco rastreável.
 
 Redes neurais são frequentemente treinadas com otimizadores baseados em gradiente, como Adam e AdamW \cite{kingma2014adam,loshchilov2019decoupled}. A taxa de aprendizado controla o tamanho do passo aplicado aos parâmetros a cada atualização. Ela pode ser constante ou seguir uma agenda ao longo das épocas. Uma estratégia comum combina aquecimento linear (\textit{linear warm-up}) e decaimento cosseno \cite{goyal2017accurate,loshchilov2017sgdr}. Com \(E_w\) épocas de aquecimento, \(E\) épocas máximas, taxa máxima \(\eta_{\max}\) e taxa mínima \(\eta_{\min}\), a forma idealizada é dada pela Equação~\ref{eq:agenda_taxa_aprendizado}.
 

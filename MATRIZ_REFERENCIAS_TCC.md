@@ -48,6 +48,7 @@ Esta matriz conecta cada referência ao ponto do texto que ela sustenta. A revis
 | `teutsch2022flipped` | Increasing Teacher Forcing | Cap. 2; Cap. 4 | Fundamenta a ablação de agenda crescente de teacher forcing em series temporais; paper reporta ganhos em forecasting multi-step com curriculos do tipo Flipped Classroom. | Fonte primaria: TMLR/OpenReview e arXiv. |
 | `kingma2014adam` | Otimizacao | Cap. 2; Cap. 4 | Otimizacao com Adam/AdamW nos modelos neurais. | PDF salvo segundo curadoria. |
 | `goodfellow2016deep` | Deep learning | Cap. 2 | Conceitos gerais de redes neurais profundas. | URL institucional do livro. |
+| `tzanis2021representativePM` | Neurônio artificial | Cap. 2 | Base visual para a representação adaptada do neurônio artificial, com notação ajustada ao texto. | Artigo MDPI em acesso aberto; DOI conferido. |
 | `yang2023attention` | PM2.5 com attention-LSTM | Cap. 3 | Exemplo de uso de atencao/LSTM em previsao horaria de PM2.5. | Entrada existente. |
 | `zhao2021pm2` | PM2.5 com LSTM | Cap. 3 | Exemplo de modelo hibrido/recorrente para PM2.5. | Entrada existente. |
 | `zhang2021deep` | PM2.5 com deep learning | Cap. 3 | Exemplo de deep learning aplicado a PM2.5. | Entrada existente. |
@@ -83,6 +84,6 @@ Esta matriz conecta cada referência ao ponto do texto que ela sustenta. A revis
 - Referencias de blogs ou paginas didaticas (`olah2015understanding`, `alammar2018visualizing`, `aprilliant2021walkforward`) foram removidas da bibliografia final porque as figuras antigas deixaram de ser usadas.
 - As entradas de XGBoost, Optuna, Huber e trabalhos recentes de PM2.5 foram adicionadas em `referencias.bib`; as citações finais foram conferidas e as chaves não usadas foram removidas.
 - A defesa do Seq2Seq foi reforçada com surveys e trabalhos de multi-horizon forecasting, mas o texto evita afirmar SOTA universal; a formulação correta é que Seq2Seq é uma família bem fundamentada e competitiva para tarefas sequência-para-sequência/multi-horizonte.
-- As figuras conceituais de neurônio artificial e célula LSTM no capítulo 2 usam referências visuais externas citadas (`chrislb2006artificialNeuronModel` e `fdeloche2017lstmCell`); as figuras de Seq2Seq com atenção e XGBoost seguem como elaboração própria baseada na literatura citada.
+- No capítulo 2, a representação do neurônio artificial passou a ser elaboração própria adaptada de `tzanis2021representativePM`, com padronização da notação em relação à Equação do texto; a célula LSTM ainda usa referência visual externa citada (`fdeloche2017lstmCell`). As figuras de Seq2Seq com atenção e XGBoost seguem como elaboração própria baseada na literatura citada.
 - Transformers foram reconhecidos como linha moderna relevante, mas ficaram fora do escopo experimental final por exigirem HPO próprio, validação comparável e nova bateria multi-seed.
 - Os pesos de atenção foram analisados como diagnóstico interpretativo limitado; o texto evita tratar atenção como explicação causal completa.

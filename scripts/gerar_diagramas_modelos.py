@@ -127,61 +127,133 @@ def group(ax, x, y, w, h, title, color):
 
 
 def draw_seq2seq_attention():
-    fig, ax = setup_ax(15.4, 7.7)
+    with plt.rc_context({"font.family": "DejaVu Serif", "mathtext.fontset": "dejavuserif"}):
+        fig, ax = setup_ax(6.15, 2.45)
 
-    label(ax, 50, 96, "Seq2Seq com atenção para previsão multi-horizonte", fs=17, weight="bold")
-    label(ax, 50, 91, "Janela histórica com L instantes, decodificador com H horizontes e covariáveis futuras conhecidas", fs=10, color=COLORS["muted"])
+        ink = "#111827"
+        muted = "#586174"
+        line = "#303744"
+        rule = "#bcc6d4"
+        fill = "#fbfcfe"
+        fill_dark = "#eef2f7"
+        fill_mid = "#e7edf4"
+        accent = "#334155"
+        accent_fill = "#f2f6fa"
 
-    group(ax, 3, 16, 29, 68, "Codificador: histórico observado", COLORS["blue"])
-    x_positions = [8.5, 17.5, 26.5]
-    input_labels = ["$x_{t-L+1}$", "$\\cdots$", "$x_t$"]
-    hidden_labels = ["$h_1$", "$\\cdots$", "$h_L$"]
-    for x, inp, hid in zip(x_positions, input_labels, hidden_labels):
-        box(ax, x - 3.4, 59, 6.8, 9.2, inp, COLORS["blue_light"], COLORS["blue"], fs=11.5, weight="bold")
-        box(ax, x - 3.4, 40, 6.8, 9.2, hid, COLORS["slate_light"], COLORS["line"], fs=11.5, weight="bold")
-        arrow(ax, (x, 59), (x, 49.2), COLORS["blue"], lw=2.0)
-    arrow(ax, (11.9, 44.6), (14.1, 44.6), COLORS["line"], lw=2.0)
-    arrow(ax, (20.9, 44.6), (23.1, 44.6), COLORS["line"], lw=2.0)
-    label(ax, 17.5, 23.5, "alvo, exógenas,\nindicadores e tempo", fs=9.3, color=COLORS["muted"])
+        def text(x, y, s, fs=7.6, weight="normal", color=ink, ha="center", va="center", rotation=0):
+            ax.text(x, y, s, ha=ha, va=va, fontsize=fs, weight=weight, color=color, linespacing=1.16, rotation=rotation)
 
-    group(ax, 36, 16, 25, 68, "Atenção temporal", COLORS["violet"])
-    label(ax, 48.5, 72, "pesos $\\alpha_{k,j}$", fs=12, weight="bold", color=COLORS["violet"])
-    heat_x, heat_y = 42.2, 60
-    cell = 2.9
-    values = [
-        [0.25, 0.45, 0.65, 0.35, 0.20],
-        [0.15, 0.30, 0.75, 0.55, 0.25],
-        [0.20, 0.35, 0.50, 0.80, 0.45],
-        [0.30, 0.25, 0.40, 0.60, 0.70],
-    ]
-    for r, row in enumerate(values):
-        for c, val in enumerate(row):
-            color = (0.93 - 0.35 * val, 0.91 - 0.45 * val, 1.0)
-            ax.add_patch(Rectangle((heat_x + c * cell, heat_y - r * cell), cell - 0.12, cell - 0.12, facecolor=color, edgecolor="white", linewidth=0.8))
-    label(ax, 49.5, 44.8, "$c_k = \\sum_j \\alpha_{k,j}h_j$", fs=13, weight="bold")
-    box(ax, 42.2, 27, 14.5, 8.5, "contexto\n$c_k$", COLORS["violet_light"], COLORS["violet"], fs=12, weight="bold")
-    arrow(ax, (28.8, 44.6), (42.2, 54.5), COLORS["line"], lw=2.1, rad=0.04)
-    arrow(ax, (49.5, 48.2), (49.5, 35.5), COLORS["violet"], lw=2.2)
+        def rect(x, y, w, h, s, fc=fill, ec=line, fs=7.2, weight="normal", lw=0.85, radius=0.28):
+            ax.add_patch(
+                FancyBboxPatch(
+                    (x, y),
+                    w,
+                    h,
+                    boxstyle=f"round,pad=0.012,rounding_size={radius}",
+                    facecolor=fc,
+                    edgecolor=ec,
+                    linewidth=lw,
+                )
+            )
+            text(x + w / 2, y + h / 2, s, fs=fs, weight=weight)
 
-    group(ax, 65, 16, 32, 68, "Decodificador: horizonte previsto", COLORS["green"])
-    box(ax, 69, 64, 24, 8.5, "covariáveis conhecidas\n$z_{t+1:t+H}$", COLORS["slate_light"], COLORS["line"], fs=10, weight="bold")
-    dec_x = [72, 81, 90]
-    y_labels = ["$\\hat{y}_{t+1}$", "$\\cdots$", "$\\hat{y}_{t+H}$"]
-    s_labels = ["$s_1$", "$\\cdots$", "$s_H$"]
-    ax.plot([72, 90], [61, 61], color=COLORS["line"], linewidth=2.0)
-    arrow(ax, (81, 64), (81, 61.2), COLORS["line"], lw=1.9)
-    for x, s, y in zip(dec_x, s_labels, y_labels):
-        box(ax, x - 3.6, 48, 7.2, 9.5, s, COLORS["green_light"], COLORS["green"], fs=12, weight="bold")
-        box(ax, x - 4.2, 29, 8.4, 9.5, y, COLORS["amber_light"], COLORS["amber"], fs=11, weight="bold")
-        arrow(ax, (x, 61), (x, 57.8), COLORS["line"], lw=1.8)
-        arrow(ax, (x, 48), (x, 38.8), COLORS["green"], lw=2.0)
-    arrow(ax, (75.6, 52.8), (77.4, 52.8), COLORS["green"], lw=2.0)
-    arrow(ax, (84.6, 52.8), (86.4, 52.8), COLORS["green"], lw=2.0)
-    arrow(ax, (56.7, 31.2), (68.4, 52.8), COLORS["violet"], lw=2.4, rad=-0.05)
-    label(ax, 82, 23.5, "atributos futuros conhecidos", fs=9.5, color=COLORS["muted"])
+        def arr(start, end, lw=0.85, color=line, rad=0.0, ms=8.2, style="-|>"):
+            ax.add_patch(
+                FancyArrowPatch(
+                    start,
+                    end,
+                    arrowstyle=style,
+                    mutation_scale=ms,
+                    linewidth=lw,
+                    color=color,
+                    connectionstyle=f"arc3,rad={rad}",
+                    shrinkA=2,
+                    shrinkB=2,
+                )
+            )
 
-    label(ax, 50, 7, "A atenção calcula pesos sobre os estados do codificador h_1, ..., h_L.", fs=10, color=COLORS["muted"])
-    save(fig, "diagrama_seq2seq_attention_proprio")
+        def section(x, y, label, width):
+            text(x, y, label, fs=8.9, weight="bold")
+            ax.plot([x - width / 2, x + width / 2], [y - 3.6, y - 3.6], color=rule, linewidth=0.8)
+
+        def attention_matrix(x, y, cell_w=4.05, cell_h=3.75):
+            values = [
+                [0.18, 0.32, 0.74, 0.58, 0.26],
+                [0.12, 0.28, 0.48, 0.76, 0.43],
+                [0.20, 0.36, 0.42, 0.62, 0.71],
+                [0.30, 0.24, 0.38, 0.54, 0.68],
+            ]
+
+            for r, row in enumerate(values):
+                for c, val in enumerate(row):
+                    shade = 0.98 - 0.50 * val
+                    fc = (shade, shade, shade)
+                    ax.add_patch(
+                        Rectangle(
+                            (x + c * cell_w, y + (3 - r) * cell_h),
+                            cell_w,
+                            cell_h,
+                            facecolor=fc,
+                            edgecolor="white",
+                            linewidth=0.72,
+                        )
+                    )
+            ax.add_patch(Rectangle((x, y), 5 * cell_w, 4 * cell_h, facecolor="none", edgecolor=line, linewidth=0.9))
+            for c, lab in enumerate(["$h_1$", "$h_2$", "$\\cdots$", "", "$h_L$"]):
+                xpos = x + (c + 0.5) * cell_w
+                if lab:
+                    text(xpos, y - 3.0, lab, fs=6.8, color=muted)
+            text(x + 5 * cell_w + 3.0, y + 2 * cell_h, "$k$", fs=6.9, color=muted, rotation=90)
+
+        section(17, 90, "Codificador", 25)
+        section(50, 90, "Atenção temporal", 30)
+        section(83, 90, "Decodificador", 25)
+
+        xs = [8.0, 17.5, 27.0]
+        inputs = ["$x_{t-L+1}$", "$\\cdots$", "$x_t$"]
+        hids = ["$h_1$", "$\\cdots$", "$h_L$"]
+        for x, inp, hid in zip(xs, inputs, hids):
+            rect(x - 3.8, 73.0, 7.6, 7.0, inp, fc="white", fs=6.7, weight="bold")
+            rect(x - 3.8, 55.0, 7.6, 7.1, hid, fc=fill_dark, fs=7.2, weight="bold")
+            arr((x, 73.0), (x, 62.2), lw=0.9, ms=8.2)
+        text(17.5, 47.5, "janela histórica ($L$ instantes)", fs=7.2, color=muted)
+        arr((31.0, 58.5), (38.1, 65.4), lw=0.95, ms=8.8)
+
+        text(50, 77.5, "matriz de pesos $\\alpha_{k,j}$", fs=8.1, weight="bold")
+        attention_matrix(39.9, 59.0)
+        arr((50, 59.0), (50, 49.5), lw=0.9, ms=8.5)
+        rect(
+            41.1,
+            39.2,
+            17.8,
+            9.5,
+            "$c_k=\\sum_j \\alpha_{k,j}h_j$",
+            fc=accent_fill,
+            ec=accent,
+            fs=7.6,
+            weight="bold",
+        )
+        text(50, 33.0, "contexto do horizonte $k$", fs=6.9, color=muted)
+        arr((59.1, 44.0), (70.3, 44.0), lw=0.95, ms=8.8)
+
+        rect(70.6, 72.7, 24.8, 8.0, "$\\tilde{y}_{t+k-1}$  e  $z_{t+k}$", fc=fill_dark, fs=7.0, weight="bold")
+        rect(75.7, 57.5, 14.6, 7.8, "$s_k$", fc=fill_mid, fs=8.3, weight="bold")
+        rect(71.4, 40.2, 23.2, 8.1, "$g_{\\theta}(s_k,c_k,z_{t+k})$", fc="white", fs=6.9, weight="bold")
+        arr((83.0, 72.7), (83.0, 65.5), lw=0.9, ms=8.2)
+        arr((83.0, 57.5), (83.0, 48.4), lw=0.9, ms=8.2)
+        text(71.0, 67.6, "$k=1,\\ldots,H$", fs=6.9, color=muted, ha="left")
+
+        out_x = [75.0, 83.0, 91.0]
+        output_labels = ["$\\hat{y}_{t+1}$", "$\\cdots$", "$\\hat{y}_{t+H}$"]
+        for x, out in zip(out_x, output_labels):
+            rect(x - 3.4, 25.7, 6.8, 6.9, out, fc="white", fs=6.7, weight="bold")
+            arr((x, 40.2), (x, 32.8), lw=0.78, ms=7.5)
+        ax.plot([75.0, 91.0], [22.1, 22.1], color=rule, linewidth=0.8)
+        ax.plot([75.0, 75.0], [22.1, 23.6], color=rule, linewidth=0.8)
+        ax.plot([91.0, 91.0], [22.1, 23.6], color=rule, linewidth=0.8)
+        text(83, 18.8, "sequência prevista ($H$ passos)", fs=6.8, color=muted)
+
+        save(fig, "diagrama_seq2seq_attention_proprio")
 
 
 def draw_tree(ax, x, y, scale=1.0, color=None):
