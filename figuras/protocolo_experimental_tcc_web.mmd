@@ -1,0 +1,48 @@
+%%{init: {"theme": "base", "flowchart": {"curve": "basis", "nodeSpacing": 32, "rankSpacing": 38}, "themeVariables": {"fontFamily": "Inter, Arial, sans-serif", "primaryTextColor": "#1f2937", "lineColor": "#334155"}}}%%
+flowchart LR
+    subgraph P["Preparação e validação"]
+        direction TB
+        A["Dados horários<br/>FEAM / estação Sapo<br/>PM2,5 e variáveis auxiliares"]
+        B["Auditoria temporal<br/>lacunas, cobertura<br/>e consistência"]
+        C["Preparação causal<br/>imputação, normalização<br/>e atributos sem futuro"]
+        D["Janelamento supervisionado<br/>48 h de histórico<br/>24 h de horizonte"]
+        E["Divisão cronológica<br/>70% treino<br/>15% validação<br/>15% teste"]
+        F["Seleção por validação<br/>walk-forward<br/>sem tocar no teste"]
+        A --> B --> C --> D --> E --> F
+    end
+
+    subgraph M["Modelos comparados"]
+        direction TB
+        H["LSTM direta<br/>saída multi-horizonte"]
+        I["LSTM recursiva<br/>realimentação passo a passo"]
+        J["Seq2Seq com atenção<br/>codificador-decodificador"]
+        K["XGBoost multi-horizonte<br/>representação tabular"]
+    end
+
+    subgraph R["Avaliação e leitura"]
+        direction TB
+        L["Métricas finais<br/>MAE, RMSE, MAPE e R²"]
+        N["Análise por horizonte<br/>degradação do erro<br/>e eventos altos"]
+        O["Interpretação operacional<br/>estabilidade e uso prático"]
+        L --> N --> O
+    end
+
+    F --> H
+    F --> I
+    F --> J
+    F --> K
+    H --> L
+    I --> L
+    J --> L
+    K --> L
+
+    classDef data fill:#dbeafe,stroke:#2563eb,stroke-width:1.8px,color:#1f2937;
+    classDef prep fill:#d1fae5,stroke:#059669,stroke-width:1.8px,color:#1f2937;
+    classDef split fill:#fff7ed,stroke:#ea580c,stroke-width:1.8px,color:#1f2937;
+    classDef model fill:#ede9fe,stroke:#7c3aed,stroke-width:1.8px,color:#1f2937;
+    classDef result fill:#fef3c7,stroke:#d97706,stroke-width:1.8px,color:#1f2937;
+    class A,B data;
+    class C,D prep;
+    class E,F split;
+    class H,I,J,K model;
+    class L,N,O result;
