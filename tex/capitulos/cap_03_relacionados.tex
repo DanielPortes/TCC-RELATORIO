@@ -64,9 +64,9 @@ Assim, a literatura justifica incluir o Seq2Seq como arquitetura natural e compe
 
 \section{Dados Faltantes em Séries Ambientais}
 
-Lacunas são comuns em monitoramento ambiental e podem distorcer treinamento e avaliação. A literatura de dados faltantes mostra que imputação não deve ser confundida com observação real \cite{rubin1976inference}. Métodos como MICE e MissForest estimam valores faltantes usando relações multivariadas \cite{vanbuuren2011mice,stekhoven2012missforest}, enquanto abordagens recentes baseadas em atenção, como SAITS, exploram dependências temporais e entre variáveis \cite{du2023saits}.
+Lacunas são comuns em monitoramento ambiental e podem distorcer treinamento e avaliação. A literatura de dados faltantes mostra que imputação não deve ser confundida com observação real \cite{rubin1976inference}. Métodos como MICE e MissForest estimam valores faltantes usando relações multivariadas \cite{vanbuuren2011mice,stekhoven2012missforest}.
 
-O protocolo final deste trabalho adota uma posição conservadora: usa imputação linear para manter a série completa em grade horária, mas preserva uma máscara do alvo observado para impedir que valores imputados de PM2,5 entrem como verdade na função de perda e nas métricas. Assim, a imputação resolve a continuidade das janelas, enquanto a avaliação permanece vinculada a medições observadas.
+O protocolo final deste trabalho usa imputação linear para manter a série completa em grade horária e indicadores de ausência para registrar a cobertura original. A avaliação final permanece vinculada a medições observadas de PM2,5 no bloco de teste, o que torna a leitura das métricas mais direta.
 
 \section{Protocolos de Avaliação Temporal}
 
@@ -78,6 +78,6 @@ Esse problema aparece diretamente no desenvolvimento deste TCC. Resultados antig
 
 À luz dos trabalhos relacionados, este TCC ocupa uma posição experimental e metodológica. Ele não afirma que uma arquitetura de atenção é universalmente superior, nem que um modelo baseado em árvores deve ser descartado. Em vez disso, fixa um protocolo rastreável para a estação Sapo e compara famílias de modelos sob o mesmo contrato causal de entrada.
 
-A diferenciação principal está em quatro pontos. Primeiro, a tarefa é horária e multi-horizonte, com entrada de 48 horas e horizonte de 24 horas. Segundo, a divisão do conjunto de dados é cronológica, a HPO usa validação temporal interna e os artefatos usados nos resultados são rastreáveis. Terceiro, o alvo imputado é excluído da função de perda e das métricas quando a máscara de observado está disponível. Quarto, a análise distingue erro médio global de comportamento por horizonte, suavização visual e resposta a eventos de maior concentração.
+A diferenciação principal está em quatro pontos. Primeiro, a tarefa é horária e multi-horizonte, com entrada de 48 horas e horizonte de 24 horas. Segundo, a divisão do conjunto de dados é cronológica, a HPO usa validação temporal interna e os artefatos usados nos resultados são rastreáveis. Terceiro, as métricas finais são calculadas sobre pares previsão--observação com medição real no teste. Quarto, a análise distingue erro médio global de comportamento por horizonte, suavização visual e resposta a eventos de maior concentração.
 
 Com isso, o trabalho complementa estudos que propõem arquiteturas específicas para PM2,5 ao mostrar que, em um contrato de dados real e fixo, a conclusão depende tanto do protocolo experimental quanto da arquitetura escolhida. Esse posicionamento evita uma promessa excessiva de estado da arte universal e concentra a contribuição na comparação controlada e reprodutível.

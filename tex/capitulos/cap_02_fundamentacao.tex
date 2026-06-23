@@ -104,9 +104,9 @@ A Figura~\ref{fig:validacao_cruzada_temporal_walk_forward} ilustra uma validaç�
 
 Dados ambientais reais frequentemente contêm lacunas por falhas de sensor, manutenção, comunicação ou filtragem de leituras inconsistentes. Uma lacuna significa que, em determinado instante, a medição esperada não foi observada. A ausência de dados deve ser tratada com cuidado porque pode afetar tanto o treinamento quanto a avaliação do modelo de previsão.
 
-Imputação é o processo de preencher lacunas com estimativas. Métodos simples, como interpolação linear, preservam a estrutura temporal local e são transparentes; métodos multivariados, como Multivariate Imputation by Chained Equations (MICE) e MissForest, exploram relações entre variáveis \cite{vanbuuren2011mice,stekhoven2012missforest}. Métodos de imputação temporal, como Bidirectional Recurrent Imputation for Time Series (BRITS) e Self-Attention-based Imputation for Time Series (SAITS), também usam máscaras de observação para distinguir valores disponíveis de valores ausentes \cite{cao2018brits,du2023saits}.
+Imputação é o processo de preencher lacunas com estimativas. Métodos simples, como interpolação linear, preservam a estrutura temporal local e são transparentes; métodos multivariados, como Multivariate Imputation by Chained Equations (MICE) e MissForest, exploram relações entre variáveis \cite{vanbuuren2011mice,stekhoven2012missforest}. Como valores preenchidos não são medições reais, a imputação deve ser descrita separadamente da avaliação dos modelos \cite{rubin1976inference}.
 
-Neste trabalho, a distinção entre valor observado e valor preenchido não é tratada como prática universal da área. Ela é adotada como decisão metodológica do protocolo experimental: além da série preenchida para viabilizar a construção das janelas, preserva-se uma máscara de observação. O indicador vale 1 quando o valor foi originalmente medido e 0 quando foi preenchido por imputação. Essa escolha é compatível com a preocupação de \citeonline{rubin1976inference} de diferenciar observações reais de valores não observados e com métodos modernos que carregam máscaras de observação \cite{cao2018brits,du2023saits}. No protocolo, a máscara permite impedir que alvos imputados sejam avaliados como se fossem medições reais nas métricas principais.
+Neste trabalho, a imputação tem papel operacional: manter a série em grade horária regular para formar janelas de entrada e saída. Os indicadores de ausência preservam a informação sobre quais horários foram originalmente medidos. Com isso, as métricas finais comparam previsões apenas com medições reais de PM2,5 disponíveis no conjunto de teste.
 
 Vazamento temporal ocorre quando uma etapa de preparação usa informação que não estaria disponível no instante real da previsão. Um exemplo simples é normalizar a série usando média e desvio-padrão calculados com todo o conjunto, incluindo validação e teste; nesse caso, estatísticas do futuro influenciam o treinamento. Outro exemplo é interpolar uma lacuna no bloco de validação usando uma medição posterior à origem da previsão. A criação de atributos também pode vazar informação se usar médias, tendências ou agregações calculadas com dados futuros.
 
@@ -356,25 +356,13 @@ Também são usadas funções de perda robustas ou ponderadas. A perda de Huber 
     \label{eq:huber}
 \end{equation}
 
-Na Equação~\ref{eq:huber}, \(\delta\) define o ponto de transição entre o comportamento quadrático e o linear. Quando há valores imputados no alvo, este trabalho pode usar uma máscara \(m_{i,k}\) para calcular perdas apenas nos alvos originalmente observados. A Equação~\ref{eq:perda_mascarada} formaliza essa escolha metodológica.
-
-\begin{equation}
-    \mathcal{J}(\theta)
-    =
-    \frac{\sum_{i,k}m_{i,k}\ell(y_{i,k}, \hat{y}_{i,k})}
-    {\sum_{i,k}m_{i,k}}
-    \label{eq:perda_mascarada}
-\end{equation}
-
-Na Equação~\ref{eq:perda_mascarada}, \(m_{i,k}=1\) quando o alvo do exemplo \(i\) no horizonte \(k\) foi observado e \(m_{i,k}=0\) quando foi imputado. Essa escolha segue a decisão do protocolo de não otimizar ou avaliar o modelo como se alvos preenchidos fossem medições reais.
-
-A Equação~\ref{eq:perda_absoluta_ponderada} mostra uma perda absoluta ponderada, que atribui maior peso a determinados regimes de concentração ou tipos de erro.
+Na Equação~\ref{eq:huber}, \(\delta\) define o ponto de transição entre o comportamento quadrático e o linear. Além da Huber, algumas execuções usam uma perda absoluta ponderada, que atribui maior peso a determinados regimes de concentração ou tipos de erro. A Equação~\ref{eq:perda_absoluta_ponderada} mostra essa formulação sobre o conjunto \(\mathcal{O}\) de pares com alvo disponível para treinamento.
 
 \begin{equation}
     \mathcal{J}_{w}(\theta)
     =
-    \frac{\sum_{i,k}m_{i,k}w_{i,k}|y_{i,k}-\hat{y}_{i,k}|}
-    {\sum_{i,k}m_{i,k}w_{i,k}}
+    \frac{\sum_{(i,k)\in\mathcal{O}}w_{i,k}|y_{i,k}-\hat{y}_{i,k}|}
+    {\sum_{(i,k)\in\mathcal{O}}w_{i,k}}
     \label{eq:perda_absoluta_ponderada}
 \end{equation}
 
@@ -429,16 +417,7 @@ O coeficiente de determinação, \(R^2\), compara o erro do modelo com a variân
     \label{eq:r2}
 \end{equation}
 
-Quando há valores imputados no alvo, este trabalho calcula métricas principais sobre os pontos originalmente observados, usando a máscara \(m_i\). Para o MAE observado, por exemplo, usa-se a Equação~\ref{eq:mae_observado}.
-
-\begin{equation}
-    \text{MAE}_{obs}(y, \hat{y}) =
-    \frac{\sum_{i=1}^{N}m_i|y_i-\hat{y}_i|}
-    {\sum_{i=1}^{N}m_i}
-    \label{eq:mae_observado}
-\end{equation}
-
-Na Equação~\ref{eq:mae_observado}, \(m_i=1\) indica que o alvo foi originalmente observado, e \(m_i=0\) indica que ele foi preenchido por imputação. O mesmo princípio pode ser aplicado a RMSE e \(R^2\), sempre calculando médias e somas no mesmo subconjunto observado. Essa decisão mantém a avaliação vinculada às medições efetivamente observadas e evita tratar valores preenchidos como verdade de referência.
+Nos resultados deste trabalho, \(N\) inclui apenas pares previsão--observação em que há medição real de PM2,5 no conjunto avaliado. Valores preenchidos por imputação ajudam a manter a grade horária regular e a construir janelas, mas não são usados como verdade de referência nas métricas finais. Assim, as Equações~\ref{eq:mae}, \ref{eq:rmse}, \ref{eq:mape} e \ref{eq:r2} são aplicadas diretamente ao subconjunto de pares observados.
 
 Métricas por horizonte analisam separadamente cada passo previsto. Para um horizonte específico \(h\), com \(h=1,\ldots,H\), o MAE por horizonte pode ser escrito como na Equação~\ref{eq:mae_horizonte}.
 

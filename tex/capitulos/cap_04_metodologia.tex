@@ -26,7 +26,7 @@ O conjunto consolidado usado nos resultados principais contém 34.991 registros 
         Tarefa & 48 horas passadas para prever as próximas 24 horas \\
         Divisão externa & Cronológica por proporção 70/15/15 \\
         Seleção de hiperparâmetros & \textit{Walk-forward} temporal nos 85\% anteriores ao teste \\
-        Imputação & Linear no contrato final, com máscaras de valores originalmente ausentes \\
+        Imputação & Linear no contrato final, com indicadores de valores originalmente ausentes \\
         Variáveis principais & PM2,5, PM10, indicadores de ausência, tempo/Fourier e substitutos causais de PM10 \\
         Avaliação final & Teste externo, sem embaralhamento temporal \\
         \bottomrule
@@ -49,7 +49,7 @@ Essa escolha deve ser lida como um recorte metodológico do estudo, não como af
     \label{fig:eda_ranking_estacoes_pm25_pm10}
 \end{figure}
 
-Após a escolha da estação, a análise exploratória foi refeita sobre o conjunto final usado na comparação principal. A Figura \ref{fig:eda_sapo_cobertura_lacunas} mostra que a série não é integralmente contínua: há meses com cobertura elevada, mas também lacunas longas, principalmente na validação. A maior lacuna original de PM2,5 ocorre de 2019-12-11 13:30 a 2020-01-28 18:30, com 48,25 dias, seguida por lacunas de 14,38 dias e 10,83 dias no treino. Por outro lado, ainda existem trechos observados contínuos suficientes para análise de janelas; os maiores blocos contínuos identificados têm cerca de 8,54 dias no treino e 8,13 dias no teste. Esse padrão fundamenta duas decisões metodológicas: manter a série em grade horária regular por interpolação e preservar máscaras de ausência para que valores originalmente imputados não sejam tratados como verdade observada na função de perda nem nas métricas.
+Após a escolha da estação, a análise exploratória foi refeita sobre o conjunto final usado na comparação principal. A Figura \ref{fig:eda_sapo_cobertura_lacunas} mostra que a série não é integralmente contínua: há meses com cobertura elevada, mas também lacunas longas, principalmente na validação. A maior lacuna original de PM2,5 ocorre de 2019-12-11 13:30 a 2020-01-28 18:30, com 48,25 dias, seguida por lacunas de 14,38 dias e 10,83 dias no treino. Por outro lado, ainda existem trechos observados contínuos suficientes para análise de janelas; os maiores blocos contínuos identificados têm cerca de 8,54 dias no treino e 8,13 dias no teste. Esse padrão fundamenta duas decisões metodológicas: manter a série em grade horária regular por interpolação e preservar indicadores de ausência para que valores preenchidos não sejam confundidos com medições reais.
 
 \begin{figure}[htb]
     \centering
@@ -86,7 +86,7 @@ A Tabela \ref{tab:eda_sapo_splits} resume a cobertura e a distribuição observa
 
 \subsection{Padrões Temporais de PM2,5 e PM10}
 
-Além da cobertura e da distribuição marginal, o artefato Sapo foi analisado quanto a tendência, persistência e sazonalidade. Essa análise usa apenas pontos originalmente observados nas métricas agregadas, respeitando as máscaras \texttt{PM2,5\_\_miss} e \texttt{PM10\_\_miss}. A Figura \ref{fig:serie_temporal_componentes_sapo} resume visualmente a decomposição descritiva do PM2,5: há uma componente lenta de tendência-ciclo, um perfil horário repetitivo e resíduos com picos abruptos.
+Além da cobertura e da distribuição marginal, o artefato Sapo foi analisado quanto a tendência, persistência e sazonalidade. Essa análise usa apenas pontos originalmente observados nas métricas agregadas, identificados pelos campos \texttt{PM2,5\_\_miss} e \texttt{PM10\_\_miss}. A Figura \ref{fig:serie_temporal_componentes_sapo} resume visualmente a decomposição descritiva do PM2,5: há uma componente lenta de tendência-ciclo, um perfil horário repetitivo e resíduos com picos abruptos.
 
 \begin{figure}[htb]
     \centering
@@ -166,7 +166,7 @@ Neste relatório, portanto, a expressão 70/15/15 se refere à divisão cronoló
 
 O pré-processamento foi desenhado para reduzir vazamento temporal. A imputação é ajustada sobre o trecho de treino e aplicada ao restante do período respeitando a separação temporal. No contrato final, usa-se interpolação linear no bloco de treino; para o bloco posterior ao fim do treino, a transformação não usa âncoras futuras e propaga o último estado imputado disponível. Para cada variável imputada, é mantido um indicador \texttt{\_\_miss}, que informa se o valor original estava ausente.
 
-O alvo PM2,5 também possui uma máscara de observação. Quando essa máscara está disponível, pontos do alvo originalmente imputados são excluídos da função de perda e das métricas observadas, seguindo a distinção entre valor observado e valor ausente ou estimado discutida na literatura de dados faltantes e imputação temporal \cite{rubin1976inference,cao2018brits,du2023saits}. Assim, o modelo pode receber uma série regularizada para formar janelas, mas não é recompensado por prever como ``verdade'' um valor que foi produzido pelo próprio pré-processamento.
+Para PM2,5, o indicador de ausência identifica quais horários têm medição real. Na avaliação final, as métricas são calculadas somente nos pares previsão--observação com medição disponível no teste. Assim, o modelo pode receber uma série regularizada para formar janelas, mas os resultados finais continuam vinculados a medições reais.
 
 A normalização é calculada com estatísticas do conjunto de treino. No treinamento dos modelos neurais, médias e desvios são computados por estação e aplicados às janelas de treino, validação e teste. Essa decisão evita que informação agregada dos períodos de validação e teste entre no ajuste de escala do modelo.
 
@@ -223,7 +223,7 @@ Foram comparadas cinco variantes neurais e um modelo de referência baseado em �
 
 A escolha dos modelos também delimita o escopo do estudo. Transformers temporais, como o \textit{Temporal Fusion Transformer} (TFT), Informer, Autoformer e PatchTST, são alternativas modernas para previsão multi-horizonte \cite{lim2021tft,zhou2021informer,wu2021autoformer,nie2023patchtst}. Eles não foram incluídos na comparação final porque uma comparação justa exigiria nova família de arquitetura, espaço próprio de hiperparâmetros, orçamento adicional de otimização de hiperparâmetros (HPO), avaliação com múltiplas sementes e decisões específicas de regularização para o tamanho e a qualidade do conjunto de dados Sapo. Além disso, a literatura não autoriza assumir que Transformers vencem automaticamente em séries temporais; \citeonline{zeng2023transformers} mostram que linhas de base simples podem superar Transformers em alguns cenários de previsão. Assim, o recorte deste TCC é comparar famílias recorrentes e modelos baseados em atributos derivados das janelas temporais sob um contrato causal rastreável, deixando Transformers como extensão natural para trabalhos futuros.
 
-A comparação com XGBoost exige uma ressalva metodológica. O modelo de referência baseado em árvores usa o mesmo contrato causal de entrada e é avaliado no mesmo bloco final de teste, mas seu treinamento com saída múltipla exige janelas com horizonte completo observado. Nos modelos neurais, a máscara de alvo observado permite ignorar pontos imputados da função de perda e das métricas. Assim, a avaliação de teste é comparável, mas o mecanismo de treino não é perfeitamente simétrico.
+A comparação com XGBoost exige uma ressalva metodológica. O modelo de referência baseado em árvores usa o mesmo contrato causal de entrada e é avaliado no mesmo bloco final de teste, mas seu treinamento com saída múltipla exige janelas com horizonte completo observado. Nos modelos neurais, pontos sem medição real de PM2,5 não contribuem para a perda de treinamento. Assim, a avaliação de teste é comparável, mas o mecanismo de treino não é perfeitamente simétrico.
 
 Além da comparação principal, foram executados experimentos diagnósticos com o Seq2Seq atenção para investigar limites informacionais do problema. O primeiro é o \textit{oracle future auxiliary}: no decodificador, o modelo recebe PM10 e partículas totais em suspensão (PTS) reais do próprio horizonte futuro. Esse cenário não representa um uso causal de previsão, pois usa informação indisponível no instante de previsão, mas mede quanto desempenho poderia ser recuperado caso variáveis auxiliares futuras relevantes fossem conhecidas. O segundo é o Seq2Seq multi-alvo, no qual a rede continua prevendo PM2,5 como alvo principal, mas recebe uma cabeça auxiliar para prever PM10 e PTS futuros durante o treinamento. Esse teste avalia se aprender variáveis correlacionadas em conjunto ajuda a representação interna sem introduzir vazamento na avaliação causal.
 
