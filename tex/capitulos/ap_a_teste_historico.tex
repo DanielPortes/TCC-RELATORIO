@@ -6,11 +6,11 @@ Este apêndice reúne as tabelas do teste histórico (27 de maio a 31 de dezembr
 
 \section{Comparação Principal}
 
+A Tabela~\ref{tab:metricas_teste_historico} traz as métricas do teste histórico e a Tabela~\ref{tab:ensemble_teste_historico}, as do \textit{ensemble} nesse período. A Tabela~\ref{tab:pareado_teste_historico} traz a diferença de MAE em relação à referência, com intervalo de confiança, e as Tabelas~\ref{tab:matriz_holdout} e~\ref{tab:matriz_teste_historico} trazem a diferença entre todos os pares de modelos no período de confirmação e no teste histórico.
+
 \inputtabela{metricas_teste_historico}
 
 \inputtabela{ensemble_teste_historico}
-
-\inputtabela{ensemble_holdout}
 
 \inputtabela{pareado_teste_historico}
 
@@ -20,24 +20,24 @@ Este apêndice reúne as tabelas do teste histórico (27 de maio a 31 de dezembr
 
 \section{Picos, Cauda e Dinâmica}
 
+As Tabelas~\ref{tab:cauda_teste_historico} e~\ref{tab:eventos_teste_historico} descrevem o desempenho nas concentrações altas e nos eventos de pico do teste histórico, e a Tabela~\ref{tab:eventos_pareado_teste_historico} compara os modelos por evento. A Tabela~\ref{tab:dinamica_teste_historico} e as Figuras~\ref{fig:erro_por_horizonte_teste_historico} e~\ref{fig:janela_evento_teste_historico} mostram a dinâmica horária, o erro por horizonte e o maior evento do período.
+
 \inputtabela{cauda_teste_historico}
 
 \inputtabela{eventos_teste_historico}
-
-\inputtabela{eventos_pareado_holdout}
 
 \inputtabela{eventos_pareado_teste_historico}
 
 \inputtabela{dinamica_teste_historico}
 
-\begin{figure}[htb]
+\begin{figure}[!htbp]
     \centering
     \figuragerada{0.9\linewidth}{erro_por_horizonte_teste_historico}
     \caption{MAE por horizonte no teste histórico (média das sementes). Linhas tracejadas: previsores de referência e regressão Ridge.}
     \label{fig:erro_por_horizonte_teste_historico}
 \end{figure}
 
-\begin{figure}[htb]
+\begin{figure}[!htbp]
     \centering
     \figuragerada{\linewidth}{janela_evento_teste_historico}
     \caption{Previsões (média das sementes) em torno do maior evento do teste histórico, em painéis separados por modelo e com escala comum.}
@@ -45,6 +45,8 @@ Este apêndice reúne as tabelas do teste histórico (27 de maio a 31 de dezembr
 \end{figure}
 
 \section{Fatores de Projeto}
+
+As Tabelas~\ref{tab:metricas_fatores_holdout} e~\ref{tab:metricas_fatores_teste_historico} comparam as variantes de projeto no período de confirmação e no teste histórico, e a Tabela~\ref{tab:cauda_fatores_teste_historico} mostra o efeito delas nas concentrações altas. As Tabelas~\ref{tab:fatorial_perda_teste_historico}, \ref{tab:extras_teste_historico}, \ref{tab:ablacao_desenho_teste_historico} e~\ref{tab:ablacao_pm10_teste_historico} detalham a perda, as variantes extras e as ablações do desenho e das variáveis derivadas do PM10 no teste histórico.
 
 \inputtabela{metricas_fatores_holdout}
 
@@ -61,6 +63,8 @@ Este apêndice reúne as tabelas do teste histórico (27 de maio a 31 de dezembr
 \inputtabela{ablacao_pm10_teste_historico}
 
 \section{Sensibilidades e Vencedores por Critério}
+
+As Tabelas~\ref{tab:sensibilidade_imputados_teste_historico}, \ref{tab:verificacao_hpo_teste_historico} e~\ref{tab:vitorias_teste_historico} trazem, para o teste histórico, a sensibilidade aos alvos preenchidos, a verificação da busca de hiperparâmetros e o modelo com menor erro em cada critério.
 
 \inputtabela{sensibilidade_imputados_teste_historico}
 

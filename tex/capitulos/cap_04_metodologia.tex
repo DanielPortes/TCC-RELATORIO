@@ -16,7 +16,7 @@ O arquivo cobre de 1º de janeiro de 2017 a 31 de dezembro de 2023. O conjunto u
 
 A estação Sapo foi escolhida após uma análise exploratória de 38 estações com medições de PM2,5, que considerou a cobertura do alvo, a continuidade temporal, a disponibilidade de PM10 no mesmo horário, a frequência de eventos de alta concentração e o equilíbrio entre os períodos cronológicos. O objetivo dessa triagem foi selecionar uma série com volume suficiente, uma variável auxiliar útil e um número mínimo de eventos altos para a análise, e não a estação mais previsível da rede. Sapo ficou em segundo lugar tanto na classificação por PM2,5 quanto na que inclui o PM10 (Figura~\ref{fig:eda_ranking_estacoes_pm25_pm10}). A estação em primeiro lugar, Rio Doce, teve pontuação ligeiramente maior, mas apenas 0,19\% de horas com PM2,5 acima de 35~\(\mu\)g/m\(^3\), contra 1,16\% em Sapo, e não pertence ao mesmo município. Sapo tem 83,47\% de cobertura de PM2,5 e 74,27\% de horas com PM2,5 e PM10 medidos juntos, com correlação de 0,58 entre os dois poluentes. A generalização para outras estações permanece uma limitação.
 
-\begin{figure}[htb]
+\begin{figure}[!htbp]
     \centering
     \includegraphics[width=\linewidth]{eda_ranking_estacoes_pm25_pm10.pdf}
     \caption{Classificação preliminar das estações por previsibilidade de PM2,5 com o contexto de PM10, obtida na análise exploratória.}
@@ -28,7 +28,7 @@ A estação Sapo foi escolhida após uma análise exploratória de 38 estações
 
 A Figura~\ref{fig:eda_sapo_cobertura_lacunas} mostra que a série não é contínua: há meses com boa cobertura e lacunas longas, sobretudo na validação. A maior lacuna de PM2,5 vai de 11 de dezembro de 2019 a 28 de janeiro de 2020, com 48,25 dias. Os maiores trechos contínuos de dados medidos têm cerca de 8,5 dias. Por isso, é necessário preencher as lacunas para formar as janelas, e manter registro de quais valores foram preenchidos (Seção~\ref{sec:preprocessamento}).
 
-\begin{figure}[htb]
+\begin{figure}[!htbp]
     \centering
     \includegraphics[width=\linewidth]{eda_sapo_cobertura_lacunas.pdf}
     \caption{Cobertura mensal de PM2,5 e maiores lacunas na série da estação Sapo no período de desenvolvimento (2017 a 2020).}
@@ -46,7 +46,7 @@ A média anual de PM2,5 varia bastante entre os anos (por exemplo, 6,9~\(\mu\)g/
 
 Os padrões descritos nesta seção foram calculados apenas com os pontos medidos do período de desenvolvimento (2017 a 2020). A Figura~\ref{fig:serie_temporal_componentes_sapo} apresenta a decomposição aditiva do PM2,5 (Equação~\ref{eq:decomposicao_aditiva}): observe a tendência que varia devagar, o perfil que se repete a cada dia e o resíduo com picos abruptos.
 
-\begin{figure}[htb]
+\begin{figure}[!htbp]
     \centering
     \includegraphics[width=\linewidth]{serie_temporal_componentes_sapo.pdf}
     \caption{Série de PM2,5 da estação Sapo e sua decomposição em tendência, componente diária e resíduo. Elaboração própria, com base em \citeonline{hyndman2021forecasting}.}
@@ -55,7 +55,7 @@ Os padrões descritos nesta seção foram calculados apenas com os pontos medido
 
 A Tabela~\ref{tab:padroes_temporais_sapo} apresenta as autocorrelações (Equação~\ref{eq:autocorrelacao}). Para o PM2,5, a autocorrelação em 1 hora é 0,813 e em 24 horas é 0,681, o que indica forte persistência de curto prazo e repetição diária; a semanal é mais fraca (0,461). O perfil horário mostra as menores médias entre a madrugada e o início da tarde (mínimo de cerca de 10,3~\(\mu\)g/m\(^3\) às 13 h) e as maiores no fim da tarde (máximo de cerca de 14,8 às 18 h). O PM10 tem comportamento parecido, com amplitude horária maior. A correlação de Pearson entre PM2,5 e PM10 medidos no mesmo horário é 0,597; portanto, o PM10 é informativo, mas não determina o PM2,5. Há elevação de ambos em setembro e outubro; contudo, a autocorrelação anual do PM2,5 é baixa (cerca de 0,04), de modo que a repetição de ano para ano é menos estável do que a diária.
 
-\begin{table}[htb]
+\begin{table}[!htbp]
     \centering
     \caption{Padrões temporais observados de PM2,5 e PM10 na estação Sapo (2017 a 2020).}
     \label{tab:padroes_temporais_sapo}
@@ -80,7 +80,7 @@ A Tabela~\ref{tab:padroes_temporais_sapo} apresenta as autocorrelações (Equaç
 
 A tarefa é uma previsão multi-horizonte (Seção~\ref{sec:previsao_multi_horizonte}). Para cada instante de emissão \(t\), o modelo recebe as 48 horas anteriores (\(L=48\), de \(t-47\) a \(t\)) e prevê a concentração de PM2,5 para as 24 horas seguintes (\(H=24\), de \(t+1\) a \(t+24\)), como mostra a Figura~\ref{fig:tarefa_48_24_sapo}. O horizonte de 24 horas corresponde a uma previsão para o dia seguinte e à escala do padrão de qualidade do ar de 24 horas da Resolução nº 491/2018 do Conselho Nacional do Meio Ambiente (CONAMA) \cite{conama2018res491}. A escolha de \(L=48\) é uma decisão de projeto: ela cobre dois ciclos diários e contém as defasagens de 24 e de 48 horas usadas pelas referências simples (Seção~\ref{sec:referencias_comparacao}). Como a autocorrelação de PM2,5 é alta em 1 hora (0,813), ainda relevante em 24 horas (0,681) e moderada em 48 horas (0,598), a janela contém o ciclo diário completo. Para verificar que as conclusões não dependem dessa escolha, a janela foi variada em 24, 48, 72 e 96 horas (Seção~\ref{sec:sensibilidade_janela}).
 
-\begin{figure}[htb]
+\begin{figure}[!htbp]
     \centering
     \resizebox{0.95\linewidth}{!}{%
     \begin{tikzpicture}[
@@ -124,7 +124,7 @@ Os dados são divididos por datas em quatro blocos cronológicos (Tabela~\ref{ta
 
 O \emph{teste histórico} (27 de maio a 31 de dezembro de 2020) foi consultado nessas etapas exploratórias, quando algumas escolhas de projeto foram feitas olhando seus resultados. Por isso, ele \textbf{não} é tratado como teste independente: seus resultados são apresentados, mas a evidência confirmatória vem do \emph{período de confirmação} (\textit{holdout}, 2021 a 2023), que nenhuma decisão de projeto observou antes da execução final. Todas as métricas são reportadas separadamente nos dois períodos, atribuindo cada previsão ao instante previsto.
 
-\begin{table}[htb]
+\begin{table}[!htbp]
     \centering
     \caption{Divisão cronológica dos dados da estação Sapo.}
     \label{tab:split_temporal_sapo}
@@ -142,7 +142,7 @@ O \emph{teste histórico} (27 de maio a 31 de dezembro de 2020) foi consultado n
     }
 \end{table}
 
-\begin{figure}[htb]
+\begin{figure}[!htbp]
     \centering
     \resizebox{\linewidth}{!}{%
     \begin{tikzpicture}[x=1cm,y=1cm]
@@ -190,7 +190,7 @@ Na Equação~\ref{eq:normalizacao}, \(\mu_{\text{treino}}\) e \(\sigma_{\text{tr
 
 O conjunto de variáveis foi mantido enxuto, pois só o PM2,5, o PM10 e as partículas totais em suspensão têm medições (Seção~\ref{sec:dados}). O codificador (ou a entrada, nos modelos sem codificador) recebe o PM2,5, o PM10, seus indicadores de ausência e atributos de calendário. Os modelos que aceitam entradas para o horizonte futuro recebem apenas variáveis cujo valor pode ser determinado no instante de emissão: termos periódicos e duas variáveis derivadas do PM10. A Tabela~\ref{tab:variaveis_contrato} resume os grupos.
 
-\begin{table}[htb]
+\begin{table}[!htbp]
     \centering
     \caption{Variáveis utilizadas pelos modelos.}
     \label{tab:variaveis_contrato}
@@ -220,7 +220,7 @@ Distinguem-se dois papéis das variáveis. As \emph{covariáveis do passado} sã
 
 Foram comparadas cinco redes neurais e um modelo baseado em árvores, além de referências simples e de uma regressão linear (Tabela~\ref{tab:modelos_metodologia}). Nos nomes, ``padrão'' e ``adaptado'' referem-se às duas versões do Seq2Seq com atenção descritas adiante.
 
-\begin{table}[htb]
+\begin{table}[!htbp]
     \centering
     \caption{Modelos e referências avaliados.}
     \label{tab:modelos_metodologia}
@@ -312,7 +312,7 @@ Nas redes, o estudo do Optuna usa o amostrador TPE com semente fixa e a poda \te
 
 O treino final usa o AdamW \cite{loshchilov2019decoupled}. A taxa de aprendizado tem três épocas de aquecimento linear, de \(10^{-5}\eta_{\max}\) a \(\eta_{\max}\), seguidas de decaimento cosseno até \(0{,}01\,\eta_{\max}\) no fim das 40 épocas \cite{goyal2017accurate,loshchilov2017sgdr}. A validação, ao fim de cada época, mede o MAE e serve à parada antecipada (paciência de 8 épocas) e à escolha do melhor ponto do treinamento. Cada modelo é treinado com várias \emph{sementes}, isto é, várias inicializações aleatórias dos pesos: quatro (42, 7, 21 e 123) na comparação principal e as três primeiras nos demais grupos, que respondem a perguntas sobre o efeito de um fator e não à classificação entre modelos. A média das previsões das sementes forma um \emph{ensemble}, reportado à parte \cite{lakshminarayanan2017simple}.
 
-\begin{table}[htb]
+\begin{table}[!htbp]
     \centering
     \caption{Espaço de busca de hiperparâmetros.}
     \label{tab:hpo_espaco_busca}

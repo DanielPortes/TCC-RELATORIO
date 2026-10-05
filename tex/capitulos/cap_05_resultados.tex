@@ -25,6 +25,8 @@ As comparações entre todos os pares (Apêndice~\ref{ap:teste_historico}, Tabel
 
 O \textit{ensemble} (média das previsões das quatro sementes; Tabela~\ref{tab:ensemble_holdout}) reduz o MAE em 0,01 a 0,06, conforme o modelo, mas não altera a ordenação: o XGBoost continua na frente (2,753). No teste histórico, o quadro é semelhante: a Ridge (2,673), o XGBoost (2,696) e o Seq2Seq com atenção adaptado (2,721) têm MAE próximos e sem diferença estatística entre si, e o Seq2Seq com atenção padrão fica atrás da Ridge.
 
+\inputtabela{ensemble_holdout}
+
 Em resumo, não há vencedor entre o XGBoost e a regressão linear, e nenhuma rede neural erra menos que eles. A escolha do modelo de aprendizado alterou o MAE em pouco mais de 7\%, uma diferença estatisticamente detectável, mas pequena.
 
 \section{Referências Simples e Regressão Linear}
@@ -37,7 +39,7 @@ As linhas dos previsores ingênuos e da Ridge na Tabela~\ref{tab:metricas_holdou
 
 A Figura~\ref{fig:erro_por_horizonte_holdout} mostra o MAE em função do horizonte de previsão (1 a 24 horas). Observe que as linhas contínuas são os modelos treinados e as tracejadas, as referências.
 
-\begin{figure}[htb]
+\begin{figure}[!htbp]
     \centering
     \figuragerada{0.9\linewidth}{erro_por_horizonte_holdout}
     \caption{MAE por horizonte no período de confirmação (média das sementes). Linhas tracejadas: previsores de referência e regressão Ridge.}
@@ -59,14 +61,16 @@ A Tabela~\ref{tab:eventos_holdout} e a Figura~\ref{fig:janela_evento_holdout} de
 
 \inputtabela{eventos_holdout}
 
-\begin{figure}[htb]
+\begin{figure}[!htbp]
     \centering
-    \figuragerada{\linewidth}{janela_evento_holdout}
+    \figuragerada{0.78\linewidth}{janela_evento_holdout}
     \caption{Previsões (média das sementes) em torno do maior evento do período de confirmação, em painéis separados por modelo e com escala comum. Observe que a linha tracejada horizontal marca 35~\(\mu\)g/m\(^3\) e que as lacunas da série observada aparecem como quebras na linha.}
     \label{fig:janela_evento_holdout}
 \end{figure}
 
-No nível dos eventos, o MAE por evento acima de 35 fica entre 16,5 (Seq2Seq básico) e 19,0 (LSTM direta). A persistência (16,6) e a Ridge (16,8) estão entre os melhores, o que mostra que nenhum modelo treinado antecipa os picos melhor do que simplesmente repetir o último valor. Na comparação por evento com a LSTM direta (Apêndice~\ref{ap:teste_historico}, Tabela~\ref{tab:eventos_pareado_holdout}), todos os modelos treinados erram menos, mas a persistência também erra. As diferenças entre modelos nos picos são, portanto, pequenas diante do tamanho do erro de todos eles.
+No nível dos eventos, o MAE por evento acima de 35 fica entre 16,5 (Seq2Seq básico) e 19,0 (LSTM direta). A persistência (16,6) e a Ridge (16,8) estão entre os melhores, o que mostra que nenhum modelo treinado antecipa os picos melhor do que simplesmente repetir o último valor. Na comparação por evento com a LSTM direta (Tabela~\ref{tab:eventos_pareado_holdout}), todos os modelos treinados erram menos, mas a persistência também erra. As diferenças entre modelos nos picos são, portanto, pequenas diante do tamanho do erro de todos eles.
+
+\inputtabela{eventos_pareado_holdout}
 
 \subsection{Dinâmica Horária}
 \label{sec:dinamica_horaria}
