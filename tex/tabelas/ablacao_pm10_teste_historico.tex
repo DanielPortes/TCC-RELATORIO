@@ -1,0 +1,18 @@
+\begin{table}[htb]
+    \centering
+    \caption{Ablação das variáveis de PM10: teste histórico (jun.--dez./2020)}
+    \label{tab:ablacao_pm10_teste_historico}
+    \small
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{llrrrrl}
+        \toprule
+        Modelo & Variáveis & Sementes & $\Delta$ MAE vs. completo & IC inf. & IC sup. & Veredito \\
+        \midrule
+        LSTM direta & PM10 só no histórico & 3 & 0,046 & 0,007 & 0,094 & pior \\
+        LSTM direta & só PM2,5 e tempo & 3 & -0,006 & -0,044 & 0,031 & empate estatístico \\
+        XGBoost & PM10 só no histórico & 3 & 0,010 & 0,003 & 0,016 & pior \\
+        XGBoost & só PM2,5 e tempo & 3 & 0,016 & 0,008 & 0,024 & pior \\
+        \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}

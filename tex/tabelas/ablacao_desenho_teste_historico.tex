@@ -1,0 +1,18 @@
+\begin{table}[htb]
+    \centering
+    \caption{Ablação de cada elemento do desenho do Seq2Seq adaptado: teste histórico (jun.--dez./2020)}
+    \label{tab:ablacao_desenho_teste_historico}
+    \small
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{>{\raggedright\arraybackslash}p{0.34\textwidth}lrrrrrl}
+        \toprule
+        Caso & Base & MAE caso & MAE base & $\Delta$ MAE & IC inf. & IC sup. & Veredito \\
+        \midrule
+        Seq2Seq atenção adaptado (sem reinício por horizonte) & Seq2Seq atenção adaptado (Huber) & 2,697 & 2,722 & -0,026 & -0,051 & -0,004 & melhor \\
+        Seq2Seq atenção adaptado (com input feeding) & Seq2Seq atenção adaptado (Huber) & 2,705 & 2,722 & -0,018 & -0,037 & 0,002 & empate estatístico \\
+        Seq2Seq atenção adaptado (sem faixas de defasagem) & Seq2Seq atenção adaptado (Huber) & 2,741 & 2,722 & 0,018 & -0,016 & 0,060 & empate estatístico \\
+        Seq2Seq atenção adaptado (consulta sem horizonte/exógenas) & Seq2Seq atenção adaptado (Huber) & 2,698 & 2,722 & -0,025 & -0,044 & -0,004 & melhor \\
+        \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}

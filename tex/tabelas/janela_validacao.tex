@@ -1,0 +1,22 @@
+\begin{table}[htb]
+    \centering
+    \caption{Sensibilidade à janela de entrada (MAE de validação, horizonte fixo de 24 h)}
+    \label{tab:janela_validacao}
+    \small
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{lrrrr}
+        \toprule
+        Modelo & Janela (h) & MAE validação & DP & Sementes \\
+        \midrule
+        LSTM direta & 24 & 2,842 & 0,010 & 3 \\
+        LSTM direta & 48 & 2,808 & 0,026 & 4 \\
+        LSTM direta & 72 & 2,832 & 0,007 & 3 \\
+        LSTM direta & 96 & 2,829 & 0,024 & 3 \\
+        XGBoost & 24 & 2,845 & 0,003 & 3 \\
+        XGBoost & 48 & 2,804 & 0,001 & 4 \\
+        XGBoost & 72 & 2,787 & 0,002 & 3 \\
+        XGBoost & 96 & 2,772 & 0,001 & 3 \\
+        \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}

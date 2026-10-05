@@ -1,0 +1,18 @@
+\begin{table}[htb]
+    \centering
+    \caption{Efeito isolado de fatores adicionais: período de confirmação (2021--2023)}
+    \label{tab:extras_holdout}
+    \small
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{>{\raggedright\arraybackslash}p{0.33\textwidth}lrrrrrl}
+        \toprule
+        Caso & Base & MAE caso & MAE base & $\Delta$ MAE & IC inf. & IC sup. & Veredito \\
+        \midrule
+        Seq2Seq atenção adaptado (L1 pond. + evento) & Seq2Seq atenção adaptado (L1 pond.) & 2,814 & 2,835 & -0,021 & -0,033 & -0,011 & melhor \\
+        LSTM direta (Huber + resíduo) & LSTM direta (Huber) & 2,969 & 2,965 & 0,004 & -0,037 & 0,044 & empate estatístico \\
+        Seq2Seq atenção adaptado (Huber + resíduo) & Seq2Seq atenção adaptado (Huber) & 2,946 & 2,884 & 0,063 & 0,018 & 0,112 & pior \\
+        Seq2Seq atenção adaptado (L1 pond. + evento + resíduo) & Seq2Seq atenção adaptado (L1 pond. + evento) & 2,914 & 2,814 & 0,099 & 0,065 & 0,144 & pior \\
+        \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}

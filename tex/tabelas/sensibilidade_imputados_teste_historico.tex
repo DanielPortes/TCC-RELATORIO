@@ -1,0 +1,20 @@
+\begin{table}[htb]
+    \centering
+    \caption{Sensibilidade às métricas com alvos imputados: teste histórico (jun.--dez./2020)}
+    \label{tab:sensibilidade_imputados_teste_historico}
+    \small
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{lrrrrrrr}
+        \toprule
+        Modelo & Pares observados & Pares imputados & MAE observados & MAE imputados & MAE todos & Posição (observados) & Posição (todos) \\
+        \midrule
+        LSTM direta (Huber) & 116326 & 8222 & 2,836 & 2,537 & 2,816 & 4 & 4 \\
+        LSTM recursiva (Huber) & 116326 & 8222 & 2,848 & 2,549 & 2,828 & 6 & 6 \\
+        Seq2Seq básico (Huber) & 116326 & 8222 & 2,843 & 2,582 & 2,826 & 5 & 5 \\
+        Seq2Seq atenção padrão (Huber) & 116326 & 8222 & 2,737 & 2,401 & 2,714 & 3 & 3 \\
+        Seq2Seq atenção adaptado (Huber) & 116326 & 8222 & 2,721 & 2,293 & 2,693 & 2 & 2 \\
+        XGBoost (erro abs.) & 116326 & 8222 & 2,696 & 2,237 & 2,665 & 1 & 1 \\
+        \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}

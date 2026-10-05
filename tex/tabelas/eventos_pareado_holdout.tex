@@ -1,0 +1,36 @@
+\begin{table}[htb]
+    \centering
+    \caption{Diferença de MAE por evento em relação à referência: período de confirmação (2021--2023)}
+    \label{tab:eventos_pareado_holdout}
+    \small
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{llrrrrrrl}
+        \toprule
+        Modelo & Referência & Limiar & $\Delta$ MAE por evento & IC inf. & IC sup. & Vitórias & Eventos & Veredito \\
+        \midrule
+        LSTM recursiva (Huber) & LSTM direta (Huber) & 35 & -1,731 & -2,406 & -1,022 & 39 & 58 & melhor \\
+        Seq2Seq básico (Huber) & LSTM direta (Huber) & 35 & -2,471 & -3,273 & -1,625 & 48 & 58 & melhor \\
+        Seq2Seq atenção padrão (Huber) & LSTM direta (Huber) & 35 & -2,129 & -2,598 & -1,664 & 53 & 58 & melhor \\
+        Seq2Seq atenção adaptado (Huber) & LSTM direta (Huber) & 35 & -1,561 & -2,070 & -1,039 & 47 & 58 & melhor \\
+        XGBoost (erro abs.) & LSTM direta (Huber) & 35 & -0,908 & -1,487 & -0,351 & 37 & 58 & melhor \\
+        Persistência y(t) & LSTM direta (Huber) & 35 & -2,397 & -3,771 & -1,099 & 36 & 58 & melhor \\
+        Sazonal y(t-24) & LSTM direta (Huber) & 35 & -0,353 & -1,734 & 1,142 & 33 & 58 & empate estatístico \\
+        Sazonal y(t-48) & LSTM direta (Huber) & 35 & 0,203 & -1,425 & 1,772 & 25 & 58 & empate estatístico \\
+        Média móvel 6 h & LSTM direta (Huber) & 35 & -1,536 & -2,793 & -0,351 & 32 & 58 & melhor \\
+        Média móvel 24 h & LSTM direta (Huber) & 35 & -0,205 & -1,036 & 0,653 & 28 & 58 & empate estatístico \\
+        Ridge & LSTM direta (Huber) & 35 & -2,151 & -2,834 & -1,528 & 48 & 58 & melhor \\
+        LSTM recursiva (Huber) & LSTM direta (Huber) & 25 & -1,193 & -1,450 & -0,948 & 182 & 243 & melhor \\
+        Seq2Seq básico (Huber) & LSTM direta (Huber) & 25 & -1,006 & -1,333 & -0,667 & 168 & 243 & melhor \\
+        Seq2Seq atenção padrão (Huber) & LSTM direta (Huber) & 25 & -1,279 & -1,494 & -1,052 & 188 & 243 & melhor \\
+        Seq2Seq atenção adaptado (Huber) & LSTM direta (Huber) & 25 & -1,188 & -1,403 & -0,975 & 190 & 243 & melhor \\
+        XGBoost (erro abs.) & LSTM direta (Huber) & 25 & -0,817 & -1,055 & -0,590 & 164 & 243 & melhor \\
+        Persistência y(t) & LSTM direta (Huber) & 25 & 0,330 & -0,167 & 0,867 & 107 & 243 & empate estatístico \\
+        Sazonal y(t-24) & LSTM direta (Huber) & 25 & -0,049 & -0,820 & 0,834 & 136 & 243 & empate estatístico \\
+        Sazonal y(t-48) & LSTM direta (Huber) & 25 & 0,486 & -0,254 & 1,254 & 111 & 243 & empate estatístico \\
+        Média móvel 6 h & LSTM direta (Huber) & 25 & 0,629 & 0,135 & 1,166 & 99 & 243 & pior \\
+        Média móvel 24 h & LSTM direta (Huber) & 25 & 0,886 & 0,427 & 1,373 & 91 & 243 & pior \\
+        Ridge & LSTM direta (Huber) & 25 & -0,838 & -1,175 & -0,479 & 175 & 243 & melhor \\
+        \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}

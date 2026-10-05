@@ -2,309 +2,158 @@
 \chapter{Resultados e Discussão}
 \label{chap:resultados}
 
-Este capítulo apresenta os resultados do protocolo Sapo descrito no Capítulo \ref{chap:materiais_metodos}. A discussão separa quatro níveis de evidência: a comparação principal com hiperparâmetros selecionados no bloco de desenvolvimento, a estabilidade com múltiplas sementes dos modelos selecionados, as linhas de base ingênuas e as ablações usadas para interpretar decisões de modelagem.
+Este capítulo apresenta os resultados do procedimento descrito no Capítulo~\ref{chap:materiais_metodos}. Todas as tabelas e figuras numéricas são geradas por programa a partir das previsões salvas de cada execução e incluídas sem transcrição manual. Os resultados são apresentados em dois períodos. O \emph{período de confirmação} (2021 a 2023) não foi consultado em nenhuma decisão de projeto e é a evidência principal, por isso as tabelas do texto se referem a ele. O \emph{teste histórico} (27 de maio a 31 de dezembro de 2020) já foi consultado durante o desenvolvimento, e suas tabelas estão no Apêndice~\ref{ap:teste_historico}; sempre que os dois períodos discordam, isso é indicado.
 
-As métricas usadas no capítulo seguem as definições da Seção \ref{sec:metricas_avaliacao}: erro médio absoluto (MAE), raiz do erro quadrático médio (RMSE), erro percentual médio absoluto (MAPE), coeficiente de determinação (\(R^2\)), erro médio de viés (MBE) e MAE em eventos com PM2,5 \(\geq 35\) (Peak35 MAE). Em todos os casos, a referência de avaliação é a medição real de PM2,5 disponível no teste.
+Nas tabelas de comparação, a diferença de MAE é calculada como o MAE do modelo menos o MAE da referência; valores negativos indicam que o modelo erra menos. O intervalo de confiança (IC) de 95\% vem do bootstrap em blocos e o valor-\(p\) (DM) vem do teste de Diebold-Mariano (Seção~\ref{sec:inferencia_estatistica}). A coluna ``Veredito'' resume a comparação: ``melhor'' significa que o IC está inteiramente abaixo de zero (o modelo erra menos), ``pior'' que está inteiramente acima, e ``empate estatístico'' que o IC contém o zero, isto é, não há evidência de diferença. As médias de MAE da comparação principal são de quatro sementes.
 
-\section{Caracterização da Comparação Principal}
+\section{Comparação Principal}
+\label{sec:comparacao_principal}
 
-A comparação principal usa a estação Sapo, tarefa 48 para 24 horas e divisão cronológica 70/15/15. A seleção de hiperparâmetros e ablações ocorre no bloco de desenvolvimento, e a avaliação é feita no bloco final de teste. O conjunto de dados final contém 34.991 registros horários. No conjunto consolidado, a proporção de valores originalmente ausentes é de aproximadamente 19,26\% para material particulado fino (PM2,5) e 19,58\% para material particulado com diâmetro de até 10 micrômetros (PM10). Esses percentuais reforçam a importância de manter indicadores de ausência e de avaliar os modelos contra medições reais disponíveis.
+A Tabela~\ref{tab:metricas_holdout} apresenta as métricas de erro de cada modelo e das referências no período de confirmação, com a mesma preparação, o mesmo orçamento de busca e a mesma perda de Huber (o XGBoost usa o erro absoluto). A última coluna é a habilidade em relação à média móvel de 24 horas: um valor de 0,10 significa erro 10\% menor que o dessa referência.
 
-Os eventos altos são raros no teste. Na caracterização exploratória do bloco final, pontos observados com PM2,5 \(\geq 35\) representam cerca de 0,96\% do teste. Portanto, o MAE global é dominado por regimes baixos e moderados. A análise de cauda é apresentada separadamente para evitar que o melhor erro médio seja confundido com melhor resposta a picos.
+\inputtabela{metricas_holdout}
 
-\section{Resultado Principal no Protocolo Final}
+O XGBoost obteve o menor erro em todas as medidas globais: MAE de 2,767~\(\mu\)g/m\(^3\), RMSE de 4,072 e \(R^2\) de 0,640. Em seguida vêm a regressão Ridge (MAE de 2,794), as duas versões do Seq2Seq com atenção (2,870 e 2,876), a LSTM recursiva (2,944), o Seq2Seq básico (2,965) e a LSTM direta (2,979). Entre os modelos treinados, a diferença entre o melhor e o pior é de 0,212~\(\mu\)g/m\(^3\), cerca de 7,7\% do MAE do melhor. Todos superam as referências simples: a média móvel de 24 horas tem MAE de 3,072, e a persistência (repetir o último valor), de 3,831. O XGBoost, por exemplo, tem erro 9,9\% menor que a média móvel de 24 horas. O WAPE do melhor modelo é de 25\%, isto é, o erro médio é um quarto da concentração média observada.
 
-A Tabela \ref{tab:resultado_principal_sapo_hpo} apresenta os resultados principais no bloco final de teste. Todos os modelos foram reexecutados no mesmo contrato final, com 48 horas de entrada, 24 horas de horizonte, conjunto \texttt{clean\_pm10\_decoder\_proxy}, mesma divisão cronológica e as mesmas medições de PM2,5 como referência. As LSTMs e o XGBoost usam hiperparâmetros selecionados por validação temporal \textit{walk-forward}; o novo Seq2Seq atenção usa a variante selecionada pelas ablações de arquitetura, perda e janela de entrada, reexecutada aqui no mesmo protocolo comparável. O melhor desempenho global na semente canônica foi obtido pela LSTM direta, enquanto o novo Seq2Seq atenção ficou em segundo por MAE e apresentou melhor comportamento em picos.
+A Tabela~\ref{tab:pareado_holdout} mostra as diferenças de MAE em relação à LSTM direta com perda de Huber e em relação à média móvel de 24 horas, as duas referências fixadas antes da execução.
 
-\begin{table}[htb]
-    \centering
-    \caption{Resultado principal no protocolo final de Sapo.}
-    \label{tab:resultado_principal_sapo_hpo}
-    \resizebox{\textwidth}{!}{%
-    \begin{tabular}{lrrrrrr}
-        \toprule
-        \textbf{Modelo} & \textbf{MAE} & \textbf{RMSE} & \textbf{MAPE} & \textbf{\(R^2\)} & \textbf{H1 MAE} & \textbf{H24 MAE} \\
-        \midrule
-        LSTM direta & \textbf{2,7713} & \textbf{3,8346} & \textbf{23,01} & \textbf{0,5154} & 2,6725 & \textbf{2,8670} \\
-        Seq2Seq atenção novo & 2,8132 & 3,8799 & 23,23 & 0,5039 & 2,6222 & 2,9138 \\
-        XGBoost com saída múltipla & 2,8786 & 3,9793 & 23,80 & 0,4781 & \textbf{2,5618} & 3,0273 \\
-        Seq2Seq atenção canônica & 2,8811 & 3,9859 & 23,79 & 0,4764 & 2,7155 & 2,9743 \\
-        LSTM recursiva & 2,8876 & 3,8380 & 24,39 & 0,5146 & 2,7380 & 3,1492 \\
-        Seq2Seq básico & 2,9553 & 4,0967 & 23,99 & 0,4469 & 2,6519 & 3,1514 \\
-        \bottomrule
-    \end{tabular}%
-    }
-\end{table}
+\inputtabela{pareado_holdout}
 
-O resultado reforça a conclusão central: a LSTM direta permanece vencedora por erro médio. O novo Seq2Seq atenção melhora substancialmente a posição da família Seq2Seq em relação à variante ponderada anterior, reduzindo o MAE da semente canônica de 2,8658 para 2,8132 e aproximando RMSE e \(R^2\) dos valores da LSTM direta. O XGBoost continua sendo uma referência forte baseada em árvores sobre atributos derivados das janelas temporais e manteve o menor erro no primeiro horizonte, mas perdeu para LSTM direta e novo Seq2Seq no MAE global.
+Observe que o XGBoost erra menos que a LSTM direta em 0,212 (IC de \(-0,255\) a \(-0,169\)) e que as duas versões do Seq2Seq com atenção erram cerca de 0,10 menos; a LSTM recursiva e o Seq2Seq básico empatam com a LSTM direta. Todos os modelos treinados erram menos que a média móvel de 24 horas, com diferenças de \(-0,09\) (LSTM direta) a \(-0,30\) (XGBoost), com IC que exclui o zero.
 
-Entre os modelos neurais, a diferença entre LSTM direta e novo Seq2Seq é pequena no erro médio, mas não desaparece: 2,7713 contra 2,8132 na semente canônica. A LSTM recursiva apresentou RMSE e \(R^2\) próximos aos da LSTM direta, mas teve pior MAE e maior erro no horizonte final. O Seq2Seq básico e o Seq2Seq atenção canônica ficaram abaixo da nova variante, mostrando que o ganho veio da combinação específica de desenho do decodificador, perda ponderada, agrupamento de atenção por defasagens e seleção da janela de 48 horas, não apenas do uso genérico de uma arquitetura codificador-decodificador.
+As comparações entre todos os pares (Apêndice~\ref{ap:teste_historico}, Tabela~\ref{tab:matriz_holdout}) mostram um único empate com o melhor modelo: o XGBoost e a regressão Ridge têm diferença de \(-0,027\) (IC de \(-0,074\) a \(0,007\)), isto é, não é possível afirmar que um erra menos que o outro. Já o XGBoost erra menos que as duas versões do Seq2Seq com atenção (diferenças de 0,103 e 0,109), e a Ridge também erra menos que ambas (0,076 e 0,082, com IC que exclui o zero). As duas versões do Seq2Seq com atenção empatam entre si (diferença de \(-0,006\), IC de \(-0,028\) a \(0,013\)).
 
-\section{Estabilidade com Múltiplas Sementes}
+O \textit{ensemble} (média das previsões das quatro sementes; Tabela~\ref{tab:ensemble_holdout}) reduz o MAE em 0,01 a 0,06, conforme o modelo, mas não altera a ordenação: o XGBoost continua na frente (2,753). No teste histórico, o quadro é semelhante: a Ridge (2,673), o XGBoost (2,696) e o Seq2Seq com atenção adaptado (2,721) têm MAE próximos e sem diferença estatística entre si, e o Seq2Seq com atenção padrão fica atrás da Ridge.
 
-A Tabela \ref{tab:multi_seed_sapo} resume a sensibilidade à semente aleatória para os modelos selecionados. A média inclui a semente canônica 42 e três sementes adicionais: 7, 21 e 123.
+Em resumo, não há vencedor entre o XGBoost e a regressão linear, e nenhuma rede neural erra menos que eles. A escolha do modelo de aprendizado alterou o MAE em pouco mais de 7\%, uma diferença estatisticamente detectável, mas pequena.
 
-\begin{table}[htb]
-    \centering
-    \caption{Estabilidade com múltiplas sementes dos modelos selecionados.}
-    \label{tab:multi_seed_sapo}
-    \resizebox{\textwidth}{!}{%
-    \begin{tabular}{lrrrrr}
-        \toprule
-        \textbf{Modelo} & \textbf{MAE médio} & \textbf{Desvio MAE} & \textbf{RMSE médio} & \textbf{\(R^2\) médio} & \textbf{MBE médio} \\
-        \midrule
-        LSTM direta & \textbf{2,8055} & 0,0540 & 3,8611 & 0,5086 & 0,0435 \\
-        Seq2Seq atenção novo & 2,8218 & 0,0220 & 3,8989 & 0,4989 & 0,0651 \\
-        LSTM recursiva & 2,8425 & 0,0426 & \textbf{3,8006} & \textbf{0,5239} & 0,4505 \\
-        Seq2Seq atenção canônica & 2,8727 & 0,0175 & 3,9592 & 0,4834 & 0,1641 \\
-        XGBoost com saída múltipla & 2,8852 & \textbf{0,0077} & 3,9895 & 0,4755 & -0,0344 \\
-        Seq2Seq básico & 2,9444 & 0,0113 & 4,0778 & 0,4520 & -0,1777 \\
-        \bottomrule
-    \end{tabular}%
-    }
-\end{table}
+\section{Referências Simples e Regressão Linear}
+\label{sec:referencias_resultados}
 
-A média com múltiplas sementes mantém a LSTM direta como melhor modelo por MAE, mas o novo Seq2Seq atenção passa a ser o segundo colocado com margem pequena: MAE médio 2,8218 contra 2,8055. A LSTM recursiva passa a ter melhor RMSE e \(R^2\) médios, ao custo de viés positivo consistente. Essa diferença confirma que a escolha do vencedor depende da métrica priorizada. Para o objetivo principal do TCC, que usa MAE como métrica central de erro médio no teste, a LSTM direta continua sendo a escolha principal; para eventos altos, a análise de cauda favorece o novo Seq2Seq.
-
-\section{Linhas de Base Ingênuas}
-
-A Tabela \ref{tab:baselines_ingenuos_sapo} apresenta linhas de base simples avaliadas no mesmo bloco final de teste. A pontuação de habilidade (\textit{skill score}) usa a persistência \(y(t)\) como referência, de forma que valores positivos indicam redução de MAE em relação a essa linha de base.
-
-\begin{table}[htb]
-    \centering
-    \caption{Linhas de base ingênuas no bloco final de teste.}
-    \label{tab:baselines_ingenuos_sapo}
-    \resizebox{\textwidth}{!}{%
-    \begin{tabular}{lrrrr}
-        \toprule
-        \textbf{Linha de base} & \textbf{MAE} & \textbf{RMSE} & \textbf{\(R^2\)} & \textbf{Habilidade MAE} \\
-        \midrule
-        Persistência \(y(t)\) & 3,8971 & 5,2834 & 0,0801 & 0,0000 \\
-        Sazonal \(y(t-24)\) & 3,3739 & 4,7174 & 0,2666 & 0,1342 \\
-        Sazonal \(y(t-48)\) & 3,7599 & 5,2441 & 0,0937 & 0,0352 \\
-        Média móvel 6h & 3,3481 & 4,5533 & 0,3167 & 0,1409 \\
-        Média móvel 24h & \textbf{3,0377} & \textbf{4,2234} & \textbf{0,4122} & \textbf{0,2205} \\
-        \bottomrule
-    \end{tabular}%
-    }
-\end{table}
-
-A melhor linha de base ingênua foi a média móvel de 24 horas, com MAE 3,0377. A LSTM direta selecionada por \textit{walk-forward} reduz esse erro para 2,7713, uma melhora de aproximadamente 8,8\% sobre a melhor linha de base simples e de 28,9\% sobre a persistência.
+As linhas dos previsores ingênuos e da Ridge na Tabela~\ref{tab:metricas_holdout} respondem se os modelos de aprendizado agregam valor. Sobre os previsores ingênuos, a resposta é sim: todos os modelos treinados têm MAE menor que o da melhor referência ingênua (a média móvel de 24 horas). A resposta é menos favorável quando a comparação é com a regressão Ridge, uma relação linear entre os 1.992 atributos e o valor a prever. Ela tem erro só 1\% maior que o do XGBoost, sem diferença estatística, e erra menos que todas as redes neurais treinadas. Portanto, nesta série, a relação entre o histórico e o valor futuro é bem capturada por um modelo linear, e os modelos não lineares (árvores e redes) não acrescentam ganho mensurável além dele.
 
 \section{Erro por Horizonte}
+\label{sec:erro_horizonte}
 
-A Tabela \ref{tab:erro_por_horizonte_sapo} detalha o MAE nos horizontes 1, 6, 12 e 24. O XGBoost teve o melhor primeiro horizonte, mas sua degradação até o horizonte 24 foi maior que a da LSTM direta. A LSTM direta apresentou evolução mais estável ao longo do horizonte, o que ajuda a explicar sua vantagem no MAE agregado.
-
-\begin{table}[htb]
-    \centering
-    \caption{MAE por horizonte no teste.}
-    \label{tab:erro_por_horizonte_sapo}
-    \resizebox{\textwidth}{!}{%
-    \begin{tabular}{lrrrrr}
-        \toprule
-        \textbf{Modelo} & \textbf{H1} & \textbf{H6} & \textbf{H12} & \textbf{H24} & \textbf{H24 - H1} \\
-        \midrule
-        LSTM direta & 2,6725 & \textbf{2,7218} & \textbf{2,7773} & \textbf{2,8670} & \textbf{0,1945} \\
-        Seq2Seq atenção novo & 2,6222 & 2,7788 & 2,8268 & 2,9138 & 0,2916 \\
-        XGBoost com saída múltipla & \textbf{2,5618} & 2,8004 & 2,9092 & 3,0273 & 0,4655 \\
-        Seq2Seq atenção canônica & 2,7155 & 2,8572 & 2,8923 & 2,9743 & 0,2588 \\
-        LSTM recursiva & 2,7380 & 2,7338 & 2,9061 & 3,1492 & 0,4112 \\
-        Seq2Seq básico & 2,6519 & 2,9035 & 2,9850 & 3,1514 & 0,4995 \\
-        \bottomrule
-    \end{tabular}%
-    }
-\end{table}
-
-A estabilidade por horizonte é relevante porque a tarefa é multi-horizonte. Um modelo pode ser atraente no primeiro horizonte e ainda perder desempenho agregado quando a janela avança. Neste experimento, o XGBoost manteve o menor erro em H1, mas teve degradação maior até H24. A LSTM direta combinou bom erro inicial com menor degradação e melhor H24. O novo Seq2Seq ficou entre esses extremos: não venceu H1 nem H24, mas manteve erro por horizonte competitivo e melhor que as variantes Seq2Seq anteriores.
+A Figura~\ref{fig:erro_por_horizonte_holdout} mostra o MAE em função do horizonte de previsão (1 a 24 horas). Observe que as linhas contínuas são os modelos treinados e as tracejadas, as referências.
 
 \begin{figure}[htb]
     \centering
-    \includegraphics[width=\linewidth]{erro_por_horizonte_sapo.png}
-    \caption{Evolução do MAE por horizonte no bloco final de teste para os modelos com métricas consolidadas.}
-    \label{fig:erro_por_horizonte_sapo}
+    \figuragerada{0.9\linewidth}{erro_por_horizonte_holdout}
+    \caption{MAE por horizonte no período de confirmação (média das sementes). Linhas tracejadas: previsores de referência e regressão Ridge.}
+    \label{fig:erro_por_horizonte_holdout}
 \end{figure}
+
+O erro cresce de forma lenta com o horizonte. Para o XGBoost, o MAE vai de 2,29 em 1 hora a 2,89 em 24 horas, um aumento de 26\%; para o Seq2Seq com atenção adaptado, de 2,61 a 2,98. No primeiro horizonte, o XGBoost erra 14\% menos que a persistência (2,29 contra 2,67), e a Ridge tem 2,40. A LSTM direta, por sua vez, tem erro quase constante (2,86 em 1 hora e 3,06 em 24 horas) e, nas primeiras horas, erra mais que a persistência: ao resumir a janela em um vetor único, ela parece perder precisão sobre o valor mais recente, o que os modelos que recebem o último valor observado no decodificador preservam. A LSTM recursiva e o Seq2Seq básico erram menos no início e mais no fim do horizonte (3,15 e 3,21 em 24 horas, contra 2,89 do XGBoost), o que é coerente com o acúmulo de erro típico das estratégias que realimentam a previsão. A ordenação entre os modelos no horizonte de 24 horas é a mesma da comparação global.
 
 \section{Picos, Cauda e Suavização}
+\label{sec:picos}
 
-A Tabela \ref{tab:cauda_sapo} mostra métricas associadas à amplitude e aos regimes altos. O desvio-padrão observado no teste é aproximadamente 5,51, e o percentil 99 (p99) resume o valor abaixo do qual se concentram 99\% das previsões ou observações. Valores da razão entre desvios-padrão abaixo de 1 indicam que a série prevista é mais suave que a série observada.
+Modelos treinados com erro absoluto ou perda de Huber tendem a prever a mediana condicional \cite{gneiting2011making} e, por isso, produzem séries mais suaves que a observada e subestimam valores altos. A Tabela~\ref{tab:cauda_holdout} apresenta o MAE nas horas em que o PM2,5 observado excede 25, 35 e 50~\(\mu\)g/m\(^3\), a fração dessas horas em que o modelo subestima, a razão entre os desvios-padrão previsto e observado, e o percentil 99 da previsão (o observado é 33).
 
-\begin{table}[htb]
-    \centering
-    \caption{Métricas de amplitude e cauda no teste.}
-    \label{tab:cauda_sapo}
-    \resizebox{\textwidth}{!}{%
-    \begin{tabular}{lrrrrr}
-        \toprule
-        \textbf{Modelo} & \textbf{Peak35 MAE} & \textbf{p99 previsto} & \textbf{p99 observado} & \textbf{Razão desvio-padrão} & \textbf{MBE} \\
-        \midrule
-        LSTM direta & 13,6112 & 28,57 & 34,00 & 0,7391 & -0,1366 \\
-        Seq2Seq atenção novo & \textbf{11,0815} & \textbf{32,50} & 34,00 & \textbf{0,9002} & 0,0433 \\
-        XGBoost com saída múltipla & 12,2583 & 30,73 & 34,00 & 0,8506 & 0,0066 \\
-        Seq2Seq atenção canônica & 14,7027 & 29,13 & 34,00 & 0,8113 & 0,0709 \\
-        LSTM recursiva & 12,0392 & 30,49 & 34,00 & 0,8751 & 0,4450 \\
-        Seq2Seq básico & 12,9806 & 30,65 & 34,00 & 0,8342 & -0,3855 \\
-        \bottomrule
-    \end{tabular}%
-    }
-\end{table}
+\inputtabela{cauda_holdout}
 
-Essas métricas mostram um compromisso importante. A LSTM direta vence em erro médio, mas apresenta razão entre desvios-padrão de 0,7391 e p99 previsto de 28,57, abaixo do p99 observado de 34,00. Isso sugere uma previsão mais suave e com subestimação de parte dos eventos altos. O novo Seq2Seq atenção preserva mais amplitude, com p99 previsto de 32,50, razão de desvio-padrão 0,9002 e menor Peak35 MAE. Portanto, a escolha do modelo depende do objetivo: minimizar erro médio favorece a LSTM direta; priorizar resposta a eventos altos favorece o novo Seq2Seq. A Figura \ref{fig:predito_observado_pico_sapo} reapresenta uma janela do teste em painéis separados por modelo, com escala vertical comum e interrupções nos trechos sem horários observados. Essa organização evita que as curvas disputem o mesmo eixo visual e deixa explícito que as quebras na linha observada correspondem a lacunas da própria série de teste.
+Todos os modelos subestimam de forma sistemática as horas de concentração alta. O MAE acima de 35~\(\mu\)g/m\(^3\) fica entre 17 e 21, isto é, cerca de metade do valor típico de um evento, e o modelo prevê valor abaixo do observado em 93\% a 100\% dessas horas. A razão entre os desvios-padrão fica entre 0,75 e 0,83 para os modelos treinados, e o percentil 99 previsto (27 a 30) fica abaixo do observado (33). A persistência e os previsores sazonais, que repetem valores passados, preservam a amplitude (razão próxima de 1), mas erram o momento dos picos.
+
+A Tabela~\ref{tab:eventos_holdout} e a Figura~\ref{fig:janela_evento_holdout} descrevem os eventos, isto é, sequências contínuas de horas com PM2,5 acima do limiar. O período de confirmação tem 58 eventos acima de 35~\(\mu\)g/m\(^3\) e 243 acima de 25~\(\mu\)g/m\(^3\).
+
+\inputtabela{eventos_holdout}
 
 \begin{figure}[htb]
     \centering
-    \includegraphics[width=\linewidth]{predito_observado_pico_sapo.png}
-    \caption{Predições agregadas no teste em uma janela com evento de maior concentração, separadas por modelo e com interrupções nas lacunas temporais.}
-    \label{fig:predito_observado_pico_sapo}
+    \figuragerada{\linewidth}{janela_evento_holdout}
+    \caption{Previsões (média das sementes) em torno do maior evento do período de confirmação, em painéis separados por modelo e com escala comum. Observe que a linha tracejada horizontal marca 35~\(\mu\)g/m\(^3\) e que as lacunas da série observada aparecem como quebras na linha.}
+    \label{fig:janela_evento_holdout}
 \end{figure}
-\clearpage
 
-\subsection{Análise por Evento de Pico}
+No nível dos eventos, o MAE por evento acima de 35 fica entre 16,5 (Seq2Seq básico) e 19,0 (LSTM direta). A persistência (16,6) e a Ridge (16,8) estão entre os melhores, o que mostra que nenhum modelo treinado antecipa os picos melhor do que simplesmente repetir o último valor. Na comparação por evento com a LSTM direta (Apêndice~\ref{ap:teste_historico}, Tabela~\ref{tab:eventos_pareado_holdout}), todos os modelos treinados erram menos, mas a persistência também erra. As diferenças entre modelos nos picos são, portanto, pequenas diante do tamanho do erro de todos eles.
 
-Além das métricas ponto a ponto, os picos foram agregados por horário único e agrupados em eventos contínuos com PM2,5 observado \(\geq 35\). Foram encontrados 21 eventos no teste. A Tabela \ref{tab:eventos_pico_sapo} resume o erro médio dentro dos eventos, o viés médio nos eventos, a taxa de subestimação e o erro no horário do pico observado.
+\subsection{Dinâmica Horária}
+\label{sec:dinamica_horaria}
 
-\begin{table}[htb]
-    \centering
-    \caption{Métricas por evento contínuo de pico no teste.}
-    \label{tab:eventos_pico_sapo}
-    \resizebox{\textwidth}{!}{%
-    \begin{tabular}{lrrrr}
-        \toprule
-        \textbf{Modelo} & \textbf{MAE evento} & \textbf{MBE evento} & \textbf{Subestimação} & \textbf{Erro no pico observado} \\
-        \midrule
-        Seq2Seq atenção novo & \textbf{12,4138} & \textbf{-11,6337} & \textbf{0,8651} & \textbf{-12,7452} \\
-        LSTM recursiva & 12,8186 & -12,8186 & 1,0000 & -13,6797 \\
-        XGBoost com saída múltipla & 13,7253 & -13,7253 & 1,0000 & -14,7604 \\
-        Persistência \(y(t)\) & 13,8803 & -13,8689 & 0,9894 & -14,9206 \\
-        Sazonal \(y(t-24)\) & 14,3677 & -14,2487 & 0,9405 & -15,3809 \\
-        Seq2Seq básico & 14,3725 & -14,3725 & 1,0000 & -15,5662 \\
-        LSTM direta & 15,4683 & -15,4683 & 1,0000 & -16,3894 \\
-        Seq2Seq atenção canônica & 15,8503 & -15,8503 & 1,0000 & -17,0143 \\
-        \bottomrule
-    \end{tabular}%
-    }
-\end{table}
+Preservar a amplitude não garante acertar o momento das variações. A Tabela~\ref{tab:dinamica_holdout} mostra a correlação entre os níveis previsto e observado, a correlação entre as variações de uma hora para a seguinte, e a fração de vezes em que a direção da mudança é acertada.
 
-A leitura por evento é mais severa que o MAE global: todos os modelos subestimam os picos, mas em graus diferentes. O novo Seq2Seq atenção tem o menor erro médio por evento, o menor viés negativo e a menor taxa de subestimação, enquanto a LSTM direta, apesar de vencer no erro global, é uma das mais conservadoras nos eventos altos. Essa evidência explicita o compromisso entre erro médio e resposta a episódios de maior concentração.
+\inputtabela{dinamica_holdout}
 
-\section{Novo Seq2Seq com Atenção}
+A correlação entre os níveis é alta (0,78 a 0,81 nos modelos treinados), pois o modelo acompanha o nível médio. Porém, a correlação entre as variações horárias é baixa: de 0,13 a 0,17 nos modelos treinados, contra \(-0,33\) da persistência, e a direção da mudança é acertada em 54\% a 56\% das horas. O desvio-padrão das variações previstas (0,74 a 0,98) é muito menor que o das observadas (3,70). Assim, nenhum modelo acompanha as oscilações de hora em hora: eles acertam o nível diário, mas não o momento exato das variações.
 
-A atenção canônica com Huber não foi o melhor caminho durante o desenvolvimento, mas as ablações do Seq2Seq produziram uma variante mais forte para o contrato final. A nova configuração mantém o codificador-decodificador com atenção, usa perda ponderada por regime, remove o \textit{input feeding}, reinicia o estado do decodificador por horizonte, agrupa a atenção em \textit{buckets} de defasagem e adiciona uma perda auxiliar leve para eventos. A análise de janela indicou que 48 horas continuam sendo o melhor compromisso para essa variante: janelas de 72, 96 e 168 horas não melhoraram o MAE nem os picos.
+\section{Efeito da Função de Perda}
+\label{sec:efeito_perda}
 
-\begin{table}[htb]
-    \centering
-    \caption{Novo Seq2Seq atenção no protocolo final.}
-    \label{tab:novo_seq2seq}
-    \resizebox{\textwidth}{!}{%
-    \begin{tabular}{lrrrrr}
-        \toprule
-        \textbf{Variante} & \textbf{MAE} & \textbf{RMSE} & \textbf{\(R^2\)} & \textbf{Peak35 MAE} & \textbf{p99 previsto} \\
-        \midrule
-        Seed 42 & 2,8132 & 3,8799 & 0,5039 & 11,0815 & 32,50 \\
-        Média com múltiplas sementes & 2,8218 & 3,8989 & 0,4989 & 11,5855 & 31,90 \\
-        Desvio com múltiplas sementes & 0,0220 & 0,0574 & 0,0147 & 0,3771 & 0,56 \\
-        \bottomrule
-    \end{tabular}%
-    }
-\end{table}
+Em etapas exploratórias anteriores, a vantagem do Seq2Seq adaptado em picos foi atribuída à combinação de arquitetura, perda ponderada e perda auxiliar. Como a perda ponderada foi aplicada a todas as arquiteturas, a Tabela~\ref{tab:fatorial_perda_holdout} separa o efeito da perda: para cada arquitetura, a diferença de MAE entre a perda ponderada e a de Huber, com intervalo de confiança pareado.
 
-O novo Seq2Seq substitui a variante antiga com \texttt{weighted\_l1} como representante principal da família Seq2Seq. Na semente canônica, o MAE caiu de 2,8658 para 2,8132 e o Peak35 MAE caiu de 12,3697 para 11,0815 em relação ao Seq2Seq ponderado anterior. Ainda assim, a LSTM direta permanece melhor em MAE global. A interpretação mais defensável é que o novo Seq2Seq não vence a comparação por erro médio, mas oferece o melhor compromisso entre erro agregado e preservação de picos.
+\inputtabela{fatorial_perda_holdout}
 
-\section{Ablação PM10 Causal}
+A perda ponderada não altera o MAE de quatro das cinco arquiteturas (empate estatístico). Em uma delas, o Seq2Seq adaptado, reduz o MAE em 0,049 (IC de \(-0,064\) a \(-0,032\)), o que equivale a 1,7\%. O efeito nos picos é pequeno: o MAE acima de 35 cai de 21,3 para 20,4 na LSTM direta, de 19,7 para 18,4 na recursiva, de 18,5 para 17,7 no Seq2Seq padrão e de 19,3 para 18,9 no adaptado (Tabela~\ref{tab:cauda_fatores_holdout}), e a razão entre os desvios-padrão sobe de 0,01 a 0,04. Portanto, a perda ponderada melhora modestamente os picos sem piorar o erro médio no período de confirmação. No teste histórico, ela piora o MAE da LSTM recursiva e do Seq2Seq básico, e portanto o efeito não é consistente entre arquiteturas e períodos.
 
-A Tabela \ref{tab:ablation_pm10_causal} compara o contrato final contra duas remoções de informação: manter PM10 apenas no histórico, sem substitutos causais no decodificador, e remover PM10 completamente, deixando PM2,5 e atributos temporais. Os hiperparâmetros foram mantidos fixos a partir da seleção \textit{walk-forward}; essas ablações não fizeram nova otimização de hiperparâmetros (HPO) e foram avaliadas no mesmo bloco final de teste.
+\inputtabela{cauda_fatores_holdout}
 
-\begin{table}[htb]
-    \centering
-    \caption{Ablação de PM10 causal no contrato final.}
-    \label{tab:ablation_pm10_causal}
-    \resizebox{\textwidth}{!}{%
-    \begin{tabular}{llrrrr}
-        \toprule
-        \textbf{Modelo} & \textbf{Contrato} & \textbf{MAE} & \textbf{\(\Delta\) MAE} & \textbf{RMSE} & \textbf{\(R^2\)} \\
-        \midrule
-        LSTM direta & PM10 causal completo & \textbf{2,7713} & 0,0000 & \textbf{3,8346} & \textbf{0,5154} \\
-        LSTM direta & PM10 histórico sem substituto no decodificador & 2,8575 & +0,0862 & 3,9678 & 0,4812 \\
-        LSTM direta & PM2,5 + tempo apenas & 2,8456 & +0,0743 & 3,9569 & 0,4840 \\
-        XGBoost & PM10 causal completo & \textbf{2,8786} & 0,0000 & \textbf{3,9793} & \textbf{0,4781} \\
-        XGBoost & PM10 histórico sem substituto no decodificador & 2,8873 & +0,0088 & 4,0063 & 0,4710 \\
-        XGBoost & PM2,5 + tempo apenas & 2,8956 & +0,0170 & 4,0194 & 0,4676 \\
-        \bottomrule
-    \end{tabular}%
-    }
-\end{table}
+\section{Fatores Adicionais e Desenho do Seq2Seq}
+\label{sec:fatores_adicionais}
 
-A ablação confirma que os substitutos causais de PM10 foram uma decisão central, sobretudo para a LSTM direta: remover esses atributos aumentou o MAE em 0,0862, e remover PM10 completamente aumentou o MAE em 0,0743. No XGBoost, o ganho global foi menor, mas ainda consistente em MAE, RMSE e \(R^2\). Assim, o papel de PM10 causal deve ser apresentado como contribuição metodológica do contrato de dados, não apenas como detalhe de engenharia de atributos.
+A Tabela~\ref{tab:extras_holdout} mostra o efeito da perda auxiliar de evento e do aprendizado residual, e a Tabela~\ref{tab:ablacao_desenho_holdout} remove, uma de cada vez, as quatro alterações que distinguem o Seq2Seq adaptado do padrão (Seção~\ref{sec:modelos}), mantendo os hiperparâmetros do modelo completo.
 
-\section{Limite Informacional com Variáveis Futuras}
+\inputtabela{extras_holdout}
 
-Após a ablação causal de PM10, foi executado um diagnóstico adicional com Seq2Seq atenção para responder a uma pergunta diferente: quanto do erro restante parece vir de informação futura ausente, e não apenas de arquitetura ou hiperparâmetros? Para isso, foi usado um cenário \textit{oracle future auxiliary}, no qual o decodificador recebe PM10 e partículas totais em suspensão (PTS) observados no próprio horizonte futuro. Esse cenário não representa um uso causal de previsão e não deve ser tratado como candidato a modelo final, mas funciona como limite superior informacional sob a mesma estação e tarefa.
+\inputtabela{ablacao_desenho_holdout}
 
-Na estação Sapo, a tentativa de usar um conjunto mais amplo de variáveis mostrou uma limitação prática: entre as variáveis auxiliares avaliadas, PM10 e PTS foram as únicas com observações úteis de forma consistente; variáveis meteorológicas e gases estavam ausentes ou esparsos demais no recorte analisado. A Tabela \ref{tab:oracle_future_aux_sapo} resume os resultados diagnósticos.
+O aprendizado residual não ajuda: na LSTM direta não há diferença (+0,004, empate) e, no Seq2Seq adaptado, o MAE aumenta em 0,063 (IC de 0,018 a 0,112). Acrescentá-lo à combinação de perda ponderada e perda de evento piora em 0,099. Uma explicação possível é que a base sobre a qual o modelo aprende a correção, uma média de valores passados, é menos precisa que o próprio modelo, de modo que a correção precisa compensar o erro dela. A perda auxiliar de evento reduz o MAE em 0,021 sobre a perda ponderada (IC de \(-0,033\) a \(-0,011\)), um ganho pequeno.
 
-\begin{table}[htb]
-    \centering
-    \caption{Diagnóstico \textit{oracle future auxiliary} no Seq2Seq atenção em Sapo.}
-    \label{tab:oracle_future_aux_sapo}
-    \resizebox{\textwidth}{!}{%
-    \begin{tabular}{lrrrr}
-        \toprule
-        \textbf{Contrato diagnóstico} & \textbf{MAE} & \textbf{RMSE} & \textbf{\(R^2\)} & \textbf{Peak35 MAE} \\
-        \midrule
-        PM10 causal no decodificador & 2,7777 & 3,9131 & 0,4954 & 10,2406 \\
-        PM10 + PTS causal no decodificador & 2,8758 & 3,9949 & 0,4741 & 10,5980 \\
-        PM10 futuro real no decodificador (\textit{oracle}) & \textbf{2,4201} & 3,2659 & 0,6485 & 7,9835 \\
-        PM10 + PTS futuro real no decodificador (\textit{oracle}) & 2,4223 & \textbf{3,2654} & \textbf{0,6486} & \textbf{7,1718} \\
-        \bottomrule
-    \end{tabular}%
-    }
-\end{table}
+Na ablação do desenho, remover o reinício do estado do decodificador, acrescentar o \textit{input feeding} ou remover o condicionamento da consulta ao horizonte não altera o MAE (empates). Remover as faixas de defasagem o aumenta em 0,015 (IC de 0,001 a 0,028), um efeito quase no limite da significância. No teste histórico, remover o reinício e o condicionamento da consulta chega a reduzir o MAE, com sinal oposto. Portanto, entre as quatro alterações, só as faixas de defasagem têm efeito distinguível de zero no período de confirmação, e ele é pequeno. Isso é coerente com o empate entre as duas versões do Seq2Seq com atenção observado na Seção~\ref{sec:comparacao_principal}.
 
-O ganho do \textit{oracle} é grande e ajuda a interpretar o problema. Em relação ao controle causal com PM10 e PTS, o uso de variáveis futuras reais reduziu o MAE de 2,8758 para 2,4223 e elevou o \(R^2\) de 0,4741 para 0,6486. A melhoria em picos também foi clara: o Peak35 MAE caiu de 10,5980 para 7,1718. Esse resultado mostra que existe informação relevante no futuro de variáveis auxiliares, especialmente em PM10, que o contrato causal não disponibiliza no instante da previsão.
+\section{Variáveis Derivadas do PM10}
+\label{sec:ablacao_pm10}
 
-Ao mesmo tempo, o próprio \textit{oracle} impõe uma leitura conservadora: mesmo com PM10 e PTS futuros reais, o \(R^2\) ficou em torno de 0,65, ainda distante de 1. Portanto, a distância até um \(R^2\) quase perfeito não parece ser apenas consequência de HPO insuficiente ou de uma arquitetura Seq2Seq subótima. Parte relevante da variância horária de PM2,5 em Sapo provavelmente depende de fatores não observados no contrato atual, como meteorologia local, estabilidade e mistura atmosférica, transporte espacial, emissões, ressuspensão e episódios súbitos.
+A Tabela~\ref{tab:ablacao_pm10_holdout} compara o conjunto completo de variáveis com duas remoções: o PM10 apenas no histórico, sem as duas variáveis derivadas dele para o futuro, e a remoção completa do PM10. Cada conjunto tem sua própria busca de hiperparâmetros, de modo que o conjunto completo não é favorecido.
 
-\section{Seq2Seq Multi-Alvo com Variáveis Auxiliares}
+\inputtabela{ablacao_pm10_holdout}
 
-Também foi testada uma adaptação do Seq2Seq atenção para prever PM2,5 como alvo principal e, durante o treinamento, prever PM10 e PTS futuros como tarefas auxiliares. A hipótese era que a aprendizagem conjunta poderia induzir uma representação interna mais sensível à dinâmica dos poluentes correlacionados, sem usar variáveis futuras reais no decodificador.
-
-\begin{table}[htb]
-    \centering
-    \caption{Experimentos Seq2Seq multi-alvo com PM10 e PTS como tarefas auxiliares.}
-    \label{tab:seq2seq_multialvo_sapo}
-    \resizebox{\textwidth}{!}{%
-    \begin{tabular}{lrrrr}
-        \toprule
-        \textbf{Variante diagnóstica} & \textbf{MAE} & \textbf{RMSE} & \textbf{\(R^2\)} & \textbf{Peak35 MAE} \\
-        \midrule
-        Seq2Seq causal PM10 + PTS, sem multi-alvo & 2,8758 & 3,9949 & 0,4741 & \textbf{10,5980} \\
-        Multi-alvo, peso auxiliar 0,03 & 2,7997 & 4,0045 & 0,4715 & 14,5285 \\
-        Multi-alvo, peso auxiliar 0,08 & 2,8876 & 4,1483 & 0,4329 & 10,5677 \\
-        Multi-alvo, dimensão 128 e peso auxiliar 0,12 & \textbf{2,7689} & \textbf{3,9373} & \textbf{0,4891} & 11,3975 \\
-        \bottomrule
-    \end{tabular}%
-    }
-\end{table}
-
-O melhor multi-alvo reduziu o MAE em relação ao controle causal com PM10 e PTS, de 2,8758 para 2,7689, e elevou o \(R^2\) de 0,4741 para 0,4891. Esse é um indício positivo de que a tarefa auxiliar pode regularizar a representação do Seq2Seq. Porém, o ganho não reproduziu o salto observado no \textit{oracle} e ainda piorou a métrica de pico em relação ao controle causal. Em termos práticos, aprender PM10 e PTS futuros não equivale a conhecer PM10 e PTS futuros.
-
-Esses dois diagnósticos convergem para a mesma interpretação. A arquitetura pode extrair algum ganho adicional, mas o principal gargalo para \(R^2\) muito alto está na informação disponível. Sem variáveis meteorológicas e espaciais observadas de forma confiável, e sem acesso causal ao futuro dos poluentes auxiliares, o modelo tende a suavizar a variância horária e subestimar parte dos picos.
+Para a LSTM direta, nenhuma remoção altera o MAE. Para o XGBoost, a remoção das variáveis derivadas aumenta o MAE em 0,010 (IC de 0,006 a 0,014), e a remoção do PM10 em 0,016 (IC de 0,010 a 0,022). Esses aumentos são estatisticamente distinguíveis de zero, mas equivalem a menos de 1\% do MAE e não têm importância prática. O PM10 medido pelo mesmo sensor traz, portanto, quase nenhuma informação adicional sobre o PM2,5 futuro.
 
 \section{Interpretação da Atenção}
+\label{sec:interpretacao_atencao}
 
-Os diagnósticos anteriores dos pesos de atenção foram mantidos como evidência auxiliar, mas não são usados como argumento principal para a nova comparação final. Nas variantes avaliadas, os pesos médios de atenção não formaram um seletor temporal concentrado nem uma explicação direta da previsão. Essa cautela é coerente com a crítica de \citeonline{jain2019attention}: pesos de atenção podem ajudar a inspecionar o modelo, mas não devem ser tratados automaticamente como explicação completa da decisão.
+Para testar se a atenção do Seq2Seq adaptado é funcionalmente relevante, aplicou-se a contraprova da Seção~\ref{sec:diagnostico_atencao}, sem retreinar. A Tabela~\ref{tab:atencao_seq2seq_attention_new__huber} mostra o erro quando os pesos aprendidos são substituídos por padrões fixos, e a Tabela~\ref{tab:atencao_diag_seq2seq_attention_new__huber} compara as medidas dos pesos aprendidos com as dos pesos uniformes.
 
-Na rodada final, o melhor comportamento do novo Seq2Seq aparece de forma mais clara nas métricas de erro, amplitude e eventos do que na interpretação isolada da atenção. Portanto, a leitura adotada no TCC é pragmática: a atenção faz parte da arquitetura vencedora dentro da família Seq2Seq, mas o ganho observado parece depender da combinação entre contrato causal de variáveis, janela de 48 horas, desenho do decodificador, perda ponderada e seleção por ablações. Não há evidência suficiente para afirmar que o modelo aprendeu uma regra temporal simples baseada apenas em uma defasagem específica.
+\inputtabela{atencao_diagnostico_seq2seq_attention_new__huber}
 
-\section{Ablações Auxiliares e Resultados Negativos}
+\inputtabela{atencao_contrafactual_seq2seq_attention_new__huber}
 
-As ablações internas do Seq2Seq tiveram papel importante no desenvolvimento do protocolo, mas nem todas pertencem ao mesmo escopo comparável da tabela principal. Estratégias como Luong \textit{dot/general/local}, atenção temporal de múltiplas cabeças (\textit{multi-head}), portões (\textit{gates}), atenção por grupos, atenção guiada (\textit{guided attention}), DA-RNN, viés de recência (\textit{recency bias}) e variantes de \textit{scheduled sampling} foram úteis para testar hipóteses, mas não produziram ganho determinístico suficiente para alterar o vencedor global atual.
+Observe que zerar o contexto de atenção aumenta o MAE em 2,25 no período de confirmação (de 2,88 para 5,13): o modelo depende das informações que a atenção entrega. Já substituir os pesos por pesos uniformes sobre as 48 posições aumenta o erro em 0,15, e usar apenas a última hora, o mesmo horário do dia anterior ou o de dois dias antes o aumenta em 0,37, 0,48 e 0,76, respectivamente. O resultado mais informativo, porém, é a substituição por pesos uniformes \emph{dentro das seis faixas de defasagem}: o MAE aumenta em apenas 0,027 (1\%). As medidas dos pesos confirmam: a entropia normalizada dos pesos aprendidos (0,834) é quase igual à dos pesos uniformes por faixa (0,841), e as massas na última hora (0,207) e nas últimas seis horas (0,414 contra 0,417) também. Ou seja, a estrutura de seis faixas fornece quase todo o ganho, e a ponderação aprendida acrescenta pouco. Isso é coerente com o resultado da ablação, em que as faixas de defasagem são a única peça com efeito mensurável. Os pesos, porém, não devem ser lidos como uma explicação causal do modelo \cite{jain2019attention}: o que a contraprova mostra é o efeito no erro, não a razão pela qual o modelo prevê como prevê.
 
-O principal achado dessas ablações não é que atenção seja irrelevante em qualquer cenário, mas que, neste conjunto de dados e sob este contrato, mudanças no contrato de dados, no uso causal de PM10 e na função de perda tiveram efeito mais claro que modificações internas sofisticadas no mecanismo de atenção. O resultado negativo também é informativo: arquiteturas mais complexas não compensam automaticamente problemas de dados, suavização ou objetivo de treinamento desalinhado com picos.
+\section{Sensibilidades}
+\label{sec:sensibilidades_resultados}
 
-A comparação fixa inicial Sapo 70/15/15, executada sem otimização de hiperparâmetros (HPO) e com outro conjunto de variáveis, deve ser lida como etapa histórica. Ela ajudou a organizar a comparação inicial entre quatro modelos de aprendizado profundo e XGBoost, mas não é a fonte da conclusão final. A conclusão atual se baseia no protocolo final com PM10 causal, HPO \textit{walk-forward}, avaliação com múltiplas sementes dos modelos selecionados e teste no mesmo conjunto final.
+\subsection{Janela de Entrada}
+\label{sec:sensibilidade_janela}
+
+A Tabela~\ref{tab:janela_validacao} mostra o MAE de validação para janelas de 24, 48, 72 e 96 horas (o teste não participa desta escolha). Para a LSTM direta, a janela de 48 horas tem o menor erro (2,808), contra 2,842 com 24 horas, 2,832 com 72 e 2,829 com 96; as diferenças (0,02 a 0,03) são da ordem do desvio entre sementes (0,01 a 0,03). Para o XGBoost, o erro diminui com janelas maiores: 2,845 com 24 horas, 2,804 com 48, 2,787 com 72 e 2,772 com 96. A janela de 48 horas não é a ideal para o XGBoost, mas ganhar 0,03 (1\%) com uma janela de 96 horas é uma diferença pequena diante das demais deste capítulo, e não altera a ordenação entre as duas famílias na validação. A conclusão principal, portanto, não depende da janela na faixa testada.
+
+\inputtabela{janela_validacao}
+
+\subsection{Alvos Preenchidos, Busca de Hiperparâmetros e Vencedores}
+\label{sec:sensibilidade_demais}
+
+A Tabela~\ref{tab:sensibilidade_imputados_holdout} repete o cálculo do MAE incluindo, além das medições, os pares cujo alvo foi preenchido por interpolação. O erro sobre os alvos preenchidos é maior que o erro nos medidos para a maioria dos modelos (por exemplo, 3,54 contra 2,98 na LSTM direta); o XGBoost é exceção (2,51 contra 2,77). Isso mostra que o resultado sobre valores preenchidos depende de quanto o modelo se assemelha à interpolação, e não do fenômeno. A ordenação dos três melhores modelos se mantém (XGBoost, Seq2Seq padrão e adaptado); a LSTM recursiva e o Seq2Seq básico trocam de posição entre si. No teste histórico, a ordenação é idêntica. A conclusão, portanto, é robusta à exclusão dos alvos preenchidos.
+
+\inputtabela{sensibilidade_imputados_holdout}
+
+A Tabela~\ref{tab:verificacao_hpo_holdout} mostra o efeito de refazer a busca de hiperparâmetros para a perda ponderada, em vez de reaproveitar os do caso de Huber. Em ambas as arquiteturas, a diferença é estatisticamente indistinguível de zero (\(-0,004\) na LSTM direta e \(+0,006\) no Seq2Seq adaptado), o que indica que o reaproveitamento não distorce as conclusões sobre o efeito da perda.
+
+\inputtabela{verificacao_hpo_holdout}
+
+A Tabela~\ref{tab:vitorias_holdout} resume o melhor modelo em cada critério. O XGBoost é o melhor em todas as medidas globais e nos horizontes 1 e 24, empatado com a Ridge no MAE. O Seq2Seq básico é o melhor nas métricas de pico e no viés, com margens que não são estatisticamente relevantes diante do erro de todos os modelos nos picos.
+
+\inputtabela{vitorias_holdout}
+
+\section{O Que Limita a Qualidade da Previsão}
+\label{sec:limites}
+
+Três resultados apontam na mesma direção. Primeiro, modelos de famílias muito diferentes (regressão linear, árvores e redes com e sem atenção) terminam com MAE dentro de uma faixa estreita, de 2,77 a 2,98 no período de confirmação, e o modelo mais simples entre os treinados, a Ridge, empata com o melhor. Segundo, o erro já é alto na previsão de uma hora à frente: 2,29~\(\mu\)g/m\(^3\) para o melhor modelo, cerca de 21\% da concentração média (11,05), e o aumento até 24 horas é de apenas 26\%. Terceiro, o PM10 medido pela mesma estação pouco contribui (menos de 1\% do MAE), e nenhum modelo acompanha as oscilações de hora em hora ou os picos, que são subestimados em quase todas as horas.
+
+Uma leitura compatível com esses resultados é que a informação contida no histórico de PM2,5 e PM10 e no calendário é o limite da previsão: a estação não mede variáveis meteorológicas, e estudos em outras cidades indicam que elas, como a altura da camada limite atmosférica, são as variáveis mais importantes para explicar o PM2,5 \cite{zanobini2024curitiba}. Esta é uma hipótese consistente com os dados, e não uma conclusão testada neste trabalho, pois testá-la exigiria variáveis meteorológicas que a estação não fornece. O que os resultados mostram, de forma direta, é que trocar de arquitetura ou de função de perda altera o erro em poucos por cento, e que nenhuma delas resolve a imprevisibilidade dos picos e das oscilações horárias.
 
 \section{Ameaças à Validade}
+\label{sec:ameacas}
 
-Há limitações importantes. Primeiro, o eixo principal usa uma estação, Sapo, o que limita a generalização para outras estações e regiões. Segundo, o \textit{walk-forward} foi usado para HPO dentro dos 85\% anteriores ao teste, mas o teste final continua sendo um único bloco cronológico reservado; isso preserva o cenário temporal, mas ainda não equivale a repetir todo o estudo em múltiplas estações ou períodos independentes. Terceiro, os modelos neurais apresentam sensibilidade à semente aleatória, embora a análise com múltiplas sementes tenha reduzido a incerteza sobre a classificação por MAE. Quarto, o HPO \textit{walk-forward} do XGBoost foi limitado a quatro tentativas completas por custo computacional. Quinto, eventos de alta concentração são raros, o que torna métricas de picos instáveis e dependentes de poucos episódios.
-
-Mesmo com essas limitações, o protocolo atual permite uma conclusão mais defensável que a narrativa anterior: no conjunto final de Sapo, a LSTM direta venceu em erro médio; o XGBoost permaneceu uma referência forte baseada em árvores sobre atributos derivados das janelas temporais; e o novo Seq2Seq atenção ficou competitivo, preservando mais amplitude e melhorando o comportamento em cauda, sem superar a LSTM direta no resultado global.
+Há limitações que condicionam a leitura dos resultados. Primeiro, o estudo usa uma única estação, o que limita a generalização espacial. Segundo, o teste histórico foi consultado em etapas anteriores e não é confirmatório; o período de confirmação é a única evidência independente, e cobre apenas três anos, com nível médio de PM2,5 variável entre eles. Terceiro, os fatores que reaproveitam os hiperparâmetros do caso de Huber podem subestimar o potencial de cada variante, embora a verificação da Seção~\ref{sec:sensibilidade_demais} não tenha encontrado viés em duas arquiteturas. Quarto, quatro sementes fornecem pouca precisão para inferência entre famílias; o bootstrap incorpora a incerteza da amostra de teste, mas não a de novas inicializações além das quatro usadas. Quinto, o número de eventos de pico é limitado (58 acima de 35~\(\mu\)g/m\(^3\) no período de confirmação), e quase não há valores acima de 35 em 2023. Sexto, a validação tem cerca de 32\% de ausências e uma lacuna de 48 dias preenchida por repetição do último valor, o que pode enfraquecer a parada antecipada e a escolha do ponto de controle. Sétimo, a janela de 48 horas não é a ideal para o XGBoost, como mostrado na Seção~\ref{sec:sensibilidade_janela}. Por fim, o limiar de 35~\(\mu\)g/m\(^3\), os pesos da perda ponderada e as faixas de defasagem são decisões de projeto e não resultados estabelecidos na literatura.

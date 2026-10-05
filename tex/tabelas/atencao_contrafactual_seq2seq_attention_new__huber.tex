@@ -1,0 +1,28 @@
+\begin{table}[htb]
+    \centering
+    \caption{Contraprova da atenção (Seq2Seq atenção adaptado (Huber))}
+    \label{tab:atencao_seq2seq_attention_new__huber}
+    \small
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{llrrrr}
+        \toprule
+        Período & Pesos usados & MAE & $\Delta$ MAE vs. aprendida & MAE $\geq$35 & Mudança média da previsão \\
+        \midrule
+        confirmação & aprendidos & 2,876 & 0,000 & 19,222 & 0,000 \\
+        confirmação & uniformes & 3,026 & 0,150 & 19,513 & 0,770 \\
+        confirmação & uniformes por faixa & 2,903 & 0,027 & 18,701 & 0,224 \\
+        confirmação & só a última hora & 3,243 & 0,367 & 17,717 & 1,669 \\
+        confirmação & só 24 h antes & 3,354 & 0,478 & 19,571 & 1,647 \\
+        confirmação & só 48 h antes & 3,633 & 0,757 & 19,608 & 1,981 \\
+        confirmação & contexto zerado & 5,127 & 2,251 & 32,269 & 4,145 \\
+        teste histórico & aprendidos & 2,721 & 0,000 & 13,293 & 0,000 \\
+        teste histórico & uniformes & 2,856 & 0,135 & 13,892 & 0,791 \\
+        teste histórico & uniformes por faixa & 2,733 & 0,012 & 13,138 & 0,183 \\
+        teste histórico & só a última hora & 3,181 & 0,460 & 12,095 & 1,713 \\
+        teste histórico & só 24 h antes & 3,198 & 0,477 & 12,613 & 1,682 \\
+        teste histórico & só 48 h antes & 3,510 & 0,789 & 14,696 & 2,012 \\
+        teste histórico & contexto zerado & 4,271 & 1,550 & 27,470 & 3,592 \\
+        \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}

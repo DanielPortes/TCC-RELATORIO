@@ -1,0 +1,21 @@
+\begin{table}[htb]
+    \centering
+    \caption{Diagnóstico da atenção aprendida frente a pesos uniformes (Seq2Seq atenção adaptado (Huber))}
+    \label{tab:atencao_diag_seq2seq_attention_new__huber}
+    \small
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{lrrr}
+        \toprule
+        Medida & aprendida & uniforme por faixa & uniforme por posição \\
+        \midrule
+        Entropia normalizada & 0,834 & 0,841 & 1,000 \\
+        Peso máximo & 0,207 & 0,207 & 0,021 \\
+        Massa nas 3 maiores posições & 0,319 & 0,310 & 0,062 \\
+        Massa na última hora & 0,207 & 0,207 & 0,021 \\
+        Massa nas últimas 6 horas & 0,414 & 0,417 & 0,125 \\
+        Massa no mesmo horário do dia anterior & 0,055 & 0,055 & 0,021 \\
+        Massa no mesmo horário de dois dias antes & 0,042 & 0,042 & 0,021 \\
+        \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}

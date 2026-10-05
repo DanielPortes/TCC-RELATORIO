@@ -1,0 +1,23 @@
+\begin{table}[htb]
+    \centering
+    \caption{Fatores (perda, resíduo e evento), métricas de erro: teste histórico (jun.--dez./2020)}
+    \label{tab:metricas_fatores_teste_historico}
+    \small
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{>{\raggedright\arraybackslash}p{0.30\textwidth}rrrrrrrr}
+        \toprule
+        Modelo & MAE & RMSE & WAPE (\%) & sMAPE (\%) & R$^2$ & MBE & MAE H1 & MAE H24 \\
+        \midrule
+        LSTM direta (L1 pond.) & 2,869 & 4,007 & 21,109 & 21,311 & 0,470 & -0,129 & 2,757 & 2,977 \\
+        LSTM recursiva (L1 pond.) & 2,954 & 3,915 & 21,736 & 22,171 & 0,494 & 0,524 & 2,802 & 3,305 \\
+        Seq2Seq básico (L1 pond.) & 2,904 & 4,122 & 21,369 & 21,634 & 0,437 & -0,492 & 2,442 & 3,241 \\
+        Seq2Seq atenção padrão (L1 pond.) & 2,749 & 3,837 & 20,227 & 20,476 & 0,514 & 0,129 & 2,680 & 2,868 \\
+        Seq2Seq atenção adaptado (L1 pond.) & 2,695 & 3,746 & 19,832 & 20,198 & 0,537 & -0,018 & 2,445 & 2,813 \\
+        Seq2Seq atenção adaptado (L1 pond. + evento) & 2,713 & 3,795 & 19,963 & 20,269 & 0,525 & 0,028 & 2,456 & 2,844 \\
+        LSTM direta (Huber + resíduo) & 2,903 & 4,003 & 21,365 & 21,714 & 0,472 & -0,038 & 2,661 & 3,128 \\
+        Seq2Seq atenção adaptado (Huber + resíduo) & 2,812 & 3,906 & 20,690 & 21,033 & 0,497 & -0,032 & 2,642 & 2,960 \\
+        Seq2Seq atenção adaptado (L1 pond. + evento + resíduo) & 2,845 & 3,953 & 20,932 & 21,223 & 0,485 & -0,044 & 2,669 & 2,989 \\
+        \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}

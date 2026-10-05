@@ -1,0 +1,18 @@
+\begin{table}[htb]
+    \centering
+    \caption{Ablação de cada elemento do desenho do Seq2Seq adaptado: período de confirmação (2021--2023)}
+    \label{tab:ablacao_desenho_holdout}
+    \small
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{>{\raggedright\arraybackslash}p{0.34\textwidth}lrrrrrl}
+        \toprule
+        Caso & Base & MAE caso & MAE base & $\Delta$ MAE & IC inf. & IC sup. & Veredito \\
+        \midrule
+        Seq2Seq atenção adaptado (sem reinício por horizonte) & Seq2Seq atenção adaptado (Huber) & 2,877 & 2,884 & -0,006 & -0,021 & 0,009 & empate estatístico \\
+        Seq2Seq atenção adaptado (com input feeding) & Seq2Seq atenção adaptado (Huber) & 2,884 & 2,884 & 0,000 & -0,012 & 0,012 & empate estatístico \\
+        Seq2Seq atenção adaptado (sem faixas de defasagem) & Seq2Seq atenção adaptado (Huber) & 2,898 & 2,884 & 0,014 & 0,001 & 0,028 & pior \\
+        Seq2Seq atenção adaptado (consulta sem horizonte/exógenas) & Seq2Seq atenção adaptado (Huber) & 2,883 & 2,884 & -0,001 & -0,014 & 0,014 & empate estatístico \\
+        \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}

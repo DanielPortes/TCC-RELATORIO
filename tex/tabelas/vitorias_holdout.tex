@@ -1,0 +1,24 @@
+\begin{table}[htb]
+    \centering
+    \caption{Melhor modelo por critério: período de confirmação (2021--2023)}
+    \label{tab:vitorias_holdout}
+    \small
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{llrl}
+        \toprule
+        Critério & Melhor & Valor & Empate estatístico com \\
+        \midrule
+        MAE & XGBoost (erro abs.) & 2,767 & Ridge \\
+        RMSE & XGBoost (erro abs.) & 4,072 & --- \\
+        R$^2$ & XGBoost (erro abs.) & 0,640 & --- \\
+        WAPE & XGBoost (erro abs.) & 25,029 & --- \\
+        MAE H1 & XGBoost (erro abs.) & 2,291 & --- \\
+        MAE H24 & XGBoost (erro abs.) & 2,891 & --- \\
+        MAE pico $\geq$35 & Seq2Seq básico (Huber) & 18,302 & --- \\
+        MAE por evento & Seq2Seq básico (Huber) & 16,493 & --- \\
+        |1 - razão de desvios| & XGBoost (erro abs.) & 0,199 & --- \\
+        |viés| & Seq2Seq básico (Huber) & 0,017 & --- \\
+        \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}

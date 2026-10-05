@@ -1,0 +1,20 @@
+\begin{table}[htb]
+    \centering
+    \caption{Ensemble das sementes (média das previsões): teste histórico (jun.--dez./2020)}
+    \label{tab:ensemble_teste_historico}
+    \small
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{lrrrrrrrr}
+        \toprule
+        Modelo & MAE & RMSE & WAPE (\%) & sMAPE (\%) & R$^2$ & MBE & MAE H1 & MAE H24 \\
+        \midrule
+        LSTM direta (Huber) & 2,798 & 3,874 & 20,590 & 20,809 & 0,505 & 0,061 & 2,675 & 2,911 \\
+        LSTM recursiva (Huber) & 2,817 & 3,760 & 20,728 & 21,162 & 0,534 & 0,438 & 2,737 & 3,043 \\
+        Seq2Seq básico (Huber) & 2,753 & 3,833 & 20,256 & 20,524 & 0,516 & 0,090 & 2,358 & 2,903 \\
+        Seq2Seq atenção padrão (Huber) & 2,706 & 3,745 & 19,913 & 20,218 & 0,537 & 0,201 & 2,631 & 2,825 \\
+        Seq2Seq atenção adaptado (Huber) & 2,683 & 3,705 & 19,741 & 20,062 & 0,547 & 0,190 & 2,451 & 2,802 \\
+        XGBoost (erro abs.) & 2,679 & 3,732 & 19,716 & 20,113 & 0,541 & -0,348 & 2,335 & 2,815 \\
+        \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}

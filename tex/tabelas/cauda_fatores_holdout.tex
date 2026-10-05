@@ -1,0 +1,23 @@
+\begin{table}[htb]
+    \centering
+    \caption{Fatores (perda, resíduo e evento), métricas de cauda: período de confirmação (2021--2023)}
+    \label{tab:cauda_fatores_holdout}
+    \small
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{>{\raggedright\arraybackslash}p{0.33\textwidth}rrrrrrr}
+        \toprule
+        Modelo & MAE $\geq$25 & MAE $\geq$35 & MAE $\geq$50 & Subestim. $\geq$35 & Razão DP & p99 prev. & p99 obs. \\
+        \midrule
+        LSTM direta (L1 pond.) & 11,622 & 20,363 & 35,036 & 0,992 & 0,764 & 28,363 & 33,000 \\
+        LSTM recursiva (L1 pond.) & 10,242 & 18,441 & 32,886 & 0,976 & 0,824 & 29,021 & 33,000 \\
+        Seq2Seq básico (L1 pond.) & 11,413 & 17,972 & 29,936 & 0,894 & 0,821 & 30,827 & 33,000 \\
+        Seq2Seq atenção padrão (L1 pond.) & 10,316 & 17,671 & 30,488 & 0,951 & 0,798 & 29,390 & 33,000 \\
+        Seq2Seq atenção adaptado (L1 pond.) & 10,617 & 18,883 & 32,182 & 0,973 & 0,793 & 28,228 & 33,000 \\
+        Seq2Seq atenção adaptado (L1 pond. + evento) & 10,606 & 18,640 & 31,838 & 0,961 & 0,802 & 28,428 & 33,000 \\
+        LSTM direta (Huber + resíduo) & 10,845 & 18,704 & 32,058 & 0,947 & 0,851 & 28,860 & 33,000 \\
+        Seq2Seq atenção adaptado (Huber + resíduo) & 10,811 & 18,067 & 30,980 & 0,907 & 0,845 & 30,237 & 33,000 \\
+        Seq2Seq atenção adaptado (L1 pond. + evento + resíduo) & 10,901 & 18,340 & 31,869 & 0,918 & 0,839 & 29,814 & 33,000 \\
+        \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}

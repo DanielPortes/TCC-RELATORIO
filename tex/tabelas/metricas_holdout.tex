@@ -1,0 +1,26 @@
+\begin{table}[htb]
+    \centering
+    \caption{Métricas de erro no período de confirmação (2021--2023)}
+    \label{tab:metricas_holdout}
+    \small
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{lrrrrrrrrr}
+        \toprule
+        Modelo & MAE & RMSE & WAPE (\%) & sMAPE (\%) & R$^2$ & MBE & MAE H1 & MAE H24 & Habilidade vs. MM 24 h \\
+        \midrule
+        LSTM direta (Huber) & 2,979 & 4,324 & 26,948 & 31,255 & 0,594 & -0,046 & 2,864 & 3,058 & 0,030 \\
+        LSTM recursiva (Huber) & 2,944 & 4,195 & 26,634 & 31,483 & 0,618 & -0,079 & 2,824 & 3,152 & 0,041 \\
+        Seq2Seq básico (Huber) & 2,965 & 4,232 & 26,817 & 31,633 & 0,611 & -0,017 & 2,488 & 3,205 & 0,035 \\
+        Seq2Seq atenção padrão (Huber) & 2,870 & 4,096 & 25,963 & 30,636 & 0,636 & 0,048 & 2,678 & 2,962 & 0,066 \\
+        Seq2Seq atenção adaptado (Huber) & 2,876 & 4,128 & 26,016 & 30,449 & 0,630 & 0,190 & 2,613 & 2,982 & 0,064 \\
+        XGBoost (erro abs.) & 2,767 & 4,072 & 25,029 & 29,238 & 0,640 & -0,310 & 2,291 & 2,891 & 0,099 \\
+        Persistência y(t) & 3,831 & 5,459 & 34,656 & 39,931 & 0,354 & -0,069 & 2,672 & 3,489 & -0,247 \\
+        Sazonal y(t-24) & 3,489 & 5,131 & 31,565 & 36,482 & 0,429 & -0,088 & 3,490 & 3,489 & -0,136 \\
+        Sazonal y(t-48) & 3,760 & 5,629 & 34,014 & 38,703 & 0,313 & -0,067 & 3,761 & 3,760 & -0,224 \\
+        Média móvel 6 h & 3,336 & 4,833 & 30,178 & 34,636 & 0,493 & -0,077 & 2,780 & 3,254 & -0,086 \\
+        Média móvel 24 h & 3,072 & 4,519 & 27,785 & 31,794 & 0,557 & -0,096 & 2,839 & 3,223 & 0,000 \\
+        Ridge & 2,794 & 4,096 & 25,276 & 29,456 & 0,636 & -0,016 & 2,402 & 2,940 & 0,090 \\
+        \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}

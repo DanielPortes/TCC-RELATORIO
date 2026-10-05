@@ -1,0 +1,26 @@
+\begin{table}[htb]
+    \centering
+    \caption{Hiperparâmetros selecionados pela busca com validação em janela expansiva}
+    \label{tab:hpo_melhores}
+    \small
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{>{\raggedright\arraybackslash}p{0.14\textwidth}rrr>{\raggedright\arraybackslash}p{0.52\textwidth}}
+        \toprule
+        Modelo & Tentativas & Podadas & Época mediana da poda & Hiperparâmetros \\
+        \midrule
+        LSTM direta (Huber) & 24 & 17 & 12 & taxa de aprendizado = 0,0025; decaimento de pesos = 0,0001; dropout = 0,3; camadas = 2; unidades ocultas = 192; agregação = atenção; $\delta$ de Huber = 0,5 \\
+        LSTM direta (Huber) [PM10 só no histórico] & 24 & 18 & 4 & taxa de aprendizado = 0,0025; decaimento de pesos = 1e-06; dropout = 0,3; camadas = 2; unidades ocultas = 320; agregação = média; $\delta$ de Huber = 0,5 \\
+        LSTM direta (Huber) [só PM2,5 e tempo] & 24 & 16 & 4 & taxa de aprendizado = 0,0012; decaimento de pesos = 1e-06; dropout = 0,3; camadas = 2; unidades ocultas = 320; agregação = média; $\delta$ de Huber = 2 \\
+        LSTM direta (L1 pond., HPO própria) & 24 & 16 & 4 & taxa de aprendizado = 0,007; decaimento de pesos = 1e-06; dropout = 0,05; camadas = 2; unidades ocultas = 192; agregação = atenção; $\delta$ de Huber = 1 \\
+        LSTM recursiva (Huber) & 24 & 14 & 4 & taxa de aprendizado = 0,0018; decaimento de pesos = 5e-06; dropout = 0,05; camadas = 3; unidades ocultas = 320; $\delta$ de Huber = 1 \\
+        Seq2Seq atenção padrão (Huber) & 24 & 16 & 4 & taxa de aprendizado = 0,0025; decaimento de pesos = 5e-05; dropout = 0,15; camadas = 1; unidades do codificador = 160; unidades do decodificador = 160; unidades da atenção = 128; dimensão do horizonte = 16; $\delta$ de Huber = 0,5 \\
+        Seq2Seq atenção adaptado (Huber) & 24 & 13 & 4 & taxa de aprendizado = 0,007; decaimento de pesos = 5e-05; dropout = 0,3; camadas = 1; unidades do codificador = 128; unidades do decodificador = 160; unidades da atenção = 64; dimensão do horizonte = 8; $\delta$ de Huber = 1 \\
+        Seq2Seq atenção adaptado (L1 pond., HPO própria) & 24 & 15 & 4 & taxa de aprendizado = 0,007; decaimento de pesos = 1e-06; dropout = 0,3; camadas = 3; unidades do codificador = 160; unidades do decodificador = 160; unidades da atenção = 96; dimensão do horizonte = 24; $\delta$ de Huber = 0,5 \\
+        Seq2Seq básico (Huber) & 24 & 12 & 4 & taxa de aprendizado = 0,0018; decaimento de pesos = 5e-05; dropout = 0,05; camadas = 3; unidades ocultas = 96; $\delta$ de Huber = 1,5 \\
+        XGBoost (erro abs.) & 24 & 0 & -- & árvores = 320; taxa de aprendizado = 0,07453; max\_bin = 128; profundidade = 2; peso mínimo do filho = 0,6743; subsample = 0,6126; colsample = 0,8546; $\lambda$ = 0,7432; $\alpha$ = 1,126e-05; $\gamma$ = 0,09712; parada antecipada = 25 \\
+        XGBoost (erro abs.) [PM10 só no histórico] & 24 & 0 & -- & árvores = 480; taxa de aprendizado = 0,08094; max\_bin = 128; profundidade = 2; peso mínimo do filho = 4,72; subsample = 0,8809; colsample = 0,9092; $\lambda$ = 1,192; $\alpha$ = 8,888e-05; $\gamma$ = 4,624e-05; parada antecipada = 25 \\
+        XGBoost (erro abs.) [só PM2,5 e tempo] & 24 & 0 & -- & árvores = 320; taxa de aprendizado = 0,07453; max\_bin = 128; profundidade = 2; peso mínimo do filho = 0,6743; subsample = 0,6126; colsample = 0,8546; $\lambda$ = 0,7432; $\alpha$ = 1,126e-05; $\gamma$ = 0,09712; parada antecipada = 25 \\
+        \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}

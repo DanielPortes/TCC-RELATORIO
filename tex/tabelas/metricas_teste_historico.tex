@@ -1,0 +1,26 @@
+\begin{table}[htb]
+    \centering
+    \caption{Métricas de erro no teste histórico (jun.--dez./2020)}
+    \label{tab:metricas_teste_historico}
+    \small
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{lrrrrrrrrr}
+        \toprule
+        Modelo & MAE & RMSE & WAPE (\%) & sMAPE (\%) & R$^2$ & MBE & MAE H1 & MAE H24 & Habilidade vs. MM 24 h \\
+        \midrule
+        LSTM direta (Huber) & 2,836 & 3,929 & 20,869 & 21,035 & 0,491 & 0,061 & 2,720 & 2,943 & 0,067 \\
+        LSTM recursiva (Huber) & 2,848 & 3,800 & 20,954 & 21,360 & 0,524 & 0,438 & 2,754 & 3,089 & 0,063 \\
+        Seq2Seq básico (Huber) & 2,843 & 3,969 & 20,921 & 21,081 & 0,480 & 0,090 & 2,408 & 3,053 & 0,065 \\
+        Seq2Seq atenção padrão (Huber) & 2,737 & 3,780 & 20,138 & 20,433 & 0,529 & 0,201 & 2,673 & 2,851 & 0,100 \\
+        Seq2Seq atenção adaptado (Huber) & 2,721 & 3,750 & 20,021 & 20,322 & 0,536 & 0,190 & 2,496 & 2,839 & 0,105 \\
+        XGBoost (erro abs.) & 2,696 & 3,751 & 19,838 & 20,236 & 0,536 & -0,348 & 2,350 & 2,832 & 0,113 \\
+        Persistência y(t) & 3,900 & 5,285 & 28,696 & 29,058 & 0,079 & -0,030 & 2,803 & 3,377 & -0,283 \\
+        Sazonal y(t-24) & 3,377 & 4,719 & 24,851 & 25,196 & 0,266 & -0,037 & 3,377 & 3,377 & -0,111 \\
+        Sazonal y(t-48) & 3,762 & 5,246 & 27,684 & 27,551 & 0,092 & -0,029 & 3,760 & 3,764 & -0,238 \\
+        Média móvel 6 h & 3,350 & 4,555 & 24,654 & 24,874 & 0,316 & -0,036 & 2,867 & 3,147 & -0,102 \\
+        Média móvel 24 h & 3,040 & 4,225 & 22,369 & 22,608 & 0,411 & -0,038 & 2,835 & 3,210 & 0,000 \\
+        Ridge & 2,673 & 3,749 & 19,668 & 19,979 & 0,536 & -0,064 & 2,358 & 2,828 & 0,121 \\
+        \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}

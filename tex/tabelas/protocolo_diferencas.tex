@@ -1,0 +1,45 @@
+\begin{table}[htb]
+    \centering
+    \caption{Casos experimentais e o que difere entre eles}
+    \label{tab:protocolo_diferencas}
+    \small
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{>{\raggedright\arraybackslash}p{0.22\textwidth}lllrrl>{\raggedright\arraybackslash}p{0.19\textwidth}}
+        \toprule
+        Caso & Grupo & Arquitetura & Perda & Resíduo & Perda de evento & Contrato & Hiperparâmetros de \\
+        \midrule
+        LSTM direta (Huber) & primary & lstm\_direct & huber & False & False & clean\_pm10\_decoder\_proxy & LSTM direta (Huber) \\
+        LSTM recursiva (Huber) & primary & lstm\_recursive & huber & False & False & clean\_pm10\_decoder\_proxy & LSTM recursiva (Huber) \\
+        Seq2Seq básico (Huber) & primary & seq2seq\_basic & huber & False & False & clean\_pm10\_decoder\_proxy & Seq2Seq básico (Huber) \\
+        Seq2Seq atenção padrão (Huber) & primary & seq2seq\_attention & huber & False & False & clean\_pm10\_decoder\_proxy & Seq2Seq atenção padrão (Huber) \\
+        Seq2Seq atenção adaptado (Huber) & primary & seq2seq\_attention\_new & huber & False & False & clean\_pm10\_decoder\_proxy & Seq2Seq atenção adaptado (Huber) \\
+        XGBoost (erro abs.) & primary & xgboost & absolute & False & False & clean\_pm10\_decoder\_proxy & XGBoost (erro abs.) \\
+        LSTM direta (L1 pond.) & loss & lstm\_direct & weighted\_l1 & False & False & clean\_pm10\_decoder\_proxy & LSTM direta (Huber) \\
+        LSTM recursiva (L1 pond.) & loss & lstm\_recursive & weighted\_l1 & False & False & clean\_pm10\_decoder\_proxy & LSTM recursiva (Huber) \\
+        Seq2Seq básico (L1 pond.) & loss & seq2seq\_basic & weighted\_l1 & False & False & clean\_pm10\_decoder\_proxy & Seq2Seq básico (Huber) \\
+        Seq2Seq atenção padrão (L1 pond.) & loss & seq2seq\_attention & weighted\_l1 & False & False & clean\_pm10\_decoder\_proxy & Seq2Seq atenção padrão (Huber) \\
+        Seq2Seq atenção adaptado (L1 pond.) & loss & seq2seq\_attention\_new & weighted\_l1 & False & False & clean\_pm10\_decoder\_proxy & Seq2Seq atenção adaptado (Huber) \\
+        Seq2Seq atenção adaptado (L1 pond. + evento) & extras & seq2seq\_attention\_new & weighted\_l1 & False & True & clean\_pm10\_decoder\_proxy & Seq2Seq atenção adaptado (Huber) \\
+        LSTM direta (Huber + resíduo) & extras & lstm\_direct & huber & True & False & clean\_pm10\_decoder\_proxy & LSTM direta (Huber) \\
+        Seq2Seq atenção adaptado (Huber + resíduo) & extras & seq2seq\_attention\_new & huber & True & False & clean\_pm10\_decoder\_proxy & Seq2Seq atenção adaptado (Huber) \\
+        Seq2Seq atenção adaptado (L1 pond. + evento + resíduo) & extras & seq2seq\_attention\_new & weighted\_l1 & True & True & clean\_pm10\_decoder\_proxy & Seq2Seq atenção adaptado (Huber) \\
+        Seq2Seq atenção adaptado (sem reinício por horizonte) & design\_ablation & seq2seq\_attention\_new & huber & False & False & clean\_pm10\_decoder\_proxy & Seq2Seq atenção adaptado (Huber) \\
+        Seq2Seq atenção adaptado (com input feeding) & design\_ablation & seq2seq\_attention\_new & huber & False & False & clean\_pm10\_decoder\_proxy & Seq2Seq atenção adaptado (Huber) \\
+        Seq2Seq atenção adaptado (sem faixas de defasagem) & design\_ablation & seq2seq\_attention\_new & huber & False & False & clean\_pm10\_decoder\_proxy & Seq2Seq atenção adaptado (Huber) \\
+        Seq2Seq atenção adaptado (consulta sem horizonte/exógenas) & design\_ablation & seq2seq\_attention\_new & huber & False & False & clean\_pm10\_decoder\_proxy & Seq2Seq atenção adaptado (Huber) \\
+        LSTM direta (Huber) [PM10 só no histórico] & pm10\_ablation & lstm\_direct & huber & False & False & pm10\_history\_no\_decoder\_proxy & LSTM direta (Huber) [PM10 só no histórico] \\
+        XGBoost (erro abs.) [PM10 só no histórico] & pm10\_ablation & xgboost & absolute & False & False & pm10\_history\_no\_decoder\_proxy & XGBoost (erro abs.) [PM10 só no histórico] \\
+        LSTM direta (Huber) [só PM2,5 e tempo] & pm10\_ablation & lstm\_direct & huber & False & False & pm25\_time\_only & LSTM direta (Huber) [só PM2,5 e tempo] \\
+        XGBoost (erro abs.) [só PM2,5 e tempo] & pm10\_ablation & xgboost & absolute & False & False & pm25\_time\_only & XGBoost (erro abs.) [só PM2,5 e tempo] \\
+        LSTM direta (L1 pond., HPO própria) & hpo\_check & lstm\_direct & weighted\_l1 & False & False & clean\_pm10\_decoder\_proxy & LSTM direta (L1 pond., HPO própria) \\
+        Seq2Seq atenção adaptado (L1 pond., HPO própria) & hpo\_check & seq2seq\_attention\_new & weighted\_l1 & False & False & clean\_pm10\_decoder\_proxy & Seq2Seq atenção adaptado (L1 pond., HPO própria) \\
+        LSTM direta (Huber, janela de 24 h) & window & lstm\_direct & huber & False & False & clean\_pm10\_decoder\_proxy & LSTM direta (Huber) \\
+        XGBoost (erro abs., janela de 24 h) & window & xgboost & absolute & False & False & clean\_pm10\_decoder\_proxy & XGBoost (erro abs.) \\
+        LSTM direta (Huber, janela de 72 h) & window & lstm\_direct & huber & False & False & clean\_pm10\_decoder\_proxy & LSTM direta (Huber) \\
+        XGBoost (erro abs., janela de 72 h) & window & xgboost & absolute & False & False & clean\_pm10\_decoder\_proxy & XGBoost (erro abs.) \\
+        LSTM direta (Huber, janela de 96 h) & window & lstm\_direct & huber & False & False & clean\_pm10\_decoder\_proxy & LSTM direta (Huber) \\
+        XGBoost (erro abs., janela de 96 h) & window & xgboost & absolute & False & False & clean\_pm10\_decoder\_proxy & XGBoost (erro abs.) \\
+        \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}

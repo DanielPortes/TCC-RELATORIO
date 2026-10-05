@@ -1,0 +1,18 @@
+\begin{table}[htb]
+    \centering
+    \caption{Ablação das variáveis de PM10: período de confirmação (2021--2023)}
+    \label{tab:ablacao_pm10_holdout}
+    \small
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{llrrrrl}
+        \toprule
+        Modelo & Variáveis & Sementes & $\Delta$ MAE vs. completo & IC inf. & IC sup. & Veredito \\
+        \midrule
+        LSTM direta & PM10 só no histórico & 3 & -0,007 & -0,045 & 0,038 & empate estatístico \\
+        LSTM direta & só PM2,5 e tempo & 3 & -0,015 & -0,059 & 0,036 & empate estatístico \\
+        XGBoost & PM10 só no histórico & 3 & 0,010 & 0,006 & 0,013 & pior \\
+        XGBoost & só PM2,5 e tempo & 3 & 0,016 & 0,010 & 0,021 & pior \\
+        \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}

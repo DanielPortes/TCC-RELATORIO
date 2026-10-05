@@ -1,0 +1,20 @@
+\begin{table}[htb]
+    \centering
+    \caption{Ensemble das sementes (média das previsões): período de confirmação (2021--2023)}
+    \label{tab:ensemble_holdout}
+    \small
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{lrrrrrrrr}
+        \toprule
+        Modelo & MAE & RMSE & WAPE (\%) & sMAPE (\%) & R$^2$ & MBE & MAE H1 & MAE H24 \\
+        \midrule
+        LSTM direta (Huber) & 2,945 & 4,266 & 26,642 & 30,974 & 0,605 & -0,046 & 2,829 & 3,025 \\
+        LSTM recursiva (Huber) & 2,914 & 4,158 & 26,358 & 31,134 & 0,625 & -0,079 & 2,807 & 3,106 \\
+        Seq2Seq básico (Huber) & 2,902 & 4,139 & 26,248 & 30,960 & 0,628 & -0,017 & 2,441 & 3,112 \\
+        Seq2Seq atenção padrão (Huber) & 2,841 & 4,059 & 25,699 & 30,338 & 0,643 & 0,048 & 2,629 & 2,936 \\
+        Seq2Seq atenção adaptado (Huber) & 2,841 & 4,079 & 25,695 & 30,127 & 0,639 & 0,190 & 2,574 & 2,947 \\
+        XGBoost (erro abs.) & 2,753 & 4,056 & 24,907 & 29,101 & 0,643 & -0,310 & 2,280 & 2,878 \\
+        \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}

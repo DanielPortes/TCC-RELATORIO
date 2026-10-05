@@ -1,0 +1,38 @@
+\begin{table}[htb]
+    \centering
+    \caption{Desempenho nos eventos de pico: período de confirmação (2021--2023)}
+    \label{tab:eventos_holdout}
+    \small
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{lrrrrrr}
+        \toprule
+        Modelo & Limiar & Eventos & MAE por evento & Viés no evento & Subestimação & Erro no pico \\
+        \midrule
+        LSTM direta (Huber) & 35 & 58 & 18,964 & -18,938 & 0,995 & -22,499 \\
+        LSTM recursiva (Huber) & 35 & 58 & 17,233 & -17,197 & 0,989 & -20,632 \\
+        Seq2Seq básico (Huber) & 35 & 58 & 16,493 & -16,286 & 0,952 & -19,802 \\
+        Seq2Seq atenção padrão (Huber) & 35 & 58 & 16,835 & -16,789 & 0,987 & -20,243 \\
+        Seq2Seq atenção adaptado (Huber) & 35 & 58 & 17,403 & -17,324 & 0,987 & -20,710 \\
+        XGBoost (erro abs.) & 35 & 58 & 18,055 & -18,055 & 1,000 & -21,612 \\
+        Persistência y(t) & 35 & 58 & 16,566 & -15,470 & 0,921 & -18,909 \\
+        Sazonal y(t-24) & 35 & 58 & 18,611 & -15,352 & 0,886 & -18,879 \\
+        Sazonal y(t-48) & 35 & 58 & 19,167 & -16,707 & 0,894 & -20,224 \\
+        Média móvel 6 h & 35 & 58 & 17,427 & -16,187 & 0,927 & -19,664 \\
+        Média móvel 24 h & 35 & 58 & 18,758 & -17,635 & 0,948 & -21,164 \\
+        Ridge & 35 & 58 & 16,812 & -16,172 & 0,966 & -19,663 \\
+        LSTM direta (Huber) & 25 & 243 & 10,234 & -9,675 & 0,925 & -11,692 \\
+        LSTM recursiva (Huber) & 25 & 243 & 9,041 & -8,397 & 0,902 & -10,283 \\
+        Seq2Seq básico (Huber) & 25 & 243 & 9,228 & -8,287 & 0,895 & -10,221 \\
+        Seq2Seq atenção padrão (Huber) & 25 & 243 & 8,955 & -8,130 & 0,890 & -10,034 \\
+        Seq2Seq atenção adaptado (Huber) & 25 & 243 & 9,046 & -8,324 & 0,902 & -10,206 \\
+        XGBoost (erro abs.) & 25 & 243 & 9,417 & -8,943 & 0,930 & -10,926 \\
+        Persistência y(t) & 25 & 243 & 10,564 & -8,728 & 0,884 & -10,773 \\
+        Sazonal y(t-24) & 25 & 243 & 10,184 & -6,225 & 0,784 & -7,852 \\
+        Sazonal y(t-48) & 25 & 243 & 10,720 & -7,970 & 0,797 & -9,601 \\
+        Média móvel 6 h & 25 & 243 & 10,863 & -8,806 & 0,875 & -10,855 \\
+        Média móvel 24 h & 25 & 243 & 11,120 & -9,083 & 0,871 & -11,146 \\
+        Ridge & 25 & 243 & 9,396 & -7,773 & 0,884 & -9,704 \\
+        \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}

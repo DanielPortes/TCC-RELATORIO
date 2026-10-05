@@ -1,0 +1,35 @@
+\begin{table}[htb]
+    \centering
+    \caption{Diferença de MAE entre todos os pares de modelos: teste histórico (jun.--dez./2020)}
+    \label{tab:matriz_teste_historico}
+    \small
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{llrrrrl}
+        \toprule
+        Modelo A & Modelo B & $\Delta$ MAE (A - B) & IC inf. & IC sup. & p (bootstrap) & Veredito (A vs. B) \\
+        \midrule
+        LSTM direta (Huber) & LSTM recursiva (Huber) & -0,012 & -0,133 & 0,129 & 0,808 & empate estatístico \\
+        LSTM direta (Huber) & Seq2Seq básico (Huber) & -0,007 & -0,077 & 0,058 & 0,874 & empate estatístico \\
+        LSTM direta (Huber) & Seq2Seq atenção padrão (Huber) & 0,099 & 0,051 & 0,160 & 0,000 & pior \\
+        LSTM direta (Huber) & Seq2Seq atenção adaptado (Huber) & 0,115 & 0,062 & 0,179 & 0,000 & pior \\
+        LSTM direta (Huber) & XGBoost (erro abs.) & 0,140 & 0,078 & 0,211 & 0,000 & pior \\
+        LSTM direta (Huber) & Ridge & 0,163 & 0,105 & 0,220 & 0,000 & pior \\
+        LSTM recursiva (Huber) & Seq2Seq básico (Huber) & 0,005 & -0,130 & 0,120 & 0,848 & empate estatístico \\
+        LSTM recursiva (Huber) & Seq2Seq atenção padrão (Huber) & 0,111 & 0,002 & 0,205 & 0,046 & pior \\
+        LSTM recursiva (Huber) & Seq2Seq atenção adaptado (Huber) & 0,127 & 0,029 & 0,215 & 0,010 & pior \\
+        LSTM recursiva (Huber) & XGBoost (erro abs.) & 0,152 & 0,042 & 0,260 & 0,006 & pior \\
+        LSTM recursiva (Huber) & Ridge & 0,175 & 0,045 & 0,299 & 0,016 & pior \\
+        Seq2Seq básico (Huber) & Seq2Seq atenção padrão (Huber) & 0,106 & 0,044 & 0,182 & 0,000 & pior \\
+        Seq2Seq básico (Huber) & Seq2Seq atenção adaptado (Huber) & 0,122 & 0,060 & 0,203 & 0,000 & pior \\
+        Seq2Seq básico (Huber) & XGBoost (erro abs.) & 0,147 & 0,073 & 0,229 & 0,000 & pior \\
+        Seq2Seq básico (Huber) & Ridge & 0,170 & 0,101 & 0,253 & 0,000 & pior \\
+        Seq2Seq atenção padrão (Huber) & Seq2Seq atenção adaptado (Huber) & 0,016 & -0,009 & 0,042 & 0,208 & empate estatístico \\
+        Seq2Seq atenção padrão (Huber) & XGBoost (erro abs.) & 0,041 & -0,008 & 0,095 & 0,098 & empate estatístico \\
+        Seq2Seq atenção padrão (Huber) & Ridge & 0,064 & 0,021 & 0,109 & 0,008 & pior \\
+        Seq2Seq atenção adaptado (Huber) & XGBoost (erro abs.) & 0,025 & -0,015 & 0,063 & 0,260 & empate estatístico \\
+        Seq2Seq atenção adaptado (Huber) & Ridge & 0,048 & -0,004 & 0,093 & 0,074 & empate estatístico \\
+        XGBoost (erro abs.) & Ridge & 0,023 & -0,042 & 0,073 & 0,410 & empate estatístico \\
+        \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}

@@ -1,0 +1,31 @@
+\begin{table}[htb]
+    \centering
+    \caption{Diferença de MAE em relação à referência, com IC de 95\% (bootstrap em blocos): teste histórico (jun.--dez./2020)}
+    \label{tab:pareado_teste_historico}
+    \small
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{llrrrrrl}
+        \toprule
+        Modelo & Referência & $\Delta$ MAE & IC inf. & IC sup. & p (bootstrap) & p (DM) & Veredito \\
+        \midrule
+        LSTM recursiva (Huber) & LSTM direta (Huber) & 0,012 & -0,128 & 0,130 & 0,789 & 0,973 & empate estatístico \\
+        Seq2Seq básico (Huber) & LSTM direta (Huber) & 0,007 & -0,058 & 0,078 & 0,860 & 0,874 & empate estatístico \\
+        Seq2Seq atenção padrão (Huber) & LSTM direta (Huber) & -0,099 & -0,156 & -0,051 & 0,000 & 0,000 & melhor \\
+        Seq2Seq atenção adaptado (Huber) & LSTM direta (Huber) & -0,115 & -0,176 & -0,061 & 0,000 & 0,000 & melhor \\
+        XGBoost (erro abs.) & LSTM direta (Huber) & -0,140 & -0,211 & -0,076 & 0,000 & 0,000 & melhor \\
+        Persistência y(t) & LSTM direta (Huber) & 1,064 & 0,924 & 1,193 & 0,000 & 0,000 & pior \\
+        Sazonal y(t-24) & LSTM direta (Huber) & 0,541 & 0,454 & 0,625 & 0,000 & 0,000 & pior \\
+        Sazonal y(t-48) & LSTM direta (Huber) & 0,926 & 0,722 & 1,187 & 0,000 & 0,000 & pior \\
+        Média móvel 6 h & LSTM direta (Huber) & 0,514 & 0,379 & 0,636 & 0,000 & 0,000 & pior \\
+        Média móvel 24 h & LSTM direta (Huber) & 0,204 & 0,112 & 0,290 & 0,000 & 0,000 & pior \\
+        Ridge & LSTM direta (Huber) & -0,163 & -0,218 & -0,106 & 0,000 & 0,000 & melhor \\
+        LSTM direta (Huber) & Média móvel 24 h & -0,204 & -0,290 & -0,112 & 0,000 & 0,000 & melhor \\
+        LSTM recursiva (Huber) & Média móvel 24 h & -0,192 & -0,323 & -0,069 & 0,002 & 0,001 & melhor \\
+        Seq2Seq básico (Huber) & Média móvel 24 h & -0,197 & -0,313 & -0,070 & 0,004 & 0,000 & melhor \\
+        Seq2Seq atenção padrão (Huber) & Média móvel 24 h & -0,303 & -0,389 & -0,215 & 0,000 & 0,000 & melhor \\
+        Seq2Seq atenção adaptado (Huber) & Média móvel 24 h & -0,319 & -0,400 & -0,240 & 0,000 & 0,000 & melhor \\
+        XGBoost (erro abs.) & Média móvel 24 h & -0,344 & -0,420 & -0,269 & 0,000 & 0,000 & melhor \\
+        \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}

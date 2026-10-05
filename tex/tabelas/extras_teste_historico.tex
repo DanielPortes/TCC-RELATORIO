@@ -1,0 +1,18 @@
+\begin{table}[htb]
+    \centering
+    \caption{Efeito isolado de fatores adicionais: teste histórico (jun.--dez./2020)}
+    \label{tab:extras_teste_historico}
+    \small
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{>{\raggedright\arraybackslash}p{0.33\textwidth}lrrrrrl}
+        \toprule
+        Caso & Base & MAE caso & MAE base & $\Delta$ MAE & IC inf. & IC sup. & Veredito \\
+        \midrule
+        Seq2Seq atenção adaptado (L1 pond. + evento) & Seq2Seq atenção adaptado (L1 pond.) & 2,713 & 2,695 & 0,018 & -0,000 & 0,039 & empate estatístico \\
+        LSTM direta (Huber + resíduo) & LSTM direta (Huber) & 2,903 & 2,829 & 0,074 & 0,002 & 0,143 & pior \\
+        Seq2Seq atenção adaptado (Huber + resíduo) & Seq2Seq atenção adaptado (Huber) & 2,812 & 2,722 & 0,089 & 0,034 & 0,147 & pior \\
+        Seq2Seq atenção adaptado (L1 pond. + evento + resíduo) & Seq2Seq atenção adaptado (L1 pond. + evento) & 2,845 & 2,713 & 0,132 & 0,080 & 0,185 & pior \\
+        \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}

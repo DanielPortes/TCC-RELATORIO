@@ -1,0 +1,26 @@
+\begin{table}[htb]
+    \centering
+    \caption{Dinâmica horária: período de confirmação (2021--2023)}
+    \label{tab:dinamica_holdout}
+    \small
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{lrrrrr}
+        \toprule
+        Modelo & Corr. nível & Corr. diferenças & Acerto de direção & DP dif. obs. & DP dif. prev. \\
+        \midrule
+        LSTM direta (Huber) & 0,778 & 0,131 & 0,545 & 3,695 & 0,814 \\
+        LSTM recursiva (Huber) & 0,795 & 0,174 & 0,558 & 3,695 & 0,839 \\
+        Seq2Seq básico (Huber) & 0,803 & 0,147 & 0,544 & 3,695 & 0,906 \\
+        Seq2Seq atenção padrão (Huber) & 0,805 & 0,146 & 0,543 & 3,695 & 0,976 \\
+        Seq2Seq atenção adaptado (Huber) & 0,803 & 0,153 & 0,547 & 3,695 & 0,968 \\
+        XGBoost (erro abs.) & 0,815 & 0,128 & 0,544 & 3,695 & 0,780 \\
+        Persistência y(t) & 0,800 & -0,332 & 0,315 & 3,695 & 0,212 \\
+        Sazonal y(t-24) & 0,711 & 0,069 & 0,430 & 3,695 & 3,595 \\
+        Sazonal y(t-48) & 0,660 & 0,072 & 0,423 & 3,695 & 3,600 \\
+        Média móvel 6 h & 0,785 & -0,118 & 0,439 & 3,695 & 0,152 \\
+        Média móvel 24 h & 0,763 & -0,052 & 0,474 & 3,695 & 0,109 \\
+        Ridge & 0,806 & 0,162 & 0,557 & 3,695 & 0,739 \\
+        \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}

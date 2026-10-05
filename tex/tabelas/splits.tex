@@ -1,0 +1,18 @@
+\begin{table}[htb]
+    \centering
+    \caption{Blocos cronológicos do conjunto de dados}
+    \label{tab:splits}
+    \small
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{lllrrrrrrr}
+        \toprule
+        Bloco & Início & Fim & Horas & PM2,5 ausente (\%) & Média obs. & DP obs. & Horas $\geq$35 & Maior lacuna (h) & Entrada propagada (\%) \\
+        \midrule
+        treino & 04/01/2017 & 21/10/2019 & 24495 & 19,30 & 10,95 & 8,07 & 311 & 345 & 8,21 \\
+        validação & 21/10/2019 & 27/05/2020 & 5248 & 31,73 & 13,69 & 5,85 & 52 & 1158 & 27,12 \\
+        teste histórico & 27/05/2020 & 31/12/2020 & 5249 & 6,63 & 13,61 & 5,50 & 47 & 53 & 1,01 \\
+        holdout & 01/01/2021 & 31/12/2023 & 26279 & 12,87 & 11,05 & 6,79 & 183 & 538 & 5,61 \\
+        \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}

@@ -2,29 +2,23 @@
 \chapter{Introdução}
 \label{chap:introducao}
 
-A poluição atmosférica por material particulado fino (PM2,5), fração do material particulado (PM, do inglês \textit{particulate matter}) com diâmetro aerodinâmico de até 2,5 micrômetros, é um problema relevante para a saúde pública. Material particulado é uma mistura de partículas sólidas e líquidas suspensas no ar; a notação PM2,5 indica sua fração fina. Por serem muito pequenas, essas partículas podem permanecer suspensas no ar, ser inaladas e alcançar regiões profundas do sistema respiratório. A literatura associa a exposição a PM2,5 a agravos respiratórios, efeitos cardiovasculares, aumento de internações e mortalidade \cite{who2021air,pope2006health,brook2010particulate}. Por isso, monitorar sua concentração e antecipar períodos de maior risco é importante para apoiar ações de prevenção, alertas e gestão da qualidade do ar. No Brasil, estudos sobre episódios de poluição associados a queimadas também relacionam PM2,5 a impactos mensuráveis sobre internações e mortalidade \cite{requia2021health,requia2022short}.
+A poluição atmosférica por material particulado fino, fração do material particulado (PM, do inglês \textit{particulate matter}) com diâmetro aerodinâmico de até 2,5 micrômetros (PM2,5), é um problema relevante para a saúde pública. O Material Particulado é uma mistura de partículas sólidas e líquidas suspensas no ar; a notação PM2,5 indica sua fração fina. Por serem muito pequenas, essas partículas podem permanecer suspensas no ar, ser inaladas e alcançar regiões profundas do sistema respiratório. A literatura associa a exposição a PM2,5 a agravos respiratórios, efeitos cardiovasculares, aumento de internações e mortalidade \cite{who2021air,pope2006health,brook2010particulate}. Por isso, monitorar sua concentração e antecipar períodos de maior risco é importante para apoiar ações de prevenção, alertas e gestão da qualidade do ar. No Brasil, estudos sobre episódios de poluição associados a queimadas também relacionam PM2,5 a impactos mensuráveis sobre internações e mortalidade \cite{requia2021health,requia2022short}.
 
-As diretrizes globais da Organização Mundial da Saúde tratam PM2,5 e material particulado inalável (PM10), formado por partículas com diâmetro aerodinâmico de até 10 micrômetros, como poluentes prioritários para avaliação de qualidade do ar \cite{who2021air}. Em redes de monitoramento, sensores registram concentrações de poluentes em intervalos regulares e formam séries temporais. No caso deste trabalho, a variável de interesse é a concentração horária de PM2,5, enquanto outras informações, como PM10 e atributos de calendário, podem auxiliar a previsão quando estão disponíveis de forma compatível com o instante em que a previsão seria emitida.
+As diretrizes globais da Organização Mundial da Saúde tratam PM2,5 e material particulado inalável, formado por partículas com diâmetro aerodinâmico de até 10 micrômetros (PM10), como poluentes prioritários para avaliação de qualidade do ar \cite{who2021air}. Em redes de monitoramento, sensores registram concentrações de poluentes em intervalos regulares e formam séries temporais. No caso deste trabalho, a variável de interesse é a concentração horária de PM2,5, enquanto outras informações, como PM10 e atributos de calendário, podem auxiliar a previsão quando estão disponíveis de forma compatível com o instante em que a previsão for emitida.
 
-Prever PM2,5, entretanto, não é uma tarefa simples. As medições de qualidade do ar formam séries temporais, isto é, sequências de valores observados ao longo do tempo, e essas séries podem apresentar lacunas, ruído de medição, mudanças de comportamento e picos pouco frequentes. Além disso, a concentração de PM2,5 depende de fatores como condições meteorológicas, emissão de poluentes, dispersão no ar e relação com outros poluentes, nem sempre disponíveis de forma completa no momento em que a previsão precisa ser feita. Assim, modelos de previsão precisam estimar valores futuros a partir de informação parcial e de dados ambientais imperfeitos.
+Prever PM2,5, entretanto, não é uma tarefa simples. As medições de qualidade do ar formam séries temporais que podem apresentar lacunas, ruído de medição, mudanças de comportamento e picos pouco frequentes. Além disso, a concentração de PM2,5 depende de fatores como condições meteorológicas, emissão de poluentes, dispersão no ar e relação com outros poluentes, o que nem sempre está disponível de forma completa no momento em que a previsão precisa ser feita.
 
-A literatura tem usado diferentes modelos para previsão de séries ambientais e de qualidade do ar, incluindo redes recorrentes, redes de memória de curto e longo prazo (\textit{Long Short-Term Memory}, LSTM) e arquiteturas de aprendizado profundo com codificador, decodificador e atenção \cite{yang2023attention,zhao2021pm2,zhang2021deep}. Esses modelos são promissores por aprenderem relações temporais e não lineares, mas a comparação entre trabalhos nem sempre é direta. Resultados podem mudar conforme a estação analisada, o conjunto de dados, as variáveis disponíveis, o horizonte previsto e a forma de avaliação \cite{pm25_review_2024}. Em séries temporais, também é necessário preservar a ordem cronológica dos dados para evitar que informação futura influencie indevidamente o treinamento ou a avaliação \cite{tashman2000out,bergmeir2012crossvalidation,hyndman2021forecasting}.
+A literatura tem usado diferentes modelos para previsão de séries ambientais e de qualidade do ar, incluindo redes recorrentes, redes de memória de curto e longo prazo (\textit{Long Short-Term Memory}, LSTM) e arquiteturas de aprendizado profundo com codificador, decodificador e atenção \cite{yang2023attention,zhao2021pm2,zhang2021deep}. Esses modelos são promissores por aprenderem relações temporais e não lineares.
 
-Diante desse contexto, este Trabalho de Conclusão de Curso (TCC) desenvolve um estudo experimental comparativo para previsão horária de curto prazo de PM2,5. O estudo usa como caso principal uma série da estação Sapo, em Conceição do Mato Dentro, obtida a partir de dados de monitoramento da qualidade do ar disponibilizados pela Fundação Estadual do Meio Ambiente de Minas Gerais (FEAM) \cite{feam2026dadosmonitoramento}. A proposta é comparar diferentes modelos e arquiteturas, incluindo LSTM, modelos sequência-para-sequência (\textit{Sequence-to-Sequence}, Seq2Seq) e \textit{Extreme Gradient Boosting} (XGBoost), buscando responder não apenas qual modelo produz menor erro médio, mas também em quais condições cada abordagem se mostra mais adequada para a previsão.
+Diante desse contexto, este Trabalho de Conclusão de Curso (TCC) desenvolve um estudo comparativo para previsão horária de curto prazo de PM2,5, utilizando diferentes modelos e arquiteturas, incluindo LSTM, modelos sequência-para-sequência (\textit{Sequence-to-Sequence}, Seq2Seq) e \textit{Extreme Gradient Boosting} (XGBoost), buscando responder não apenas qual modelo produz menor erro de predição, mas também em quais condições cada abordagem se mostra mais adequada para a previsão. O estudo usa como caso principal uma série da estação Sapo, em Conceição do Mato Dentro, obtida a partir de dados de monitoramento da qualidade do ar disponibilizados pela Fundação Estadual do Meio Ambiente de Minas Gerais (FEAM) \cite{feam2026dadosmonitoramento}.
 
 \section{Motivação}
 
-A motivação deste trabalho é comparar modelos de previsão de PM2,5 em um mesmo estudo de caso. Embora a literatura apresente diferentes arquiteturas para séries temporais e qualidade do ar, ainda é necessário avaliar essas abordagens sob condições comparáveis e com a mesma base de dados. A comparação é relevante porque um modelo pode ter menor erro médio e, ainda assim, apresentar limitações em picos, em certos horizontes ou em períodos de maior concentração.
-
-Assim, a pergunta que orienta este TCC pode ser formulada da seguinte forma:
-
-\begin{quote}
-Em uma tarefa horária de previsão de PM2,5 na estação Sapo, como diferentes modelos de previsão se comportam em relação ao erro médio, aos erros por horizonte e aos eventos de maior concentração?
-\end{quote}
+A previsão de PM2,5 é uma tarefa difícil, pois a série apresenta lacunas, ruído de medição e picos pouco frequentes. Embora a literatura já tenha empregado modelos de aprendizado profundo para essa previsão, com diferentes arquiteturas, ainda são necessárias comparações que analisem, além do erro de predição, em quais cenários cada arquitetura é mais adequada. Isso motivou a realização deste trabalho: comparar diferentes modelos para obter uma boa previsão horária de curto prazo de PM2,5.
 
 \section{Objetivos}
 
-O objetivo geral deste trabalho é comparar modelos de aprendizado de máquina e aprendizado profundo para previsão horária de curto prazo de PM2,5 na estação Sapo, avaliando desempenho médio, comportamento ao longo do horizonte previsto e adequação a eventos de maior concentração.
+O objetivo geral deste trabalho é comparar diferentes modelos de aprendizado de máquina para previsão horária de curto prazo de PM2,5, com horizonte de 24 horas, avaliando desempenho médio, comportamento ao longo do horizonte previsto e adequação a eventos de maior concentração.
 
 Os objetivos específicos são:
 
@@ -36,6 +30,36 @@ Os objetivos específicos são:
     \item Discutir as condições em que cada modelo se mostrou mais ou menos adequado para a tarefa analisada.
 \end{enumerate}
 
+\section{Cronograma}
+
+O cronograma do TCC considera o segundo semestre letivo de 2026, iniciado em 17 de agosto de 2026 e encerrado em 16 de dezembro de 2026. As atividades foram organizadas de modo a respeitar os marcos institucionais de matrícula, entrega do projeto, entrega do texto para defesa, realização da banca e envio da versão final.
+
+\begin{table}[htb]
+    \centering
+    \caption{Cronograma do TCC no segundo semestre letivo de 2026.}
+    \label{tab:cronograma_tcc}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{>{\raggedright\arraybackslash}p{0.22\textwidth}>{\raggedright\arraybackslash}p{0.54\textwidth}>{\raggedright\arraybackslash}p{0.20\textwidth}}
+        \toprule
+        \textbf{Período ou data} & \textbf{Atividade} & \textbf{Marco} \\
+        \midrule
+        17/08/2026 & Primeiro dia letivo do segundo semestre de 2026 e início formal do planejamento do TCC. & Início do semestre \\
+        17/08/2026 a 31/08/2026 & Ajuste de matrícula na disciplina de Monografia Final em Computação e confirmação da orientação. & Matrícula \\
+        01/09/2026 a 15/09/2026 & Definição do escopo, alinhamento com a orientadora e consolidação do tema e dos objetivos. & Preparação inicial \\
+        16/09/2026 a 24/09/2026 & Revisão e fechamento do projeto de TCC, incluindo metodologia, cronograma e referências principais. & Elaboração do projeto \\
+        25/09/2026 & Envio do projeto de TCC. & Data limite \\
+        26/09/2026 a 31/10/2026 & Execução dos experimentos, organização dos resultados e atualização dos capítulos técnicos do relatório. & Desenvolvimento \\
+        01/11/2026 a 17/11/2026 & Consolidação do texto, revisão do relatório e preparação dos documentos necessários para a defesa. & Fechamento do texto \\
+        18/11/2026 & Entrega do texto do TCC, marcação da defesa e informação da composição da banca. & Data limite \\
+        19/11/2026 a 01/12/2026 & Ajustes finais antes da defesa e preparação da apresentação. & Preparação da defesa \\
+        02/12/2026 & Realização da defesa do TCC. & Data limite \\
+        03/12/2026 a 08/12/2026 & Correções pós-defesa, revisão final do documento e organização da ata da defesa. & Versão final \\
+        09/12/2026 & Envio da versão final do TCC juntamente com a ata da defesa. & Data limite \\
+        \bottomrule
+    \end{tabular}%
+    }
+\end{table}
+
 \section{Organização do Trabalho}
 
-Este documento está estruturado em seis capítulos. O Capítulo \ref{chap:introducao} apresenta o contexto, a motivação e os objetivos do trabalho. O Capítulo \ref{chap:fundamentacao_teorica} reúne os conceitos necessários para compreender o problema de previsão e os modelos utilizados. O Capítulo \ref{chap:trabalhos_relacionados} revisa trabalhos da literatura e situa o estudo desenvolvido. O Capítulo \ref{chap:materiais_metodos} descreve a metodologia, incluindo a base de dados, o protocolo experimental e os modelos comparados. O Capítulo \ref{chap:resultados} apresenta e discute os resultados dos experimentos. Por fim, o Capítulo \ref{chap:conclusao} sintetiza as conclusões, limitações e possibilidades de continuidade.
+Este documento está estruturado em seis capítulos. O Capítulo \ref{chap:introducao} apresenta o contexto, a motivação, os objetivos e o cronograma do trabalho. O Capítulo \ref{chap:fundamentacao_teorica} reúne os conceitos necessários para compreender o problema de previsão e os modelos utilizados. O Capítulo \ref{chap:trabalhos_relacionados} revisa trabalhos da literatura e situa o estudo desenvolvido. O Capítulo \ref{chap:materiais_metodos} descreve a metodologia, incluindo a base de dados, o protocolo de avaliação e os modelos comparados. O Capítulo \ref{chap:resultados} apresenta e discute os resultados dos experimentos. Por fim, o Capítulo \ref{chap:conclusao} sintetiza as conclusões, limitações e possibilidades de continuidade. O Apêndice~\ref{ap:teste_historico} reúne as tabelas complementares.

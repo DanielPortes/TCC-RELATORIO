@@ -1,0 +1,19 @@
+\begin{table}[htb]
+    \centering
+    \caption{Efeito da perda por arquitetura (L1 ponderada - Huber): teste histórico (jun.--dez./2020)}
+    \label{tab:fatorial_perda_teste_historico}
+    \small
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{lrrrrrl}
+        \toprule
+        Arquitetura & MAE Huber & MAE L1 pond. & $\Delta$ MAE & IC inf. & IC sup. & Veredito \\
+        \midrule
+        LSTM direta & 2,829 & 2,869 & 0,039 & -0,004 & 0,075 & empate estatístico \\
+        LSTM recursiva & 2,827 & 2,954 & 0,127 & 0,087 & 0,168 & pior \\
+        Seq2Seq básico & 2,851 & 2,904 & 0,053 & 0,003 & 0,108 & pior \\
+        Seq2Seq atenção padrão & 2,739 & 2,749 & 0,010 & -0,013 & 0,037 & empate estatístico \\
+        Seq2Seq atenção adaptado & 2,722 & 2,695 & -0,027 & -0,050 & -0,003 & melhor \\
+        \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}

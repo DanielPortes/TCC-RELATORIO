@@ -1,0 +1,23 @@
+\begin{table}[htb]
+    \centering
+    \caption{Fatores (perda, resíduo e evento), métricas de cauda: teste histórico (jun.--dez./2020)}
+    \label{tab:cauda_fatores_teste_historico}
+    \small
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{>{\raggedright\arraybackslash}p{0.33\textwidth}rrrrrrr}
+        \toprule
+        Modelo & MAE $\geq$25 & MAE $\geq$35 & MAE $\geq$50 & Subestim. $\geq$35 & Razão DP & p99 prev. & p99 obs. \\
+        \midrule
+        LSTM direta (L1 pond.) & 8,206 & 13,482 & 25,131 & 0,996 & 0,776 & 29,681 & 34 \\
+        LSTM recursiva (L1 pond.) & 6,369 & 10,799 & 15,659 & 0,956 & 0,913 & 31,848 & 34 \\
+        Seq2Seq básico (L1 pond.) & 8,446 & 11,376 & 19,904 & 0,645 & 0,993 & 37,293 & 34 \\
+        Seq2Seq atenção padrão (L1 pond.) & 7,121 & 11,736 & 18,538 & 0,945 & 0,841 & 32,015 & 34 \\
+        Seq2Seq atenção adaptado (L1 pond.) & 7,075 & 12,205 & 22,590 & 0,985 & 0,827 & 30,728 & 34 \\
+        Seq2Seq atenção adaptado (L1 pond. + evento) & 7,063 & 11,652 & 22,719 & 0,931 & 0,837 & 31,312 & 34 \\
+        LSTM direta (Huber + resíduo) & 8,132 & 13,997 & 24,976 & 0,982 & 0,793 & 29,087 & 34 \\
+        Seq2Seq atenção adaptado (Huber + resíduo) & 7,541 & 12,775 & 24,527 & 0,941 & 0,823 & 30,459 & 34 \\
+        Seq2Seq atenção adaptado (L1 pond. + evento + resíduo) & 7,732 & 13,139 & 24,228 & 0,958 & 0,817 & 30,427 & 34 \\
+        \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}

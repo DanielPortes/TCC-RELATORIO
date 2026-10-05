@@ -1,0 +1,69 @@
+% ap_a_teste_historico.tex
+\chapter{Tabelas Complementares}
+\label{ap:teste_historico}
+
+Este apêndice reúne as tabelas do teste histórico (27 de maio a 31 de dezembro de 2020), que já foi consultado durante o desenvolvimento e, portanto, não é confirmatório, e as tabelas do período de confirmação que são longas demais para o corpo do texto. A leitura das colunas é a mesma do Capítulo~\ref{chap:resultados}.
+
+\section{Comparação Principal}
+
+\inputtabela{metricas_teste_historico}
+
+\inputtabela{ensemble_teste_historico}
+
+\inputtabela{ensemble_holdout}
+
+\inputtabela{pareado_teste_historico}
+
+\inputtabela{matriz_holdout}
+
+\inputtabela{matriz_teste_historico}
+
+\section{Picos, Cauda e Dinâmica}
+
+\inputtabela{cauda_teste_historico}
+
+\inputtabela{eventos_teste_historico}
+
+\inputtabela{eventos_pareado_holdout}
+
+\inputtabela{eventos_pareado_teste_historico}
+
+\inputtabela{dinamica_teste_historico}
+
+\begin{figure}[htb]
+    \centering
+    \figuragerada{0.9\linewidth}{erro_por_horizonte_teste_historico}
+    \caption{MAE por horizonte no teste histórico (média das sementes). Linhas tracejadas: previsores de referência e regressão Ridge.}
+    \label{fig:erro_por_horizonte_teste_historico}
+\end{figure}
+
+\begin{figure}[htb]
+    \centering
+    \figuragerada{\linewidth}{janela_evento_teste_historico}
+    \caption{Previsões (média das sementes) em torno do maior evento do teste histórico, em painéis separados por modelo e com escala comum.}
+    \label{fig:janela_evento_teste_historico}
+\end{figure}
+
+\section{Fatores de Projeto}
+
+\inputtabela{metricas_fatores_holdout}
+
+\inputtabela{metricas_fatores_teste_historico}
+
+\inputtabela{cauda_fatores_teste_historico}
+
+\inputtabela{fatorial_perda_teste_historico}
+
+\inputtabela{extras_teste_historico}
+
+\inputtabela{ablacao_desenho_teste_historico}
+
+\inputtabela{ablacao_pm10_teste_historico}
+
+\section{Sensibilidades e Vencedores por Critério}
+
+\inputtabela{sensibilidade_imputados_teste_historico}
+
+\inputtabela{verificacao_hpo_teste_historico}
+
+\inputtabela{vitorias_teste_historico}

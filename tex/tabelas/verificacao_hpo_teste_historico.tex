@@ -1,0 +1,16 @@
+\begin{table}[htb]
+    \centering
+    \caption{Efeito de refazer a busca de hiperparâmetros para a perda ponderada: teste histórico (jun.--dez./2020)}
+    \label{tab:verificacao_hpo_teste_historico}
+    \small
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{>{\raggedright\arraybackslash}p{0.33\textwidth}lrrrrrl}
+        \toprule
+        Caso & Base & MAE caso & MAE base & $\Delta$ MAE & IC inf. & IC sup. & Veredito \\
+        \midrule
+        LSTM direta (L1 pond., HPO própria) & LSTM direta (L1 pond.) & 2,858 & 2,869 & -0,011 & -0,049 & 0,032 & empate estatístico \\
+        Seq2Seq atenção adaptado (L1 pond., HPO própria) & Seq2Seq atenção adaptado (L1 pond.) & 2,733 & 2,695 & 0,038 & -0,001 & 0,079 & empate estatístico \\
+        \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}

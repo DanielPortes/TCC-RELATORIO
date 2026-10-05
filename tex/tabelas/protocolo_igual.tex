@@ -1,0 +1,23 @@
+\begin{table}[htb]
+    \centering
+    \caption{Elementos do protocolo idênticos para todos os modelos}
+    \label{tab:protocolo_igual}
+    \small
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{l>{\raggedright\arraybackslash}p{0.79\textwidth}}
+        \toprule
+        Elemento & Definição \\
+        \midrule
+        Dados e variáveis & Mesma série da estação Sapo e mesmas variáveis (PM2,5, PM10, indicadores de ausência, calendário e PM10 defasado em 24 h); entrada de 48 h e saída de 24 h \\
+        Divisão cronológica & Treino até 21/10/2019 14:30; validação até 27/05/2020 06:30; teste histórico até 31/12/2020; holdout de 2021 a 2023 \\
+        Imputação & Interpolação linear dentro do treino; depois do corte, propaga-se o último valor; refeita em cada partição da busca \\
+        Normalização & Média e desvio-padrão calculados no treino \\
+        Alvo na perda e nas métricas & Somente medições observadas de PM2,5 \\
+        Busca de hiperparâmetros & 24 tentativas avaliadas em 3 partições com janela expansiva; até 18 épocas por tentativa nas redes \\
+        Passo entre janelas & 4 h na busca; 2 h no treino final; 1 h na avaliação \\
+        Treino final & AdamW; 3 épocas de aquecimento e decaimento cosseno; até 40 épocas; parada antecipada com paciência de 8; escolha do ponto de controle pelo MAE de validação \\
+        Sementes & 42, 7, 21 e 123 na comparação principal; as três primeiras nos demais grupos \\
+        \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}

@@ -1,0 +1,26 @@
+\begin{table}[htb]
+    \centering
+    \caption{Métricas de cauda e amplitude no período de confirmação (2021--2023)}
+    \label{tab:cauda_holdout}
+    \small
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{lrrrrrrr}
+        \toprule
+        Modelo & MAE $\geq$25 & MAE $\geq$35 & MAE $\geq$50 & Subestim. $\geq$35 & Razão DP & p99 prev. & p99 obs. \\
+        \midrule
+        LSTM direta (Huber) & 11,854 & 21,031 & 35,487 & 0,987 & 0,746 & 27,180 & 33,000 \\
+        LSTM recursiva (Huber) & 10,633 & 19,398 & 33,621 & 0,988 & 0,791 & 27,861 & 33,000 \\
+        Seq2Seq básico (Huber) & 10,668 & 18,302 & 31,596 & 0,935 & 0,800 & 29,073 & 33,000 \\
+        Seq2Seq atenção padrão (Huber) & 10,368 & 18,399 & 31,828 & 0,978 & 0,791 & 28,742 & 33,000 \\
+        Seq2Seq atenção adaptado (Huber) & 10,681 & 19,224 & 32,616 & 0,977 & 0,774 & 27,898 & 33,000 \\
+        XGBoost (erro abs.) & 10,263 & 18,784 & 31,905 & 0,975 & 0,801 & 27,025 & 33,000 \\
+        Persistência y(t) & 11,658 & 17,166 & 24,818 & 0,844 & 1,011 & 33,000 & 33,000 \\
+        Sazonal y(t-24) & 11,384 & 19,492 & 33,372 & 0,913 & 0,989 & 32,000 & 33,000 \\
+        Sazonal y(t-48) & 11,568 & 19,705 & 32,023 & 0,863 & 1,011 & 33,000 & 33,000 \\
+        Média móvel 6 h & 11,502 & 17,540 & 26,522 & 0,897 & 0,924 & 30,667 & 33,000 \\
+        Média móvel 24 h & 11,564 & 18,778 & 30,345 & 0,940 & 0,854 & 30,208 & 33,000 \\
+        Ridge & 9,954 & 16,983 & 29,870 & 0,946 & 0,831 & 29,916 & 33,000 \\
+        \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}

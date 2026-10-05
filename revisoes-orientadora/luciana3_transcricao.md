@@ -1,0 +1,348 @@
+# Transcrição do áudio da orientadora, Rodada 3
+
+Origem: `Revisoes-orientadora/luciana3/Luciana.m4a` (chamada de 22 min 28 s; a gravação começa no meio da conversa). PDF comentado: `tcc-relatorio-release-2026-06-23-1529_260925_20444_260925_210610.pdf` (158 páginas: a segunda metade é uma cópia anterior do mesmo arquivo; vale a primeira).
+
+> Transcrição automática (Whisper large-v3, GPU, português), conferida por leitura. Erros conhecidos do reconhecimento de voz: "Estação Saco" = Sapo; "Luciano" = Luciana; "janeiramento" = janelamento; "SIC2SIC" = Seq2Seq; "XGBUSH" = XGBoost; "Ptunga" = Optuna; "Conceição do Mato Grosso" = Conceição do Mato Dentro; "LSM" = LSTM; "o exame do XGBoost" = o exemplo do XGBoost. Repetições em laço (artefato do modelo) foram colapsadas.
+
+
+Minutagem entre colchetes. Trechos de conversa sobre agenda, artigos e outros assuntos foram mantidos por fidelidade.
+
+- **[00:00]** Diferentes modelos visando a melhora da previsão, com diferentes horizontes, tudo ali que você trabalhou, você vai explicar aqui em alto nível, você não vai detalhar nada da metodologia, você só vai falar isso, que é uma série difícil e isso motivou a explorar diferentes modelos para fazer uma boa previsão.
+- **[00:30]** Isso que motivou o seu trabalho.
+- **[00:32]** Aí no objetivo, aqui você não precisa falar também que foi na Estação Saco, o objetivo era fazer uma previsão horária de curto prazo de PM2,5, só que esse curto prazo é bom detalhar, o horizonte de quanto tempo, em vez de curto prazo é deixar bem detalhado, é o que?
+- **[00:54]** É um passo à frente?
+- **[00:56]** Tem tantas horas à frente?
+- **[00:58]** Um dia à frente?
+- **[01:00]** Aí deixa isso mais detalhado, aí ficou legal, e aqui, terceiro, por exemplo, você já detalhou, LSTM, Seq2Seq, XGBoost, comparar diferentes arquiteturas de previsão, deixa para detalhar esses modelos lá, você até pode citar aqui, no objetivo específico, mas eu acho que se deixar de uma maneira má, por enquanto, depois com o tempo você vai detalhando.
+- **[01:31]** O resto eu acho que está legal, a organização do trabalho também acho que está legal.
+- **[01:37]** Aí eu já parei aqui no primeiro, vou pedir para você arrumar isso primeiro, para a gente fechar esse capítulo, aí eu vou falar assim, o primeiro está legal, vamos para o próximo, porque eu acho que precisa fechar isso, então você tem que arrumar um pouquinho o texto ali da introdução corrida, tirar essas coisas que eu rabisquei ali, que está...
+- **[02:01]** Tá demais, porque, por exemplo, modelos de previsão precisam estimar valores futuros a partir de informação parcial e de dados ambientais imperfeitos.
+- **[02:13]** Ficou confuso essas coisas ali, eu não sei o que você quer dizer, mas não está legal.
+- **[02:18]** Aonde você fala?
+- **[02:21]** Estou vendo as rabisqueiras que eu fiz aqui, peraí.
+- **[02:24]** Quando você fala aqui, no terceiro parágrafo da introdução, você está falando de prever...
+- **[02:33]** Prever PM2...
+- **[02:36]** Prever PM2 não é uma tarefa simples, isso, beleza, deixa aqui.
+- **[02:40]** As medições de qualidade do ar formam séries temporais, aí, isso é, sequência de valores observados ao longo do tempo, se é série temporal, já, aqui na introdução a pessoa já tem que saber, lá na frente, na fundamentação teórica, você pode detalhar, aqui não.
+- **[02:57]** Entendi.
+- **[02:58]** Só para nos séries temporais, as medições de qualidade do ar formam séries temporais e podem...
+- **[03:04]** As medições de qualidade do ar formam séries temporais e podem...
+- **[03:07]** Apresentam lacunas, ruídos de medição, mudanças de comportamento e picos poucos frequentes.
+- **[03:14]** Além disso, a concentração depende de fatores como condições meteorológicas, emissão de poluentes, dispersão do ar, poluentes, nem sempre está...
+- **[03:26]** O que nem sempre está disponível, esse nem não, o que nem sempre está disponível de forma completa no momento em que a previsão precisa ser feita.
+- **[03:38]** Assim, assim...
+- **[03:42]** Assim, modelos de previsão precisam estimar valores futuros a partir de informação parcial ou de dados ambientais imperfeitos.
+- **[03:51]** Não existe dado perfeito, aí não deu para arrumar essa frase, eu preferi cortar.
+- **[03:58]** Uhum, entendi.
+- **[03:59]** Então, eu vou precisar que você faça uma dedicada nesse primeiro, se você conseguir mexer nele, eu já leio ele em segundo, a gente fechou no ele, porque é confuso, por exemplo, nesse parágrafo...
+- **[04:17]** Isso aqui, ó, esse trabalho de TCC desenvolve um estudo, e não é experimental, porque você tem rodado, já vai provar por isso, eu não preciso falar que é experimental.
+- **[04:31]** Experimental, a computação seria como se você fosse lá colher as partículas de PM2,5, não foi isso, você só rodou os modelos, mas para a computação, só falar, isso tudo comparativo está valendo.
+- **[04:47]** Entendi.
+- **[04:48]** Então, a previsão horária de curto prazo...
+- **[04:51]** Aí é bom definir esse curto prazo para ficar mais claro, mas pode deixar que, por enquanto, se lá na frente você for detalhar melhor, isso não tem problema, pode deixar o curto prazo, por isso que eu não cortei, de PM2,5.
+- **[05:06]** Aí, eu pus uma vírgula ali e vai lá utilizando diferentes modelos e arquiteturas, incluindo LSTM, modelos de sequência, aí tudo bem você falar disso.
+- **[05:19]** Uhum.
+- **[05:23]** Aí, eu pus uma série da Estação Sapo, isso vai vir depois disso, eu coloquei entre parênteses ali, eu nem marquei onde, mas isso você coloca no final.
+- **[05:35]** Uhum.
+- **[05:35]** Você vai usar, na verdade, você pode escrever até, o estudo de caso desse trabalho consiste numa série da Estação Sapo, localizada na cidade de Conceição do Mato Dentro, em Minas Gerais.
+- **[05:50]** Uhum.
+- **[05:50]** E aí, completar um pouco essa parte.
+- **[05:53]** Então, dá uma revisada pra mim nesse capítulo 1, pra gente fechar ele, que aí ele tá completo, mas pode usar, não pode usar o IA, não, pode, e explica o que você quer, o que eu não quero é só que coloca coisas polêmicas ou erradas, igual aquela vez que você tava escrevendo, ah, o XGBoost é pra dados, tá bom.
+- **[06:24]** Peraí que tá cortando a ligação, tá?
+- **[06:28]** Tá.
+- **[06:28]** Tabulares, a rede neural, se você vai trabalhar a série...
+- **[06:35]** Luciana, peraí que tá cortando, cortando um pouquinho a ligação, peraí que você falou, você deu o exame do XGBoost que tava errado, aí daí, ah, aí depois cortou.
+- **[06:48]** É.
+- **[06:52]** Peraí.
+- **[06:53]** Tá ouvindo?
+- **[06:53]** Eu não sei se é melhor o Wi-Fi, eu tô ouvindo, tô ouvindo sim, é que eu não, eu fico na dúvida se é melhor o Wi-Fi daqui que tá meio lento ou se é o, se o 5G seria melhor, mas pode falar.
+- **[07:03]** Não, é que quando é dados tabulares...
+- **[07:11]** Uhum.
+- **[07:12]** O que eu falei é o seguinte, aquele não era o diferencial, o diferencial do XGBoost precisa que normalize os dados, tem umas diferenças em relação à rede, pode até usar de comparativo, acho bem legal, mas não explicar os tabulares, porque a rede também...
+- **[07:46]** Entendi.
+- **[07:47]** Mas fora isso, dá pra ver se, porque tem uns artigos, algumas coisas assim, a sigla, você tá contando antes, no meio do texto, depois que você explica ela toda, poluição atmosférica...
+- **[08:02]** Uhum.
+- **[08:03]** ...por material particulado, final do material particulado, que é o PM, entende ali, com diâmetro aerodinâmico de 2,5, agora que você coloca PM 2,5, porque você ainda foi no meio do texto do PM 2,5.
+- **[08:34]** Entendi.
+- **[08:34]** Eu arrumei, eu queria conversar com você pra explicar, porque se eu entregar essa rabisqueira aqui, a motivação mesmo, o texto de motivação não tá texto de motivação.
+- **[08:48]** Uhum.
+- **[08:48]** Não faz sentido.
+- **[08:49]** Não faz sentido esse texto, igual eu escrevi ali, a pergunta que orienta a TCC em uma tarefa horária, como diferentes modelos de previsão se comportam em relação ao erro médio, não é isso a motivação do seu texto.
+- **[09:05]** A motivação é que a série é uma série complexa, né, tem dados faltantes, problemas de fazer previsão de séries temporais meteorológicas, né.
+- **[09:25]** Pega texto sobre isso.
+- **[09:29]** Entendi.
+- **[09:30]** Aí pega por que essas séries são difíceis, pode pegar na IA, aí você coloca a descrição disso, e isso motivou o seu trabalho.
+- **[09:38]** E, justamente por ela ser uma série complexa, você quer testar.
+- **[09:48]** Peraí, cortou.
+- **[09:52]** Deu uma cortadinha, mas...
+- **[09:54]** Vai contar diferentes modelos visando, quando motivou o seu trabalho.
+- **[10:03]** É explorar cada vez mais estruturas.
+- **[10:09]** Né, literaturas são empregadas, previsão de séries temporais meteorológicas, você quis, baseado no que você leu na literatura da IA, de entregar essas técnicas para previsão de séries temporais, você quis fazer um comparativo, né, motivou o seu trabalho a fazer um comparativo dessas arquiteturas com essa série temporal, que tem problemas de ter dados faltantes, antes de ser...
+- **[10:47]** Tá.
+- **[10:49]** Tá me ouvindo, Luciano?
+- **[10:56]** Tá doendo umas cortadinhas também, mas eu tô ouvindo.
+- **[10:59]** Tá doendo umas cortadinhas, mas eu consegui entender.
+- **[11:03]** É...
+- **[11:04]** Eu não sei se...
+- **[11:05]** Deixa eu ver aqui.
+- **[11:08]** Esse capítulo, acho que a gente...
+- **[11:09]** Eu ia até pensar, eu vou corrigir as coisas que você falou, sim.
+- **[11:14]** Eu até, talvez, propôs tentar fazer isso, marcar, a gente marcar uma data toda semana, não?
+- **[11:20]** Será que não daria, não?
+- **[11:21]** Não seria melhor?
+- **[11:21]** Sim, que aí você vai me...
+- **[11:27]** Pegando e eu vou lendo pra...
+- **[11:30]** Porque, realmente, é...
+- **[11:36]** Tá, é, então, e...
+- **[11:38]** Eu sou metódica, obviamente, porque, Luciano, uma hora eu leio, uma hora eu nunca leio.
+- **[11:50]** Então...
+- **[11:50]** Deixa eu perguntar aqui, que dia que você tá tendo aula?
+- **[11:54]** Dia, são...
+- **[11:54]** Você não tá tendo aula?
+- **[11:57]** Não, o único dia que eu não tô tendo aula é na quarta-feira.
+- **[12:03]** O resto eu tô tendo.
+- **[12:03]** Quarta-feira?
+- **[12:09]** Pode ser.
+- **[12:10]** Tem reunião em 16, 17 e 18.
+- **[12:14]** E de 18, pode ser 18?
+- **[12:17]** Pode, pode sim.
+- **[12:18]** Marcar na agenda?
+- **[12:22]** É...
+- **[12:23]** Pode ser.
+- **[12:24]** E aí você vai me mostrar o que você fez e aí...
+- **[12:27]** Aham.
+- **[12:29]** Tá.
+- **[12:30]** E aí a gente vai conversando e aí fica mais atualizado.
+- **[12:34]** E aí, assim, eu tô tentando todo dia...
+- **[12:53]** Aham.
+- **[12:55]** Aí tá sendo puxado.
+- **[13:07]** Todo mundo.
+- **[13:08]** Mas aí...
+- **[13:12]** Aham.
+- **[13:13]** Tá legal, pode...
+- **[13:19]** Aham.
+- **[13:20]** Depois a gente...
+- **[13:22]** A fundamental ação é muita coisa, né?
+- **[13:24]** Tá jóia?
+- **[13:25]** Tá jóia.
+- **[13:26]** Aham.
+- **[13:28]** Então, a fundamental ação em ciótica é um dos capítulos que é mais longo.
+- **[13:31]** Aham.
+- **[13:37]** É...
+- **[13:38]** Fazer, né?
+- **[13:42]** Então, o seu já tá tranquilo.
+- **[13:44]** Aham.
+- **[13:45]** É...
+- **[13:46]** O dia que a gente tem que conseguir, tem que ficar bem construído.
+- **[13:54]** Mas a introdução também.
+- **[13:56]** Sim.
+- **[13:57]** Se a introdução já tá assim, com o texto ruim, a pessoa já tá falando, nossa, nem
+- **[14:01]** quer ler.
+- **[14:02]** Aí...
+- **[14:03]** Então, a sua introdução, ela tem que realmente motivar o leitor a ler.
+- **[14:08]** Então, ela tem que estar bem construída.
+- **[14:10]** Sim.
+- **[14:10]** Aí...
+- **[14:11]** Então, assim, capricha na história do problema que o PM2,5 traz.
+- **[14:18]** Tem bastante coisa na literatura sobre isso.
+- **[14:22]** É...
+- **[14:22]** Capricha em falar o que é previsão de séries temporais.
+- **[14:26]** Isso tudo na introdução ali.
+- **[14:28]** Meteorológicos, problemas que tem.
+- **[14:30]** A relação dessa série com os problemas que tem de séries temporais meteorológicas.
+- **[14:35]** A dificuldade de fazer previsão.
+- **[14:37]** Aham.
+- **[14:37]** Isso tudo é a introdução do seu problema.
+- **[14:40]** E aí, você vai pra motivação, que é...
+- **[14:43]** Você fala que na literatura tem vários modelos, né?
+- **[14:47]** É...
+- **[14:48]** Desde os modelos mais simples, que é LSTM pura, até modelos, né?
+- **[14:53]** Aí, foi falando dos modelos mais recentes que você testou.
+- **[14:56]** E aí, motivou o seu trabalho a fazer...
+- **[15:04]** Aham.
+- **[15:04]** ... desses modelos, pra ver da melhor previsão.
+- **[15:08]** Então, é...
+- **[15:09]** E depois, eu até queria falar com você sobre os resultados.
+- **[15:12]** Você chegou a dar uma olhadinha nos gráficos lá que eu coloquei também?
+- **[15:16]** Eu sei que é lá na...
+- **[15:17]** Eu sei que é lá na frente, né?
+- **[15:18]** Mas eu gostaria de discutir.
+- **[15:20]** Só o momento...
+- **[15:21]** O certo, pra discutir isso.
+- **[15:24]** Não, tá.
+- **[15:25]** A gente vai chegar lá.
+- **[15:27]** Eu só parei.
+- **[15:28]** Eu vou...
+- **[15:28]** Na hora que eu li o...
+- **[15:31]** Deixa eu falar com ele pra fechar esse capítulo.
+- **[15:32]** Sim.
+- **[15:33]** E aí, conversar pra poder...
+- **[15:36]** Sim.
+- **[15:37]** Né?
+- **[15:41]** É.
+- **[15:41]** Fagundes.Daniel.
+- **[15:43]** Aí, arroba o estudante, né?
+- **[15:52]** É.
+- **[15:53]** Agora, vamos pro...
+- **[16:00]** Sim.
+- **[16:01]** Aí, gente, eu vou ler todo.
+- **[16:04]** A gente vai chegar lá.
+- **[16:05]** Aí, você está...
+- **[16:08]** Tá, Joana.
+- **[16:08]** Mas aí, vamos quatro.
+- **[16:11]** Você consegue arrumar esse um pra mim?
+- **[16:13]** Aham.
+- **[16:13]** E aí, eu consigo...
+- **[16:16]** Da reunião.
+- **[16:27]** Aí, eu vou...
+- **[16:36]** O dois.
+- **[16:37]** E aí, a gente vai fechando os capítulos.
+- **[16:40]** Tá joia, Luciana.
+- **[16:41]** Tá joia.
+- **[16:41]** Tá bom.
+- **[16:42]** Tá bom, Daniel.
+- **[16:44]** Uma boa noite.
+- **[16:45]** Desculpa o atraso aí.
+- **[16:46]** Boa noite.
+- **[16:47]** Mas vai dar certo agora.
+- **[16:49]** Vai dar certo.
+- **[16:50]** Tchauzinho.
+- **[16:51]** Obrigado, tá?
+- **[16:52]** E depois, a gente vem de publicar.
+- **[16:55]** Sim.
+- **[16:55]** O SPC não vai dar.
+- **[16:56]** Porque agora está em cima da hora.
+- **[16:58]** Eu estou até tentando...
+- **[16:59]** Eu tinha feito...
+- **[17:00]** Eu tinha feito um artigo para o ENA,
+- **[17:02]** que aí o Yuri foi submeter.
+- **[17:03]** Deu alguma coisa errada que não submeteu.
+- **[17:06]** Eu vou tentar escrever para o SPC e o DEL.
+- **[17:08]** E aí, o seu...
+- **[17:10]** A gente...
+- **[17:11]** Assim que acabar de escrever todo o texto,
+- **[17:14]** eu vejo com o Eder um congresso.
+- **[17:16]** Bom, a gente tenta.
+- **[17:18]** Tá joia.
+- **[17:19]** Tem um quales e aí a gente monta, certo?
+- **[17:22]** Tá joia.
+- **[17:23]** Eu queria fazer...
+- **[17:24]** Na verdade, eu queria fazer até mais um artigo, né?
+- **[17:27]** Se der certo.
+- **[17:29]** Então, vai ter de outra coisa.
+- **[17:31]** Deixa eu ver os resultados.
+- **[17:31]** Para ver se qualquer coisa...
+- **[17:38]** Depois do SPC estar pronto,
+- **[17:44]** às vezes você já faz alguns experimentos com o outro.
+- **[17:51]** Entendeu?
+- **[17:52]** É, mas às vezes o que eu estou falando,
+- **[17:54]** às vezes até sobre outro assunto.
+- **[17:56]** Às vezes outro tema que até você queira pesquisar.
+- **[17:59]** Eu teria interesse, entendeu?
+- **[18:00]** Deixar.
+- **[18:03]** Eu tenho vontade, sim, de...
+- **[18:05]** Eu preciso até de começar a publicar,
+- **[18:07]** porque eu sou muito lenta em publicação.
+- **[18:09]** Eu tenho que dedicar.
+- **[18:10]** A gente vai achar um tema, sim.
+- **[18:13]** E...
+- **[18:13]** experimentar.
+- **[18:17]** Estou querendo estudar agora.
+- **[18:19]** Até um aluno vai fazer TCC nisso.
+- **[18:22]** Que é os neurosimbólicos.
+- **[18:30]** Ah, tá.
+- **[18:31]** Nunca tinha ouvido falar, não.
+- **[18:33]** Eu também não.
+- **[18:35]** O Jairo que me falou dela, eu falei, pronto.
+- **[18:37]** Eu tenho duas coisas que eu gosto.
+- **[18:39]** O IA e a lógica.
+- **[18:40]** Verdade.
+- **[18:41]** Mas tem essa IA neurosimbólica,
+- **[18:44]** que está usando um pouco...
+- **[18:45]** Tinha a ideia do sistema especialista,
+- **[18:48]** que perdeu, porque a lógica era muito...
+- **[18:51]** Crescimento exponencial.
+- **[18:53]** Mas agora acabou a parte da lógica
+- **[18:56]** ajudar na explicabilidade, entendeu?
+- **[18:59]** Aí ele se chama de IA neurosimbólica.
+- **[19:01]** Aí quando tiver tempo,
+- **[19:03]** ela chega...
+- **[19:04]** Ela chega a ser uma caixa branca
+- **[19:06]** ou uma caixa preta ainda?
+- **[19:07]** Tem tempo de ler a fundo.
+- **[19:13]** Mas eu estou querendo estudar esses modelos.
+- **[19:15]** Entendi.
+- **[19:16]** Aí, quando tiver a dor e quiser
+- **[19:19]** pesquisar nisso, eu estou querendo
+- **[19:20]** começar a ver essa área.
+- **[19:24]** Porque eu, conversando com o Jairo,
+- **[19:26]** eu achei interessante.
+- **[19:28]** Vai até uma parte de agentes,
+- **[19:30]** alguma coisa assim.
+- **[19:31]** Ah, isso é interessante.
+- **[19:34]** Depois a gente conversa sobre isso.
+- **[19:36]** Então tá, Jóia.
+- **[19:36]** Mas vou fechar esse TCC
+- **[19:39]** para o professor da FAUBET.
+- **[19:40]** Já está há muito tempo, né?
+- **[19:42]** Você não aguenta mais, né?
+- **[19:44]** Não, sempre quando eu vou mexer nisso aí,
+- **[19:46]** é porque eu tenho que lembrar.
+- **[19:49]** Por exemplo, eu fui olhar no GitHub,
+- **[19:51]** já tinha três meses já
+- **[19:52]** que eu tinha escrevido a última revisão.
+- **[19:54]** Então eu fiquei de ler, aí eu comecei a ler.
+- **[19:58]** Desde que eu corrigi,
+- **[20:00]** eu já conhecia o espelhado.
+- **[20:02]** Eu estava rabiscado no...
+- **[20:04]** Peguei algum, baixei que era novo,
+- **[20:08]** aí eu tinha rabiscado, aí eu falei,
+- **[20:11]** mas eu vou pegar o certo.
+- **[20:12]** Mas aí, eu acho que você mudou a sua introdução
+- **[20:16]** em relação ao que eu tinha lido,
+- **[20:18]** mas eu acho que
+- **[20:19]** precisa mexer ainda.
+- **[20:22]** É, eu tinha mudado.
+- **[20:24]** Você acha, você não gosta
+- **[20:26]** de usar GitHub, não?
+- **[20:27]** Você preferiu que eu usasse o VLIF?
+- **[20:29]** Eu até te perguntei sobre isso.
+- **[20:31]** Não, por mim, tanto faz.
+- **[20:34]** Porque os meninos compartilham
+- **[20:42]** o VLIF da seta.
+- **[20:43]** Não sei por que o seu ficou pesado.
+- **[20:46]** Então...
+- **[20:46]** De rodar o TCC.
+- **[20:48]** Mas pode ser o GitHub do VLIF.
+- **[20:50]** É porque lá tem limite...
+- **[20:53]** É que lá fala que tem limite
+- **[20:56]** de compilação de tempo.
+- **[20:58]** Aí se o documento demorar mais
+- **[21:00]** que tantos minutos, aí ele tem que pagar.
+- **[21:02]** Eu estava sabendo.
+- **[21:06]** E eu acho que a minha versão já...
+- **[21:08]** O pessoal acha que a gente paga.
+- **[21:12]** Então é isso.
+- **[21:13]** Pode ser.
+- **[21:15]** Mas...
+- **[21:17]** Não tem problema, não.
+- **[21:18]** E eu comento no PDF mesmo.
+- **[21:21]** Porque tem gente que gosta de comentar no LaTeX.
+- **[21:24]** Eu prefiro ler o PDF mesmo,
+- **[21:26]** como se estivesse pronto.
+- **[21:27]** Não tem diferença, não.
+- **[21:29]** Pode fazer do jeito que você está fazendo mesmo.
+- **[21:32]** Tá jóia, então.
+- **[21:33]** Então tá.
+- **[21:35]** Eu só vou pedir para quando você acabar o capítulo 1,
+- **[21:38]** gera o PDF para mim
+- **[21:39]** e compartilha ele no WhatsApp.
+- **[21:42]** Aí eu já pego a última versão.
+- **[21:44]** Tá jóia. Mando sim.
+- **[21:47]** Então, Daniel, uma boa noite.
+- **[21:49]** Um bom final de semana.
+- **[21:50]** Igualmente, Luciana.
+- **[21:52]** Um bom final de semana também para você.
+- **[21:53]** Boa noite.
+- **[21:54]** Tchau, tchau.
+- **[21:55]** Boa noite.

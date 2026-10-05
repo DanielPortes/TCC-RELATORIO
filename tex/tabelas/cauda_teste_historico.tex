@@ -1,0 +1,26 @@
+\begin{table}[htb]
+    \centering
+    \caption{Métricas de cauda e amplitude no teste histórico (jun.--dez./2020)}
+    \label{tab:cauda_teste_historico}
+    \small
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{lrrrrrrr}
+        \toprule
+        Modelo & MAE $\geq$25 & MAE $\geq$35 & MAE $\geq$50 & Subestim. $\geq$35 & Razão DP & p99 prev. & p99 obs. \\
+        \midrule
+        LSTM direta (Huber) & 8,722 & 14,370 & 27,061 & 0,996 & 0,728 & 28,157 & 34 \\
+        LSTM recursiva (Huber) & 6,884 & 12,281 & 18,524 & 0,979 & 0,850 & 30,322 & 34 \\
+        Seq2Seq básico (Huber) & 7,452 & 11,414 & 21,580 & 0,704 & 0,964 & 34,366 & 34 \\
+        Seq2Seq atenção padrão (Huber) & 7,444 & 12,846 & 22,153 & 0,988 & 0,790 & 29,887 & 34 \\
+        Seq2Seq atenção adaptado (Huber) & 7,441 & 13,295 & 24,148 & 0,998 & 0,783 & 29,271 & 34 \\
+        XGBoost (erro abs.) & 7,280 & 13,405 & 26,076 & 0,986 & 0,769 & 27,934 & 34 \\
+        Persistência y(t) & 8,290 & 11,977 & 25,083 & 0,879 & 0,987 & 33,000 & 34 \\
+        Sazonal y(t-24) & 7,371 & 12,423 & 24,000 & 0,936 & 0,990 & 33,000 & 34 \\
+        Sazonal y(t-48) & 8,114 & 13,508 & 21,000 & 0,871 & 0,996 & 34,000 & 34 \\
+        Média móvel 6 h & 7,720 & 11,923 & 25,479 & 0,933 & 0,843 & 32,500 & 34 \\
+        Média móvel 24 h & 7,646 & 12,596 & 27,800 & 0,993 & 0,746 & 31,500 & 34 \\
+        Ridge & 7,028 & 12,440 & 23,485 & 0,989 & 0,770 & 29,389 & 34 \\
+        \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}
