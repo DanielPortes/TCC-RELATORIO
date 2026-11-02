@@ -1,12 +1,12 @@
 \begin{table}[!htbp]
     \centering
-    \caption{Desempenho nos eventos de pico: teste histórico (jun.--dez./2020)}
+    \caption{Desempenho nos picos: teste preliminar (jun.--dez./2020)}
     \label{tab:eventos_teste_historico}
     \small
     \begin{adjustbox}{max width=\textwidth}
     \begin{tabular}{lrrrrrr}
         \toprule
-        Modelo & Limiar & Eventos & MAE por evento & Viés no evento & Subestimação & Erro no pico \\
+        Modelo & Limiar & Picos & MAE por pico & Viés no pico & Subestimação & Erro no máximo \\
         \midrule
         LSTM direta (Huber) & 35 & 21 & 16,210 & -16,210 & 0,999 & -17,147 \\
         LSTM recursiva (Huber) & 35 & 21 & 13,168 & -13,149 & 0,987 & -13,912 \\

@@ -2,18 +2,18 @@
 \chapter{Resultados e Discussão}
 \label{chap:resultados}
 
-Este capítulo apresenta os resultados do procedimento descrito no Capítulo~\ref{chap:materiais_metodos}. Todas as tabelas e figuras numéricas são geradas por programa a partir das previsões salvas de cada execução e incluídas sem transcrição manual. Os resultados são apresentados em dois períodos. O \emph{período de confirmação} (2021 a 2023) não foi consultado em nenhuma decisão de projeto e é a evidência principal, por isso as tabelas do texto se referem a ele. O \emph{teste histórico} (27 de maio a 31 de dezembro de 2020) já foi consultado durante o desenvolvimento, e suas tabelas estão no Apêndice~\ref{ap:teste_historico}; sempre que os dois períodos discordam, isso é indicado.
+Este capítulo apresenta os resultados do procedimento descrito no Capítulo~\ref{chap:materiais_metodos}. Todas as tabelas e figuras numéricas são geradas por programa a partir das previsões salvas de cada execução e incluídas sem transcrição manual. Como explicado na Seção~\ref{sec:divisao_temporal}, os resultados do texto são os do \emph{teste final} (2021 a 2023), que não foi consultado em nenhuma decisão de projeto. Os do \emph{teste preliminar} (27 de maio a 31 de dezembro de 2020), já consultado nos estudos preliminares, e as tabelas complementares do teste final estão no Apêndice~\ref{ap:teste_historico}; sempre que os dois períodos discordam, isso é indicado.
 
 Nas tabelas de comparação, a diferença de MAE é calculada como o MAE do modelo menos o MAE da referência; valores negativos indicam que o modelo erra menos. O intervalo de confiança (IC) de 95\% vem do bootstrap em blocos e o valor-\(p\) (DM) vem do teste de Diebold-Mariano (Seção~\ref{sec:inferencia_estatistica}). A coluna ``Veredito'' resume a comparação: ``melhor'' significa que o IC está inteiramente abaixo de zero (o modelo erra menos), ``pior'' que está inteiramente acima, e ``empate estatístico'' que o IC contém o zero, isto é, não há evidência de diferença. As médias de MAE da comparação principal são de quatro sementes.
 
 \section{Comparação Principal}
 \label{sec:comparacao_principal}
 
-A Tabela~\ref{tab:metricas_holdout} apresenta as métricas de erro de cada modelo e das referências no período de confirmação, com a mesma preparação, o mesmo orçamento de busca e a mesma perda de Huber (o XGBoost usa o erro absoluto). A última coluna é a habilidade em relação à média móvel de 24 horas: um valor de 0,10 significa erro 10\% menor que o dessa referência.
+A Tabela~\ref{tab:metricas_holdout} apresenta as métricas de erro de cada modelo e das referências no teste final, com a mesma preparação, o mesmo orçamento de busca e a mesma perda de Huber (o XGBoost usa o erro absoluto). A última coluna é a habilidade em relação à média móvel de 24 horas: um valor de 0,10 significa erro 10\% menor que o dessa referência.
 
 \inputtabela{metricas_holdout}
 
-O XGBoost obteve o menor erro em todas as medidas globais: MAE de 2,767~\(\mu\)g/m\(^3\), RMSE de 4,072 e \(R^2\) de 0,640. Em seguida vêm a regressão Ridge (MAE de 2,794), as duas versões do Seq2Seq com atenção (2,870 e 2,876), a LSTM recursiva (2,944), o Seq2Seq básico (2,965) e a LSTM direta (2,979). Entre os modelos treinados, a diferença entre o melhor e o pior é de 0,212~\(\mu\)g/m\(^3\), cerca de 7,7\% do MAE do melhor. Todos superam as referências simples: a média móvel de 24 horas tem MAE de 3,072, e a persistência (repetir o último valor), de 3,831. O XGBoost, por exemplo, tem erro 9,9\% menor que a média móvel de 24 horas. O WAPE do melhor modelo é de 25\%, isto é, o erro médio é um quarto da concentração média observada.
+O XGBoost obteve o menor erro em todas as medidas do tamanho do erro: MAE de 2,767~\(\mu\)g/m\(^3\), RMSE de 4,072 e \(R^2\) de 0,640. Seu viés médio (MBE), porém, é o mais negativo entre os modelos (\(-0,31\)~\(\mu\)g/m\(^3\)): o XGBoost tende a prever um pouco abaixo do observado, o que é coerente com o seu objetivo de treinamento, o erro absoluto, que leva à mediana (Seção~\ref{sec:otimizacao_hpo}). Em seguida vêm a regressão Ridge (MAE de 2,794), as duas versões do Seq2Seq com atenção (2,870 e 2,876), a LSTM recursiva (2,944), o Seq2Seq básico (2,965) e a LSTM direta (2,979). Entre os modelos treinados, a diferença entre o melhor e o pior é de 0,212~\(\mu\)g/m\(^3\), cerca de 7,7\% do MAE do melhor. Todos superam as previsões ingênuas: a média móvel de 24 horas tem MAE de 3,072, e a persistência (repetir o último valor), de 3,831. O XGBoost, por exemplo, tem erro 9,9\% menor que a média móvel de 24 horas. O WAPE do melhor modelo é de 25\%, isto é, o erro médio é um quarto da concentração média observada.
 
 A Tabela~\ref{tab:pareado_holdout} mostra as diferenças de MAE em relação à LSTM direta com perda de Huber e em relação à média móvel de 24 horas, as duas referências fixadas antes da execução.
 
@@ -23,16 +23,14 @@ Observe que o XGBoost erra menos que a LSTM direta em 0,212 (IC de \(-0,255\) a 
 
 As comparações entre todos os pares (Apêndice~\ref{ap:teste_historico}, Tabela~\ref{tab:matriz_holdout}) mostram um único empate com o melhor modelo: o XGBoost e a regressão Ridge têm diferença de \(-0,027\) (IC de \(-0,074\) a \(0,007\)), isto é, não é possível afirmar que um erra menos que o outro. Já o XGBoost erra menos que as duas versões do Seq2Seq com atenção (diferenças de 0,103 e 0,109), e a Ridge também erra menos que ambas (0,076 e 0,082, com IC que exclui o zero). As duas versões do Seq2Seq com atenção empatam entre si (diferença de \(-0,006\), IC de \(-0,028\) a \(0,013\)).
 
-O \textit{ensemble} (média das previsões das quatro sementes; Tabela~\ref{tab:ensemble_holdout}) reduz o MAE em 0,01 a 0,06, conforme o modelo, mas não altera a ordenação: o XGBoost continua na frente (2,753). No teste histórico, o quadro é semelhante: a Ridge (2,673), o XGBoost (2,696) e o Seq2Seq com atenção adaptado (2,721) têm MAE próximos e sem diferença estatística entre si, e o Seq2Seq com atenção padrão fica atrás da Ridge.
+O \textit{ensemble} (média das previsões das quatro sementes) reduz o MAE em 0,01 a 0,06, conforme o modelo, mas não altera a ordenação: o XGBoost continua na frente (2,753). No teste preliminar, o quadro é semelhante: a Ridge (2,673), o XGBoost (2,696) e o Seq2Seq com atenção adaptado (2,721) têm MAE próximos e sem diferença estatística entre si, e o Seq2Seq com atenção padrão fica atrás da Ridge.
 
-\inputtabela{ensemble_holdout}
+Em resumo, não há vencedor entre o XGBoost e a regressão linear, e nenhuma rede neural erra menos que eles. A escolha do modelo alterou o MAE em pouco mais de 7\%, uma diferença estatisticamente detectável, mas pequena.
 
-Em resumo, não há vencedor entre o XGBoost e a regressão linear, e nenhuma rede neural erra menos que eles. A escolha do modelo de aprendizado alterou o MAE em pouco mais de 7\%, uma diferença estatisticamente detectável, mas pequena.
-
-\section{Referências Simples e Regressão Linear}
+\section{Previsões Ingênuas e Regressão Linear}
 \label{sec:referencias_resultados}
 
-As linhas dos previsores ingênuos e da Ridge na Tabela~\ref{tab:metricas_holdout} respondem se os modelos de aprendizado agregam valor. Sobre os previsores ingênuos, a resposta é sim: todos os modelos treinados têm MAE menor que o da melhor referência ingênua (a média móvel de 24 horas). A resposta é menos favorável quando a comparação é com a regressão Ridge, uma relação linear entre os 1.992 atributos e o valor a prever. Ela tem erro só 1\% maior que o do XGBoost, sem diferença estatística, e erra menos que todas as redes neurais treinadas. Portanto, nesta série, a relação entre o histórico e o valor futuro é bem capturada por um modelo linear, e os modelos não lineares (árvores e redes) não acrescentam ganho mensurável além dele.
+As linhas dos previsores ingênuos e da Ridge na Tabela~\ref{tab:metricas_holdout} respondem se os modelos de aprendizado agregam valor. Sobre os previsores ingênuos, a resposta é sim: todos os modelos treinados têm MAE menor que o da melhor referência ingênua (a média móvel de 24 horas). A resposta é menos favorável quando a comparação é com a regressão Ridge, uma relação linear entre os 1.992 atributos e o valor a prever. Ela tem erro só 1\% maior que o do XGBoost, sem diferença estatística, e erra menos que todas as redes neurais treinadas. Portanto, nesta série, a relação entre o histórico e o valor futuro é bem capturada por um modelo linear, e os modelos não lineares (árvores e redes) não acrescentam ganho mensurável além dele. Nessa situação, vale o princípio da parcimônia: entre modelos de desempenho equivalente, prefere-se o mais simples, com menos parâmetros a ajustar \cite{box1976time}. A Ridge e o XGBoost, que têm, em geral, menos parâmetros que as redes, são, portanto, as escolhas preferíveis para esta série.
 
 \section{Erro por Horizonte}
 \label{sec:erro_horizonte}
@@ -42,88 +40,53 @@ A Figura~\ref{fig:erro_por_horizonte_holdout} mostra o MAE em função do horizo
 \begin{figure}[!htbp]
     \centering
     \figuragerada{0.9\linewidth}{erro_por_horizonte_holdout}
-    \caption{MAE por horizonte no período de confirmação (média das sementes). Linhas tracejadas: previsores de referência e regressão Ridge.}
+    \caption{MAE por horizonte no teste final (média das sementes). Linhas tracejadas: previsores de referência e regressão Ridge.}
     \label{fig:erro_por_horizonte_holdout}
 \end{figure}
 
-O erro cresce de forma lenta com o horizonte. Para o XGBoost, o MAE vai de 2,29 em 1 hora a 2,89 em 24 horas, um aumento de 26\%; para o Seq2Seq com atenção adaptado, de 2,61 a 2,98. No primeiro horizonte, o XGBoost erra 14\% menos que a persistência (2,29 contra 2,67), e a Ridge tem 2,40. A LSTM direta, por sua vez, tem erro quase constante (2,86 em 1 hora e 3,06 em 24 horas) e, nas primeiras horas, erra mais que a persistência: ao resumir a janela em um vetor único, ela parece perder precisão sobre o valor mais recente, o que os modelos que recebem o último valor observado no decodificador preservam. A LSTM recursiva e o Seq2Seq básico erram menos no início e mais no fim do horizonte (3,15 e 3,21 em 24 horas, contra 2,89 do XGBoost), o que é coerente com o acúmulo de erro típico das estratégias que realimentam a previsão. A ordenação entre os modelos no horizonte de 24 horas é a mesma da comparação global.
+O erro cresce de forma lenta com o horizonte. Para o XGBoost, o MAE vai de 2,29 em 1 hora a 2,89 em 24 horas, um aumento de 26\%; para o Seq2Seq com atenção adaptado, de 2,61 a 2,98. No primeiro horizonte, o XGBoost erra 14\% menos que a persistência (2,29 contra 2,67), e a Ridge tem 2,40. A LSTM direta, por sua vez, tem erro quase constante (2,86 em 1 hora e 3,06 em 24 horas) e, nas primeiras horas, erra mais que a persistência: ao resumir a janela em um vetor único, ela parece perder precisão sobre o valor mais recente, o que os modelos que recebem o último valor observado no decodificador preservam. A LSTM recursiva e o Seq2Seq básico erram menos no início e mais no fim do horizonte (3,15 e 3,21 em 24 horas, contra 2,89 do XGBoost), o que é coerente com o acúmulo de erro típico das estratégias que reutilizam a própria previsão. Esse crescimento aparece nos dois modelos, embora a LSTM recursiva tenha sido treinada em \textit{free running} e o Seq2Seq básico com \textit{teacher forcing} (Seção~\ref{sec:modelos}); nos modelos sem realimentação, como o XGBoost e os Seq2Seq com atenção, o erro também cresce, mas menos (2,89 e 2,96 em 24 horas). No horizonte de 24 horas, o XGBoost e a Ridge continuam com os menores erros.
 
-\section{Picos, Cauda e Suavização}
+\section{Picos e Suavização}
 \label{sec:picos}
 
-Modelos treinados com erro absoluto ou perda de Huber tendem a prever a mediana condicional \cite{gneiting2011making} e, por isso, produzem séries mais suaves que a observada e subestimam valores altos. A Tabela~\ref{tab:cauda_holdout} apresenta o MAE nas horas em que o PM2,5 observado excede 25, 35 e 50~\(\mu\)g/m\(^3\), a fração dessas horas em que o modelo subestima, a razão entre os desvios-padrão previsto e observado, e o percentil 99 da previsão (o observado é 33).
+Modelos treinados com erro absoluto ou perda de Huber tendem a prever a mediana condicional \cite{gneiting2011making} e, por isso, produzem séries mais suaves que a observada e subestimam os picos. A Tabela~\ref{tab:cauda_holdout} apresenta as medidas da Seção~\ref{sec:metricas}: o MAE nas horas de pico (coluna ``MAE \(\geq\)35'') e, para verificar a sensibilidade ao valor de 35, nas horas com pelo menos 25 e 50~\(\mu\)g/m\(^3\); a fração das horas de pico em que o modelo subestima; a razão entre os desvios-padrão previsto e observado; e o percentil 99 da previsão (o da série medida é 33).
 
 \inputtabela{cauda_holdout}
 
-Todos os modelos subestimam de forma sistemática as horas de concentração alta. O MAE acima de 35~\(\mu\)g/m\(^3\) fica entre 17 e 21, isto é, cerca de metade do valor típico de um evento, e o modelo prevê valor abaixo do observado em 93\% a 100\% dessas horas. A razão entre os desvios-padrão fica entre 0,75 e 0,83 para os modelos treinados, e o percentil 99 previsto (27 a 30) fica abaixo do observado (33). A persistência e os previsores sazonais, que repetem valores passados, preservam a amplitude (razão próxima de 1), mas erram o momento dos picos.
+Todos os modelos subestimam de forma sistemática os picos. Nas horas de pico, o MAE dos modelos treinados fica entre 18 e 21~\(\mu\)g/m\(^3\), cerca de metade da concentração típica dessas horas, e a previsão fica abaixo do observado em 94\% a 99\% delas. A razão entre os desvios-padrão fica entre 0,75 e 0,83 para os modelos treinados, e o percentil 99 previsto (27 a 30) fica abaixo do observado (33). A persistência e os previsores sazonais, que repetem valores passados, preservam a amplitude (razão próxima de 1), mas erram o momento dos picos.
 
-A Tabela~\ref{tab:eventos_holdout} e a Figura~\ref{fig:janela_evento_holdout} descrevem os eventos, isto é, sequências contínuas de horas com PM2,5 acima do limiar. O período de confirmação tem 58 eventos acima de 35~\(\mu\)g/m\(^3\) e 243 acima de 25~\(\mu\)g/m\(^3\).
-
-\inputtabela{eventos_holdout}
+A Figura~\ref{fig:janela_evento_holdout} e a Tabela~\ref{tab:eventos_holdout}, no Apêndice~\ref{ap:teste_historico}, olham cada pico como um todo, isto é, cada sequência de horas de pico consecutivas. O teste final tem 58 picos (e 243 sequências com pelo menos 25~\(\mu\)g/m\(^3\), na verificação de sensibilidade).
 
 \begin{figure}[!htbp]
     \centering
-    \figuragerada{0.78\linewidth}{janela_evento_holdout}
-    \caption{Previsões (média das sementes) em torno do maior evento do período de confirmação, em painéis separados por modelo e com escala comum. Observe que a linha tracejada horizontal marca 35~\(\mu\)g/m\(^3\) e que as lacunas da série observada aparecem como quebras na linha.}
+    \figuragerada{0.62\linewidth}{janela_evento_holdout}
+    \caption{Previsões (média das sementes) em torno do maior pico do teste final, em painéis separados por modelo e com escala comum. Observe que a linha pontilhada horizontal marca 35~\(\mu\)g/m\(^3\), o valor que define um pico, e que as lacunas da série observada aparecem como quebras na linha.}
     \label{fig:janela_evento_holdout}
 \end{figure}
 
-No nível dos eventos, o MAE por evento acima de 35 fica entre 16,5 (Seq2Seq básico) e 19,0 (LSTM direta). A persistência (16,6) e a Ridge (16,8) estão entre os melhores, o que mostra que nenhum modelo treinado antecipa os picos melhor do que simplesmente repetir o último valor. Na comparação por evento com a LSTM direta (Tabela~\ref{tab:eventos_pareado_holdout}), todos os modelos treinados erram menos, mas a persistência também erra. As diferenças entre modelos nos picos são, portanto, pequenas diante do tamanho do erro de todos eles.
-
-\inputtabela{eventos_pareado_holdout}
+Pico a pico, o MAE médio fica entre 16,5 (Seq2Seq básico) e 19,0 (LSTM direta). A persistência (16,6) e a Ridge (16,8) estão entre os melhores, o que mostra que nenhum modelo treinado antecipa os picos melhor do que simplesmente repetir o último valor. As diferenças entre modelos nos picos são, portanto, pequenas diante do tamanho do erro de todos eles. 
 
 \subsection{Dinâmica Horária}
 \label{sec:dinamica_horaria}
 
-Preservar a amplitude não garante acertar o momento das variações. A Tabela~\ref{tab:dinamica_holdout} mostra a correlação entre os níveis previsto e observado, a correlação entre as variações de uma hora para a seguinte, e a fração de vezes em que a direção da mudança é acertada.
+Preservar a amplitude não garante acertar o momento das variações. A Tabela~\ref{tab:dinamica_holdout}, no Apêndice~\ref{ap:teste_historico}, mostra a correlação entre os níveis previsto e observado, a correlação entre as variações de uma hora para a seguinte, e a fração de vezes em que a direção da mudança é acertada.
 
-\inputtabela{dinamica_holdout}
+A correlação entre os níveis é alta (0,78 a 0,82 nos modelos treinados), pois o modelo acompanha o nível médio. Porém, a correlação entre as variações horárias é baixa: de 0,13 a 0,17 nos modelos treinados, contra \(-0,33\) da persistência, e a direção da mudança é acertada em 54\% a 56\% das horas. O desvio-padrão das variações previstas (0,74 a 0,98) é muito menor que o das observadas (3,70). Assim, nenhum modelo acompanha as oscilações de hora em hora: eles acompanham o nível da série, mas não o momento exato das variações.
 
-A correlação entre os níveis é alta (0,78 a 0,81 nos modelos treinados), pois o modelo acompanha o nível médio. Porém, a correlação entre as variações horárias é baixa: de 0,13 a 0,17 nos modelos treinados, contra \(-0,33\) da persistência, e a direção da mudança é acertada em 54\% a 56\% das horas. O desvio-padrão das variações previstas (0,74 a 0,98) é muito menor que o das observadas (3,70). Assim, nenhum modelo acompanha as oscilações de hora em hora: eles acertam o nível diário, mas não o momento exato das variações.
-
-\section{Efeito da Função de Perda}
+\section{Fatores de Projeto}
 \label{sec:efeito_perda}
 
-Em etapas exploratórias anteriores, a vantagem do Seq2Seq adaptado em picos foi atribuída à combinação de arquitetura, perda ponderada e perda auxiliar. Como a perda ponderada foi aplicada a todas as arquiteturas, a Tabela~\ref{tab:fatorial_perda_holdout} separa o efeito da perda: para cada arquitetura, a diferença de MAE entre a perda ponderada e a de Huber, com intervalo de confiança pareado.
+Esta seção mede, um de cada vez, o efeito dos fatores de projeto da Seção~\ref{sec:fatores}. Nos estudos preliminares, a vantagem do Seq2Seq adaptado nos picos foi atribuída à combinação de arquitetura, perda ponderada e perda auxiliar de pico; separar os fatores mostra quanto cada um contribui.
+
+\paragraph{Função de perda.} A Tabela~\ref{tab:fatorial_perda_holdout} mostra, para cada arquitetura, a diferença de MAE entre a perda absoluta ponderada e a perda de Huber. A perda ponderada não altera o MAE de quatro das cinco arquiteturas (empate estatístico) e reduz o do Seq2Seq adaptado em 0,049 (IC de \(-0,064\) a \(-0,032\)), cerca de 1,7\%. Nos picos, o efeito é pequeno: o MAE nas horas de pico cai cerca de 1~\(\mu\)g/m\(^3\) (de 21,3 para 20,4 na LSTM direta, por exemplo), diante de erros de 18 a 21. No teste preliminar, a perda ponderada piora o MAE da LSTM recursiva e do Seq2Seq básico; o efeito, portanto, não é consistente entre arquiteturas e períodos.
 
 \inputtabela{fatorial_perda_holdout}
 
-A perda ponderada não altera o MAE de quatro das cinco arquiteturas (empate estatístico). Em uma delas, o Seq2Seq adaptado, reduz o MAE em 0,049 (IC de \(-0,064\) a \(-0,032\)), o que equivale a 1,7\%. O efeito nos picos é pequeno: o MAE acima de 35 cai de 21,3 para 20,4 na LSTM direta, de 19,7 para 18,4 na recursiva, de 18,5 para 17,7 no Seq2Seq padrão e de 19,3 para 18,9 no adaptado (Tabela~\ref{tab:cauda_fatores_holdout}), e a razão entre os desvios-padrão sobe de 0,01 a 0,04. Portanto, a perda ponderada melhora modestamente os picos sem piorar o erro médio no período de confirmação. No teste histórico, ela piora o MAE da LSTM recursiva e do Seq2Seq básico, e portanto o efeito não é consistente entre arquiteturas e períodos.
+\paragraph{Aprendizado residual e perda auxiliar de pico.} O aprendizado residual não ajuda (Tabela~\ref{tab:extras_holdout}, no Apêndice~\ref{ap:teste_historico}): na LSTM direta não há diferença (+0,004, empate) e, no Seq2Seq adaptado, o MAE aumenta em 0,063 (IC de 0,018 a 0,112). Uma explicação possível é que a previsão de base, uma média de valores passados, é menos precisa que o próprio modelo, de modo que a correção precisa compensar o erro dela. A perda auxiliar de pico reduz o MAE em 0,021 (IC de \(-0,033\) a \(-0,011\)), um ganho pequeno.
 
-\inputtabela{cauda_fatores_holdout}
+\paragraph{Desenho do Seq2Seq adaptado.} Remover, uma de cada vez, as quatro alterações do Seq2Seq adaptado (Tabela~\ref{tab:ablacao_desenho_holdout}, no Apêndice~\ref{ap:teste_historico}) não altera o MAE em três casos (empates); só remover as faixas da janela o aumenta, em 0,015 (IC de 0,001 a 0,028), um efeito pequeno e quase no limite da significância. Isso explica o empate entre as duas versões do Seq2Seq com atenção na Seção~\ref{sec:comparacao_principal}. A contraprova da atenção (Seção~\ref{sec:diagnostico_atencao}; Tabela~\ref{tab:atencao_seq2seq_attention_new__huber}, no Apêndice~\ref{ap:teste_historico}) aponta na mesma direção: zerar o contexto de atenção aumenta o MAE de 2,88 para 5,13, de modo que o modelo depende do que a atenção entrega; mas substituir os pesos aprendidos por pesos iguais dentro de cada uma das seis faixas aumenta o MAE em apenas 0,027 (1\%). Ou seja, quase todo o ganho vem da divisão da janela em faixas, e não da ponderação aprendida. Isso mostra o efeito no erro, e não a razão pela qual o modelo prevê como prevê \cite{jain2019attention}.
 
-\section{Fatores Adicionais e Desenho do Seq2Seq}
-\label{sec:fatores_adicionais}
-
-A Tabela~\ref{tab:extras_holdout} mostra o efeito da perda auxiliar de evento e do aprendizado residual, e a Tabela~\ref{tab:ablacao_desenho_holdout} remove, uma de cada vez, as quatro alterações que distinguem o Seq2Seq adaptado do padrão (Seção~\ref{sec:modelos}), mantendo os hiperparâmetros do modelo completo.
-
-\inputtabela{extras_holdout}
-
-\inputtabela{ablacao_desenho_holdout}
-
-O aprendizado residual não ajuda: na LSTM direta não há diferença (+0,004, empate) e, no Seq2Seq adaptado, o MAE aumenta em 0,063 (IC de 0,018 a 0,112). Acrescentá-lo à combinação de perda ponderada e perda de evento piora em 0,099. Uma explicação possível é que a base sobre a qual o modelo aprende a correção, uma média de valores passados, é menos precisa que o próprio modelo, de modo que a correção precisa compensar o erro dela. A perda auxiliar de evento reduz o MAE em 0,021 sobre a perda ponderada (IC de \(-0,033\) a \(-0,011\)), um ganho pequeno.
-
-Na ablação do desenho, remover o reinício do estado do decodificador, acrescentar o \textit{input feeding} ou remover o condicionamento da consulta ao horizonte não altera o MAE (empates). Remover as faixas de defasagem o aumenta em 0,015 (IC de 0,001 a 0,028), um efeito quase no limite da significância. No teste histórico, remover o reinício e o condicionamento da consulta chega a reduzir o MAE, com sinal oposto. Portanto, entre as quatro alterações, só as faixas de defasagem têm efeito distinguível de zero no período de confirmação, e ele é pequeno. Isso é coerente com o empate entre as duas versões do Seq2Seq com atenção observado na Seção~\ref{sec:comparacao_principal}.
-
-\section{Variáveis Derivadas do PM10}
-\label{sec:ablacao_pm10}
-
-A Tabela~\ref{tab:ablacao_pm10_holdout} compara o conjunto completo de variáveis com duas remoções: o PM10 apenas no histórico, sem as duas variáveis derivadas dele para o futuro, e a remoção completa do PM10. Cada conjunto tem sua própria busca de hiperparâmetros, de modo que o conjunto completo não é favorecido.
-
-\inputtabela{ablacao_pm10_holdout}
-
-Para a LSTM direta, nenhuma remoção altera o MAE. Para o XGBoost, a remoção das variáveis derivadas aumenta o MAE em 0,010 (IC de 0,006 a 0,014), e a remoção do PM10 em 0,016 (IC de 0,010 a 0,022). Esses aumentos são estatisticamente distinguíveis de zero, mas equivalem a menos de 1\% do MAE e não têm importância prática. O PM10 medido pelo mesmo sensor traz, portanto, quase nenhuma informação adicional sobre o PM2,5 futuro.
-
-\section{Interpretação da Atenção}
-\label{sec:interpretacao_atencao}
-
-Para testar se a atenção do Seq2Seq adaptado é funcionalmente relevante, aplicou-se a contraprova da Seção~\ref{sec:diagnostico_atencao}, sem retreinar. A Tabela~\ref{tab:atencao_seq2seq_attention_new__huber} mostra o erro quando os pesos aprendidos são substituídos por padrões fixos, e a Tabela~\ref{tab:atencao_diag_seq2seq_attention_new__huber} compara as medidas dos pesos aprendidos com as dos pesos uniformes.
-
-\inputtabela{atencao_diagnostico_seq2seq_attention_new__huber}
-
-\inputtabela{atencao_contrafactual_seq2seq_attention_new__huber}
-
-Observe que zerar o contexto de atenção aumenta o MAE em 2,25 no período de confirmação (de 2,88 para 5,13): o modelo depende das informações que a atenção entrega. Já substituir os pesos por pesos uniformes sobre as 48 posições aumenta o erro em 0,15, e usar apenas a última hora, o mesmo horário do dia anterior ou o de dois dias antes o aumenta em 0,37, 0,48 e 0,76, respectivamente. O resultado mais informativo, porém, é a substituição por pesos uniformes \emph{dentro das seis faixas de defasagem}: o MAE aumenta em apenas 0,027 (1\%). As medidas dos pesos confirmam: a entropia normalizada dos pesos aprendidos (0,834) é quase igual à dos pesos uniformes por faixa (0,841), e as massas na última hora (0,207) e nas últimas seis horas (0,414 contra 0,417) também. Ou seja, a estrutura de seis faixas fornece quase todo o ganho, e a ponderação aprendida acrescenta pouco. Isso é coerente com o resultado da ablação, em que as faixas de defasagem são a única peça com efeito mensurável. Os pesos, porém, não devem ser lidos como uma explicação causal do modelo \cite{jain2019attention}: o que a contraprova mostra é o efeito no erro, não a razão pela qual o modelo prevê como prevê.
+\paragraph{Variáveis derivadas do PM10.} Remover as duas variáveis do PM10 conhecidas de antemão, ou o PM10 por completo, cada cenário com sua própria busca de hiperparâmetros, não altera o MAE da LSTM direta e aumenta o do XGBoost em 0,010 e 0,016, respectivamente (Tabela~\ref{tab:ablacao_pm10_holdout}, no Apêndice~\ref{ap:teste_historico}). Esses aumentos são estatisticamente distinguíveis de zero, mas equivalem a menos de 1\% do MAE: o PM10 medido na mesma estação traz pouca informação adicional sobre o PM2,5 futuro.
 
 \section{Sensibilidades}
 \label{sec:sensibilidades_resultados}
@@ -135,29 +98,16 @@ A Tabela~\ref{tab:janela_validacao} mostra o MAE de validação para janelas de 
 
 \inputtabela{janela_validacao}
 
-\subsection{Alvos Preenchidos, Busca de Hiperparâmetros e Vencedores}
+\subsection{Valores Preenchidos e Busca de Hiperparâmetros}
 \label{sec:sensibilidade_demais}
 
-A Tabela~\ref{tab:sensibilidade_imputados_holdout} repete o cálculo do MAE incluindo, além das medições, os pares cujo alvo foi preenchido por interpolação. O erro sobre os alvos preenchidos é maior que o erro nos medidos para a maioria dos modelos (por exemplo, 3,54 contra 2,98 na LSTM direta); o XGBoost é exceção (2,51 contra 2,77). Isso mostra que o resultado sobre valores preenchidos depende de quanto o modelo se assemelha à interpolação, e não do fenômeno. A ordenação dos três melhores modelos se mantém (XGBoost, Seq2Seq padrão e adaptado); a LSTM recursiva e o Seq2Seq básico trocam de posição entre si. No teste histórico, a ordenação é idêntica. A conclusão, portanto, é robusta à exclusão dos alvos preenchidos.
+A Tabela~\ref{tab:sensibilidade_imputados_holdout}, no Apêndice~\ref{ap:teste_historico}, repete o cálculo do MAE incluindo, além das medições, os pares cujo valor a prever foi preenchido. O erro sobre os valores preenchidos é maior que o erro nos medidos para a maioria dos modelos (por exemplo, 3,54 contra 2,98 na LSTM direta); o XGBoost é exceção (2,51 contra 2,77). Isso mostra que o resultado sobre valores preenchidos depende de quanto o modelo se assemelha à interpolação, e não do fenômeno. Entre os modelos da tabela, a ordenação dos três melhores se mantém (XGBoost, Seq2Seq padrão e adaptado); a LSTM recursiva e o Seq2Seq básico trocam de posição entre si. No teste preliminar, a ordenação é idêntica. A conclusão, portanto, é robusta à exclusão dos valores preenchidos.
 
-\inputtabela{sensibilidade_imputados_holdout}
-
-A Tabela~\ref{tab:verificacao_hpo_holdout} mostra o efeito de refazer a busca de hiperparâmetros para a perda ponderada, em vez de reaproveitar os do caso de Huber. Em ambas as arquiteturas, a diferença é estatisticamente indistinguível de zero (\(-0,004\) na LSTM direta e \(+0,006\) no Seq2Seq adaptado), o que indica que o reaproveitamento não distorce as conclusões sobre o efeito da perda.
-
-\inputtabela{verificacao_hpo_holdout}
-
-A Tabela~\ref{tab:vitorias_holdout} resume o melhor modelo em cada critério. O XGBoost é o melhor em todas as medidas globais e nos horizontes 1 e 24, empatado com a Ridge no MAE. O Seq2Seq básico é o melhor nas métricas de pico e no viés, com margens que não são estatisticamente relevantes diante do erro de todos os modelos nos picos.
-
-\inputtabela{vitorias_holdout}
+A Tabela~\ref{tab:verificacao_hpo_holdout}, no Apêndice~\ref{ap:teste_historico}, mostra o efeito de refazer a busca de hiperparâmetros para a perda ponderada, em vez de reaproveitar os do caso de Huber. Em ambas as arquiteturas, a diferença é estatisticamente indistinguível de zero (\(-0,004\) na LSTM direta e \(+0,006\) no Seq2Seq adaptado), o que indica que o reaproveitamento não distorce as conclusões sobre o efeito da perda.
 
 \section{O Que Limita a Qualidade da Previsão}
 \label{sec:limites}
 
-Três resultados apontam na mesma direção. Primeiro, modelos de famílias muito diferentes (regressão linear, árvores e redes com e sem atenção) terminam com MAE dentro de uma faixa estreita, de 2,77 a 2,98 no período de confirmação, e o modelo mais simples entre os treinados, a Ridge, empata com o melhor. Segundo, o erro já é alto na previsão de uma hora à frente: 2,29~\(\mu\)g/m\(^3\) para o melhor modelo, cerca de 21\% da concentração média (11,05), e o aumento até 24 horas é de apenas 26\%. Terceiro, o PM10 medido pela mesma estação pouco contribui (menos de 1\% do MAE), e nenhum modelo acompanha as oscilações de hora em hora ou os picos, que são subestimados em quase todas as horas.
+Três resultados apontam na mesma direção. Primeiro, modelos de famílias muito diferentes (regressão linear, árvores e redes com e sem atenção) terminam com MAE dentro de uma faixa estreita, de 2,77 a 2,98 no teste final, e o modelo mais simples entre os treinados, a Ridge, empata com o melhor. Segundo, o erro já é alto na previsão de uma hora à frente: 2,29~\(\mu\)g/m\(^3\) para o melhor modelo, cerca de 21\% da concentração média (11,05), e o aumento até 24 horas é de apenas 26\%. Terceiro, o PM10 medido pela mesma estação pouco contribui (menos de 1\% do MAE), e nenhum modelo acompanha as oscilações de hora em hora ou os picos, que são subestimados em quase todas as horas.
 
-Uma leitura compatível com esses resultados é que a informação contida no histórico de PM2,5 e PM10 e no calendário é o limite da previsão: a estação não mede variáveis meteorológicas, e estudos em outras cidades indicam que elas, como a altura da camada limite atmosférica, são as variáveis mais importantes para explicar o PM2,5 \cite{zanobini2024curitiba}. Esta é uma hipótese consistente com os dados, e não uma conclusão testada neste trabalho, pois testá-la exigiria variáveis meteorológicas que a estação não fornece. O que os resultados mostram, de forma direta, é que trocar de arquitetura ou de função de perda altera o erro em poucos por cento, e que nenhuma delas resolve a imprevisibilidade dos picos e das oscilações horárias.
-
-\section{Ameaças à Validade}
-\label{sec:ameacas}
-
-Há limitações que condicionam a leitura dos resultados. Primeiro, o estudo usa uma única estação, o que limita a generalização espacial. Segundo, o teste histórico foi consultado em etapas anteriores e não é confirmatório; o período de confirmação é a única evidência independente, e cobre apenas três anos, com nível médio de PM2,5 variável entre eles. Terceiro, os fatores que reaproveitam os hiperparâmetros do caso de Huber podem subestimar o potencial de cada variante, embora a verificação da Seção~\ref{sec:sensibilidade_demais} não tenha encontrado viés em duas arquiteturas. Quarto, quatro sementes fornecem pouca precisão para inferência entre famílias; o bootstrap incorpora a incerteza da amostra de teste, mas não a de novas inicializações além das quatro usadas. Quinto, o número de eventos de pico é limitado (58 acima de 35~\(\mu\)g/m\(^3\) no período de confirmação), e quase não há valores acima de 35 em 2023. Sexto, a validação tem cerca de 32\% de ausências e uma lacuna de 48 dias preenchida por repetição do último valor, o que pode enfraquecer a parada antecipada e a escolha do ponto de controle. Sétimo, a janela de 48 horas não é a ideal para o XGBoost, como mostrado na Seção~\ref{sec:sensibilidade_janela}. Por fim, o limiar de 35~\(\mu\)g/m\(^3\), os pesos da perda ponderada e as faixas de defasagem são decisões de projeto e não resultados estabelecidos na literatura.
+Uma leitura compatível com esses resultados é que a informação contida no histórico de PM2,5 e PM10 e no calendário é o limite da previsão: a estação não mede variáveis meteorológicas, e estudos em outras cidades indicam que elas, como a altura da camada limite planetária, são as variáveis mais importantes para explicar o PM2,5 \cite{zanobini2024curitiba}. Esta é uma hipótese consistente com os dados, e não uma conclusão testada neste trabalho, pois testá-la exigiria variáveis meteorológicas que a estação não fornece. O que os resultados mostram, de forma direta, é que trocar de arquitetura ou de função de perda altera o erro em poucos por cento, e que nenhuma delas resolve a imprevisibilidade dos picos e das oscilações horárias.

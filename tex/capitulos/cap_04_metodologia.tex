@@ -2,85 +2,232 @@
 \chapter{Materiais e Métodos}
 \label{chap:materiais_metodos}
 
-Este capítulo descreve os dados, os modelos e o procedimento de avaliação. O procedimento foi definido para que todos os modelos recebam os mesmos dados, o mesmo tratamento e o mesmo treinamento, de modo que as diferenças observadas possam ser atribuídas aos modelos. Ele também preserva a ordem cronológica dos dados, para evitar que informação do futuro influencie o treinamento ou a avaliação.
+Este capítulo descreve os dados, a preparação da série, os modelos comparados e o procedimento de avaliação. A Figura~\ref{fig:visao_geral_metodo} resume as etapas, na ordem em que são apresentadas. Como em qualquer comparação, todos os modelos recebem os mesmos dados, o mesmo tratamento e o mesmo período de teste; o capítulo detalha como isso foi garantido nesta série, que tem lacunas longas e poucas variáveis.
 
-\section{Dados}
-\label{sec:dados}
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[every node/.style={font=\small},
+        etapa/.style={draw,rounded corners,align=center,text width=3.0cm,minimum height=2.1cm,inner sep=3pt},
+        seta/.style={-{Latex[length=2.5mm]},thick}]
+        \node[etapa,fill=blue!10] (a) at (0,0) {\textbf{Dados}\\estação Sapo; PM2,5 e PM10 horários\\(4.1 e 4.2)};
+        \node[etapa,fill=blue!10] (b) at (3.75,0) {\textbf{Divisão temporal}\\desenvolvimento e teste final\\(4.3)};
+        \node[etapa,fill=blue!10] (c) at (7.5,0) {\textbf{Análise da série}\\lacunas e padrões temporais\\(4.4 e 4.5)};
+        \node[etapa,fill=blue!10] (d) at (11.25,0) {\textbf{Horizonte}\\48 h de entrada, 24 h previstas\\(4.6)};
+        \node[etapa,fill=green!12] (e) at (11.25,-2.9) {\textbf{Preparação}\\imputação, indicadores e variáveis\\(4.7 e 4.8)};
+        \node[etapa,fill=green!12] (f) at (7.5,-2.9) {\textbf{Modelos}\\quatro famílias e referências\\(4.9)};
+        \node[etapa,fill=green!12] (g) at (3.75,-2.9) {\textbf{Treinamento}\\mesma busca de hiperparâmetros\\(4.10)};
+        \node[etapa,fill=orange!18] (h) at (0,-2.9) {\textbf{Avaliação}\\métricas, picos e testes estatísticos\\(4.11 a 4.14)};
+        \draw[seta] (a) -- (b); \draw[seta] (b) -- (c); \draw[seta] (c) -- (d);
+        \draw[seta] (d) -- (e); \draw[seta] (e) -- (f); \draw[seta] (f) -- (g); \draw[seta] (g) -- (h);
+    \end{tikzpicture}
+    \caption{Etapas da metodologia, com as seções em que cada uma é descrita. Elaboração própria.}
+    \label{fig:visao_geral_metodo}
+\end{figure}
 
-O estudo utiliza medições horárias da estação Sapo, localizada em Conceição do Mato Dentro (CMD), Minas Gerais, que fazem parte do monitoramento contínuo da qualidade do ar disponibilizado pela Fundação Estadual do Meio Ambiente de Minas Gerais (FEAM) \cite{feam2026dadosmonitoramento}. A grandeza a ser prevista é a concentração de PM2,5. O principal poluente auxiliar é o PM10, o material particulado com diâmetro aerodinâmico de até 10 micrômetros. As colunas de gases e de variáveis meteorológicas do arquivo da estação (monóxido de carbono, ozônio, óxidos de nitrogênio e de enxofre, temperatura, umidade, vento, precipitação, radiação, pressão e compostos orgânicos) estão inteiramente vazias para a estação Sapo: nenhuma delas contém uma única medição. A única outra coluna com cobertura relevante é a de partículas totais em suspensão (86\% de cobertura), que não foi incluída, pois seu uso seria uma nova hipótese, e não parte da comparação.
-
-O arquivo cobre de 1º de janeiro de 2017 a 31 de dezembro de 2023. O conjunto usado nos resultados contém 61.271 registros horários, de 4 de janeiro de 2017 a 31 de dezembro de 2023; os três primeiros dias foram descartados porque as variáveis defasadas em 24 horas e a janela de entrada de 48 horas exigem histórico anterior. Os primeiros 34.992 registros (até 31 de dezembro de 2020) foram usados em etapas exploratórias anteriores a este estudo, que orientaram algumas escolhas de projeto; os anos de 2021 a 2023 não foram usados em nenhuma etapa do desenvolvimento e formam o período de confirmação (\textit{holdout}), descrito na Seção~\ref{sec:divisao_temporal}.
-
-\subsection{Escolha da Estação}
+\section{Fonte dos Dados e Escolha da Estação}
 \label{sec:escolha_estacao}
 
-A estação Sapo foi escolhida após uma análise exploratória de 38 estações com medições de PM2,5, que considerou a cobertura do alvo, a continuidade temporal, a disponibilidade de PM10 no mesmo horário, a frequência de eventos de alta concentração e o equilíbrio entre os períodos cronológicos. O objetivo dessa triagem foi selecionar uma série com volume suficiente, uma variável auxiliar útil e um número mínimo de eventos altos para a análise, e não a estação mais previsível da rede. Sapo ficou em segundo lugar tanto na classificação por PM2,5 quanto na que inclui o PM10 (Figura~\ref{fig:eda_ranking_estacoes_pm25_pm10}). A estação em primeiro lugar, Rio Doce, teve pontuação ligeiramente maior, mas apenas 0,19\% de horas com PM2,5 acima de 35~\(\mu\)g/m\(^3\), contra 1,16\% em Sapo, e não pertence ao mesmo município. Sapo tem 83,47\% de cobertura de PM2,5 e 74,27\% de horas com PM2,5 e PM10 medidos juntos, com correlação de 0,58 entre os dois poluentes. A generalização para outras estações permanece uma limitação.
+Os dados vêm da rede de monitoramento contínuo da qualidade do ar disponibilizada pela Fundação Estadual do Meio Ambiente de Minas Gerais (FEAM) \cite{feam2026dadosmonitoramento}. Cada estação da rede tem um arquivo com medições horárias de poluentes e, em algumas, de variáveis meteorológicas. Como o estudo usa uma única série, a primeira pergunta é: qual estação usar?
 
-\begin{figure}[!htbp]
+Um conceito usado nessa escolha e em todo o restante do texto é o de pico de concentração. Na estação escolhida, Sapo, metade das horas medidas tem PM2,5 de até 11~\(\mu\)g/m\(^3\). Neste trabalho, chama-se de \emph{hora de pico} uma hora com PM2,5 de pelo menos 35~\(\mu\)g/m\(^3\), cerca de três vezes esse valor típico, e de \emph{pico} uma sequência de horas de pico consecutivas. O valor de 35~\(\mu\)g/m\(^3\) é uma escolha deste trabalho, com duas justificativas. Primeiro, ele fica próximo da meta intermediária de 37,5~\(\mu\)g/m\(^3\) que a Organização Mundial da Saúde recomenda para a concentração média de 24 horas \cite{who2021air}, ou seja, de um nível já associado a riscos para a saúde, embora a meta se refira a médias diárias, e não a valores horários. Segundo, na estação Sapo ele é atingido em cerca de 1\% das horas medidas: os picos são raros, mas em número suficiente para avaliar os modelos nesses momentos.
+
+Para escolher, as 38 estações com medições de PM2,5 foram comparadas em estudos preliminares por uma pontuação de 0 a 100 que favorece séries bem cobertas e regulares: ela soma, com pesos, a cobertura de PM2,5 (fração das horas com medição), a duração da maior lacuna, a variabilidade da série, a frequência de picos e de saltos bruscos, a persistência (o quanto o valor de um dia se parece com o do dia anterior), a força do ciclo diário e o equilíbrio da cobertura entre os períodos da série; um último termo considera a disponibilidade de PM10 medido nos mesmos horários, que pode servir de variável exógena (Seção~\ref{sec:series_temporais}). Uma pontuação alta, portanto, indica uma série com poucos buracos e mais fácil de prever.
+
+As duas primeiras colocadas ficaram praticamente empatadas, e as demais ficaram abaixo de 79 pontos. A Tabela~\ref{tab:escolha_estacao} compara as duas. Observe que Rio Doce tem cobertura percentual um pouco maior e menor desvio-padrão, o que explica sua pontuação ligeiramente superior. Mas ela só tem dados a partir de 2020, o que resulta em 29.965 horas medidas, contra 51.205 em Sapo, que tem sete anos de série. Além disso, Rio Doce tem pouquíssimos picos: apenas 0,19\% das horas medidas são horas de pico, cerca de 57 horas em quatro anos, contra 1,16\%, cerca de 594 horas, em Sapo. Com tão poucos picos, não seria possível avaliar como os modelos se comportam nesses momentos, que são justamente os de maior risco para a saúde. Sapo também tem o PM10 mais associado ao PM2,5 (correlação de 0,58, contra 0,52). Por isso, a estação Sapo foi escolhida: ela está entre as séries mais regulares da rede, praticamente empatada com a primeira, e tem a série mais longa das duas e picos suficientes para a avaliação.
+
+\begin{table}[htbp]
     \centering
-    \includegraphics[width=\linewidth]{eda_ranking_estacoes_pm25_pm10.pdf}
-    \caption{Classificação preliminar das estações por previsibilidade de PM2,5 com o contexto de PM10, obtida na análise exploratória.}
-    \label{fig:eda_ranking_estacoes_pm25_pm10}
-\end{figure}
-
-\subsection{Cobertura e Lacunas}
-\label{sec:cobertura_lacunas}
-
-A Figura~\ref{fig:eda_sapo_cobertura_lacunas} mostra que a série não é contínua: há meses com boa cobertura e lacunas longas, sobretudo na validação. A maior lacuna de PM2,5 vai de 11 de dezembro de 2019 a 28 de janeiro de 2020, com 48,25 dias. Os maiores trechos contínuos de dados medidos têm cerca de 8,5 dias. Por isso, é necessário preencher as lacunas para formar as janelas, e manter registro de quais valores foram preenchidos (Seção~\ref{sec:preprocessamento}).
-
-\begin{figure}[!htbp]
-    \centering
-    \includegraphics[width=\linewidth]{eda_sapo_cobertura_lacunas.pdf}
-    \caption{Cobertura mensal de PM2,5 e maiores lacunas na série da estação Sapo no período de desenvolvimento (2017 a 2020).}
-    \label{fig:eda_sapo_cobertura_lacunas}
-\end{figure}
-
-A Tabela~\ref{tab:splits} resume cada bloco cronológico (definidos na Seção~\ref{sec:divisao_temporal}). A validação concentra a maior proporção de ausências (31,73\%) e o teste histórico tem a menor (6,63\%). A coluna ``Entrada propagada'' informa a fração de horas dentro de lacunas de 24 horas ou mais, em que a entrada do modelo vem da repetição do último valor medido, e não de dados novos. Os eventos de concentração alta são raros: apenas entre 0,8\% e 1,6\% das horas medidas têm PM2,5 acima de 35~\(\mu\)g/m\(^3\), o que justifica avaliar os picos separadamente, pois o erro médio é dominado pelas horas de concentração baixa.
-
-\inputtabela{splits}
-
-A média anual de PM2,5 varia bastante entre os anos (por exemplo, 6,9~\(\mu\)g/m\(^3\) em 2018, 16,5 em 2019 e 6,0 em 2023). Isso indica mudanças de comportamento da série, seja por variação climática entre anos, seja por alterações no instrumento, e essas variações não são tratadas aqui como ciclo regular, pois o conjunto cobre apenas sete anos.
-
-\subsection{Padrões Temporais}
-\label{sec:padroes_temporais}
-
-Os padrões descritos nesta seção foram calculados apenas com os pontos medidos do período de desenvolvimento (2017 a 2020). A Figura~\ref{fig:serie_temporal_componentes_sapo} apresenta a decomposição aditiva do PM2,5 (Equação~\ref{eq:decomposicao_aditiva}): observe a tendência que varia devagar, o perfil que se repete a cada dia e o resíduo com picos abruptos.
-
-\begin{figure}[!htbp]
-    \centering
-    \includegraphics[width=\linewidth]{serie_temporal_componentes_sapo.pdf}
-    \caption{Série de PM2,5 da estação Sapo e sua decomposição em tendência, componente diária e resíduo. Elaboração própria, com base em \citeonline{hyndman2021forecasting}.}
-    \label{fig:serie_temporal_componentes_sapo}
-\end{figure}
-
-A Tabela~\ref{tab:padroes_temporais_sapo} apresenta as autocorrelações (Equação~\ref{eq:autocorrelacao}). Para o PM2,5, a autocorrelação em 1 hora é 0,813 e em 24 horas é 0,681, o que indica forte persistência de curto prazo e repetição diária; a semanal é mais fraca (0,461). O perfil horário mostra as menores médias entre a madrugada e o início da tarde (mínimo de cerca de 10,3~\(\mu\)g/m\(^3\) às 13 h) e as maiores no fim da tarde (máximo de cerca de 14,8 às 18 h). O PM10 tem comportamento parecido, com amplitude horária maior. A correlação de Pearson entre PM2,5 e PM10 medidos no mesmo horário é 0,597; portanto, o PM10 é informativo, mas não determina o PM2,5. Há elevação de ambos em setembro e outubro; contudo, a autocorrelação anual do PM2,5 é baixa (cerca de 0,04), de modo que a repetição de ano para ano é menos estável do que a diária.
-
-\begin{table}[!htbp]
-    \centering
-    \caption{Padrões temporais observados de PM2,5 e PM10 na estação Sapo (2017 a 2020).}
-    \label{tab:padroes_temporais_sapo}
-    \resizebox{\textwidth}{!}{%
-    \begin{tabular}{lrrp{0.44\textwidth}}
+    \caption{Comparação entre as duas estações mais bem pontuadas na triagem.}
+    \label{tab:escolha_estacao}
+    \small
+    \begin{tabular}{lrr}
         \toprule
-        \textbf{Diagnóstico} & \textbf{PM2,5} & \textbf{PM10} & \textbf{Leitura} \\
+        \textbf{Critério} & \textbf{Rio Doce} & \textbf{Sapo} \\
         \midrule
-        Autocorrelação em 1 h & 0,813 & 0,734 & Forte persistência de curto prazo nos dois poluentes. \\
-        Autocorrelação em 24 h & 0,681 & 0,564 & Repetição diária relevante. \\
-        Autocorrelação em 168 h & 0,461 & 0,360 & Repetição semanal mais fraca que a diária. \\
-        Amplitude média por hora do dia & 4,48 & 11,14 & Ciclo diário claro, mais intenso no PM10. \\
-        Amplitude média por dia da semana & 0,70 & 3,68 & Variação semanal pequena. \\
-        Amplitude média por mês & 8,52 & 12,95 & Variação mensal forte, com elevação em setembro e outubro. \\
+        Pontuação na triagem (0 a 100) & 84,4 & 83,9 \\
+        Período com dados & 2020 a 2023 & 2017 a 2023 \\
+        Horas com PM2,5 medido & 29.965 & 51.205 \\
+        Cobertura de PM2,5 (\%) & 85,5 & 83,5 \\
+        Horas com PM2,5 e PM10 medidos juntos (\%) & 78,7 & 74,3 \\
+        Correlação entre PM2,5 e PM10 & 0,52 & 0,58 \\
+        Média e desvio-padrão do PM2,5 (\(\mu\)g/m\(^3\)) & 8,8 e 5,4 & 11,4 e 7,2 \\
+        Horas de pico, com PM2,5 \(\geq 35\)~\(\mu\)g/m\(^3\) (\%) & 0,19 & 1,16 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\section{A Série da Estação Sapo}
+\label{sec:dados}
+
+A estação Sapo fica em Conceição do Mato Dentro, Minas Gerais. Seu arquivo tem 61.344 registros horários, de 1º de janeiro de 2017 a 31 de dezembro de 2023, e 33 colunas de medição. A Tabela~\ref{tab:colunas_sapo} resume essas colunas. Observe que apenas três delas têm medições: o PM2,5, que é a grandeza a ser prevista; o PM10, o material particulado com diâmetro aerodinâmico de até 10 micrômetros; e as partículas totais em suspensão (PTS), que incluem partículas de qualquer tamanho. As outras 30 colunas, de gases (como monóxido de carbono, ozônio e óxidos de nitrogênio) e de variáveis meteorológicas (como temperatura, umidade, vento e precipitação), estão inteiramente vazias para esta estação.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Colunas de medição do arquivo da estação Sapo (2017 a 2023): porcentagem de horas preenchidas e média, desvio-padrão, mediana e máximo das horas medidas, em \(\mu\)g/m\(^3\).}
+    \label{tab:colunas_sapo}
+    \small
+    \begin{tabular}{>{\raggedright\arraybackslash}p{0.27\textwidth}rrrrrl}
+        \toprule
+        \textbf{Coluna} & \textbf{Preench.} & \textbf{Média} & \textbf{DP} & \textbf{Med.} & \textbf{Máx.} & \textbf{Uso} \\
+        \midrule
+        PM2,5 & 83,5\% & 11,4 & 7,2 & 11 & 126 & valor a prever \\
+        PM10 & 83,5\% & 23,2 & 13,2 & 20 & 384 & variável exógena \\
+        PTS & 86,1\% & 32,1 & 20,4 & 28 & 964 & não usada \\
+        30 colunas de gases e meteorologia & 0\% & -- & -- & -- & -- & vazias \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+O PM10 é usado como variável exógena porque é medido nos mesmos horários e acompanha o PM2,5 (correlação de 0,58 entre as horas medidas de 2017 a 2023). As partículas totais em suspensão não foram usadas porque quase repetem a informação do PM10: a correlação entre as duas é de 0,89, enquanto a correlação entre as partículas totais e o PM2,5 é de apenas 0,40, menor que a do PM10.
+
+A Figura~\ref{fig:serie_pm25_sapo} mostra a série completa de PM2,5. Observe três características que guiam o restante do capítulo. Primeiro, há lacunas, visíveis como trechos sem linha, a maior delas na passagem de 2019 para 2020. Segundo, a série fica a maior parte do tempo entre 5 e 20~\(\mu\)g/m\(^3\) (79\% das horas medidas), com picos raros e curtos acima da linha tracejada de 35~\(\mu\)g/m\(^3\) que os define (Seção~\ref{sec:escolha_estacao}): apenas 1,16\% das horas medidas são horas de pico. Terceiro, o nível médio muda de um ano para outro: a média anual foi de 6,9~\(\mu\)g/m\(^3\) em 2018, 16,5 em 2019 e 6,0 em 2023. Essas mudanças podem vir de variações climáticas entre os anos ou de alterações no instrumento, e nenhum dos modelos tem informação para antecipá-las.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{serie_pm25_sapo_2017_2023.pdf}
+    \caption{Série horária de PM2,5 da estação Sapo, de 2017 a 2023, com a média diária. A linha tracejada marca 35~\(\mu\)g/m\(^3\). Elaboração própria, com dados da \citeonline{feam2026dadosmonitoramento}.}
+    \label{fig:serie_pm25_sapo}
+\end{figure}
+
+O conjunto de dados usado nos modelos começa em 4 de janeiro de 2017 e tem 61.271 registros: os três primeiros dias foram descartados porque as variáveis derivadas do PM10 dependem de valores de até 27 horas antes e a janela de entrada usa as 48 horas anteriores.
+
+\section{Divisão Temporal dos Dados}
+\label{sec:divisao_temporal}
+
+Antes de analisar a série, é preciso dizer como ela é dividida, porque as análises seguintes são feitas apenas com a parte reservada ao desenvolvimento. Seguindo a Seção~\ref{sec:validacao_temporal}, os dados são divididos por datas, em ordem cronológica, em dois grandes períodos (Tabela~\ref{tab:split_temporal_sapo} e Figura~\ref{fig:split_datas_sapo}):
+
+\begin{itemize}
+    \item o \textbf{período de desenvolvimento} (2017 a 2020), usado para treinar os modelos, escolher seus hiperparâmetros e tomar as decisões de projeto;
+    \item o \textbf{teste final} (2021 a 2023), reservado desde o início e usado uma única vez, depois de todas as decisões, para medir e comparar os modelos.
+\end{itemize}
+
+O período de desenvolvimento é dividido em três blocos. O \textbf{treino} ajusta os parâmetros dos modelos. A \textbf{validação} é usada, no treinamento final, para a parada antecipada, isto é, para decidir em que época parar e quais pesos guardar (Seção~\ref{sec:otimizacao_hpo}). O \textbf{teste preliminar} (27 de maio a 31 de dezembro de 2020) foi usado nos estudos preliminares deste trabalho, em que algumas escolhas, como a janela de entrada, foram feitas olhando seus resultados. As datas de corte do treino e da validação são as mesmas desses estudos, que dividiram o período de 2017 a 2020 em 70\% para treino, 15\% para validação e 15\% para teste.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Divisão cronológica dos dados da estação Sapo.}
+    \label{tab:split_temporal_sapo}
+    \small
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{llrll}
+        \toprule
+        \textbf{Período} & \textbf{Bloco} & \textbf{Horas} & \textbf{Intervalo} & \textbf{Uso} \\
+        \midrule
+        Desenvolvimento & Treino & 24.495 & 04/01/2017 a 21/10/2019 & ajuste dos parâmetros \\
+        Desenvolvimento & Validação & 5.248 & 21/10/2019 a 27/05/2020 & parada antecipada \\
+        Desenvolvimento & Teste preliminar & 5.249 & 27/05/2020 a 31/12/2020 & estudos preliminares \\
+        Teste final & -- & 26.279 & 01/01/2021 a 31/12/2023 & comparação dos modelos \\
         \bottomrule
     \end{tabular}%
     }
 \end{table}
 
-\section{Formulação da Tarefa}
+\begin{figure}[htbp]
+    \centering
+    \resizebox{\linewidth}{!}{%
+    \begin{tikzpicture}[x=1cm,y=1cm,every node/.style={font=\small}]
+        % escala: 1 ano = 2 cm (2017-01 -> 2024-01 = 14 cm)
+        \fill[blue!25]   (0,0)     rectangle (5.60,0.9);
+        \fill[orange!35] (5.60,0)  rectangle (6.80,0.9);
+        \fill[red!25]    (6.80,0)  rectangle (8.00,0.9);
+        \fill[green!30]  (8.00,0)  rectangle (14,0.9);
+        \draw (0,0) rectangle (14,0.9);
+        \node at (2.8,0.45)  {Treino};
+        \node[font=\scriptsize] at (6.2,0.45) {Valid.};
+        \node[font=\scriptsize,align=center] at (7.4,0.45) {Teste\\prelim.};
+        \node at (11,0.45)   {Teste final};
+        \foreach \x/\y in {0/2017,2/2018,4/2019,6/2020,8/2021,10/2022,12/2023,14/2024}{
+            \draw (\x,0) -- (\x,-0.15); \node[font=\scriptsize,below] at (\x,-0.15) {\y};
+        }
+        \draw[<->] (0,1.25) -- (8,1.25) node[midway,above,font=\scriptsize] {período de desenvolvimento};
+        \draw[<->] (8,1.25) -- (14,1.25) node[midway,above,font=\scriptsize] {teste final: usado uma única vez};
+        % partições da busca de hiperparâmetros (treino + validação)
+        \node[anchor=east,font=\scriptsize] at (-0.1,-1.05) {Partição 1};
+        \node[anchor=east,font=\scriptsize] at (-0.1,-1.55) {Partição 2};
+        \node[anchor=east,font=\scriptsize] at (-0.1,-2.05) {Partição 3};
+        \fill[blue!25,draw=blue!50!black] (0,-1.25) rectangle (3.40,-0.85);
+        \fill[orange!35,draw=orange!60!black] (3.40,-1.25) rectangle (4.42,-0.85);
+        \fill[blue!25,draw=blue!50!black] (0,-1.75) rectangle (4.42,-1.35);
+        \fill[orange!35,draw=orange!60!black] (4.42,-1.75) rectangle (5.44,-1.35);
+        \fill[blue!25,draw=blue!50!black] (0,-2.25) rectangle (5.44,-1.85);
+        \fill[orange!35,draw=orange!60!black] (5.44,-2.25) rectangle (6.46,-1.85);
+        \node[anchor=west,font=\scriptsize,align=left] at (7.0,-1.55) {validação por janela expansiva usada na busca\\de hiperparâmetros, apenas com treino e validação};
+    \end{tikzpicture}%
+    }
+    \caption{Linha do tempo da divisão cronológica (acima) e partições da validação por janela expansiva usadas na busca de hiperparâmetros (abaixo), em azul o treino e em laranja a validação de cada partição. A escala é aproximada. Elaboração própria.}
+    \label{fig:split_datas_sapo}
+\end{figure}
+
+A divisão envolve dois procedimentos de validação, com funções diferentes. Para \emph{escolher} os hiperparâmetros de cada modelo, usa-se a validação por janela expansiva da Seção~\ref{sec:validacao_temporal}, com três partições formadas apenas com o treino e a validação, como mostra a parte de baixo da Figura~\ref{fig:split_datas_sapo}: na primeira partição, o treino ocupa a primeira metade desse período e a validação os 15\% seguintes; em cada partição seguinte, o treino incorpora a validação anterior, e a nova validação ocupa os próximos 15\%. Depois da escolha, cada modelo é treinado uma última vez no bloco de treino, com a validação servindo para a parada antecipada. Por fim, para \emph{medir} a qualidade dos modelos, usa-se o teste final. Ele é necessário mesmo havendo validação cruzada porque, como explicado na Seção~\ref{sec:validacao_temporal}, o erro de validação da configuração escolhida tende a ser otimista: ela foi escolhida justamente por ter o menor erro entre muitas \cite{cawley2010overfitting}. O teste preliminar não serve para essa medida, porque já foi consultado nos estudos preliminares. Por isso, os resultados do Capítulo~\ref{chap:resultados} são os do teste final, e os do teste preliminar são apresentados apenas no Apêndice~\ref{ap:teste_historico}, como complemento.
+
+\section{Cobertura e Lacunas}
+\label{sec:cobertura_lacunas}
+
+A Figura~\ref{fig:eda_sapo_cobertura_lacunas} mostra, na parte de cima, a porcentagem de horas medidas em cada mês, colorida pelo bloco a que o mês pertence. Observe que a maioria dos meses tem mais de 80\% das horas medidas, mas há meses com cobertura muito baixa ao longo de toda a série, como o primeiro semestre de 2018, o fim de 2022 e, sobretudo, dezembro de 2019 e janeiro de 2020, na validação. A parte de baixo da figura lista as maiores lacunas: a maior vai de 11 de dezembro de 2019 a 28 de janeiro de 2020, com 1.158 horas (cerca de 48 dias), e a segunda, de 25 de outubro a 16 de novembro de 2022, no teste final, tem 538 horas. O maior trecho sem nenhuma lacuna tem 544 horas (cerca de 23 dias). Como os modelos precisam de janelas completas, as lacunas são preenchidas, e o registro de quais valores foram preenchidos é mantido.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{eda_sapo_cobertura_lacunas.pdf}
+    \caption{Cobertura mensal de PM2,5 (acima) e maiores lacunas (abaixo) na série da estação Sapo, coloridas pelo bloco cronológico. Elaboração própria.}
+    \label{fig:eda_sapo_cobertura_lacunas}
+\end{figure}
+
+A Tabela~\ref{tab:splits} resume cada bloco. Observe que a validação tem a maior proporção de horas sem medição de PM2,5 (31,73\%), por causa da lacuna de 48 dias, e o teste preliminar tem a menor (6,63\%). As colunas ``Média obs.'' e ``DP obs.'' são a média e o desvio-padrão das horas medidas; ``Horas \(\geq\)35'' conta as horas de pico (Seção~\ref{sec:escolha_estacao}), que são poucas em todos os blocos. A última coluna, ``Entrada propagada'', mede um efeito do preenchimento. Depois do fim do treino, uma lacuna é preenchida repetindo o último valor medido, porque o valor seguinte à lacuna ainda não seria conhecido no momento da previsão; em uma lacuna longa, a entrada do modelo fica, portanto, constante por muitas horas. A coluna informa a porcentagem das horas do bloco que estão em lacunas de 24 horas ou mais, em que a entrada é essa repetição e não uma medição recente. Na validação, isso ocorre em 27,12\% das horas; no teste final, em 5,61\%.
+
+\inputtabela{splits}
+
+\section{Padrões Temporais}
+\label{sec:padroes_temporais}
+
+Os padrões desta seção foram calculados apenas com as horas medidas do período de desenvolvimento (2017 a 2020), sem usar o teste final. Eles servem para três decisões: o tamanho da janela de entrada, o uso do PM10 como variável exógena e o uso de previsões simples como referência.
+
+A Figura~\ref{fig:serie_temporal_componentes_sapo} mostra a decomposição aditiva do PM2,5 (Equação~\ref{eq:decomposicao_aditiva}) em um trecho de quatro meses do treino. A tendência é a média móvel de sete dias; o padrão horário é a média, para cada hora do dia, da série sem a tendência, calculada com todo o período de desenvolvimento; e o resíduo é o que sobra. Observe que o resíduo tem quase o mesmo desenho da série medida, com os mesmos picos. Isso não é um erro da decomposição, mas uma característica da série: o padrão horário é pequeno, com amplitude de cerca de 5~\(\mu\)g/m\(^3\), diante de picos de até 70~\(\mu\)g/m\(^3\) no mesmo trecho. Em todo o período de desenvolvimento, a tendência explica cerca de 53\% da variância da série, o padrão horário apenas 5\% e o resíduo 39\%. Ou seja, a maior parte da variação de uma hora para outra não se repete de forma regular, e os picos, que ficam no resíduo, são o componente menos previsível.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{serie_temporal_componentes_sapo.pdf}
+    \caption{Decomposição aditiva do PM2,5 da estação Sapo em tendência (média móvel de sete dias), padrão horário e resíduo, mostrada de junho a setembro de 2019. Os trechos sem linha são lacunas. Elaboração própria, com base em \citeonline{hyndman2021forecasting}.}
+    \label{fig:serie_temporal_componentes_sapo}
+\end{figure}
+
+A Tabela~\ref{tab:padroes_temporais_sapo} apresenta as autocorrelações (Equação~\ref{eq:autocorrelacao}), calculadas entre pares de horas medidas, e as amplitudes médias dos ciclos. Elas levam às três decisões:
+
+\begin{itemize}
+    \item A autocorrelação do PM2,5 é 0,813 em 1 hora: o valor de uma hora é muito parecido com o da hora anterior. Por isso, repetir o último valor já é uma previsão razoável para as primeiras horas, e previsões simples como essa são referências necessárias para saber se os modelos acrescentam algo.
+    \item A autocorrelação ainda é 0,681 em 24 horas e 0,598 em 48 horas, e cai para 0,461 em uma semana. A informação mais útil está, portanto, nos últimos um ou dois dias, o que orienta a escolha da janela de entrada, descrita a seguir.
+    \item A correlação entre PM2,5 e PM10 medidos no mesmo horário é 0,597, e o PM10 tem o mesmo ciclo diário, mais intenso. Ele ajuda a explicar o PM2,5, sem determiná-lo, e por isso é usado como variável exógena.
+\end{itemize}
+
+\begin{table}[htbp]
+    \centering
+    \caption{Padrões temporais de PM2,5 e PM10 na estação Sapo, calculados com as horas medidas de 2017 a 2020.}
+    \label{tab:padroes_temporais_sapo}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lrrp{0.44\textwidth}}
+        \toprule
+        \textbf{Medida} & \textbf{PM2,5} & \textbf{PM10} & \textbf{Leitura} \\
+        \midrule
+        Autocorrelação em 1 h & 0,813 & 0,734 & Forte persistência de uma hora para a seguinte. \\
+        Autocorrelação em 24 h & 0,681 & 0,564 & Repetição diária relevante. \\
+        Autocorrelação em 48 h & 0,598 & 0,453 & Ainda há informação dois dias antes. \\
+        Autocorrelação em 168 h & 0,461 & 0,360 & Repetição semanal mais fraca que a diária. \\
+        Autocorrelação em 8760 h (um ano) & 0,04 & 0,14 & O mesmo dia do ano anterior quase não ajuda. \\
+        Amplitude média por hora do dia & 4,48 & 11,14 & Ciclo diário claro, mais intenso no PM10. \\
+        Amplitude média por dia da semana & 0,70 & 3,68 & Variação semanal pequena. \\
+        Amplitude média por mês & 8,52 & 12,95 & Concentrações maiores em setembro e outubro. \\
+        \bottomrule
+    \end{tabular}%
+    }
+\end{table}
+
+O perfil horário do PM2,5 tem as menores médias entre a madrugada e o início da tarde (mínimo de cerca de 10,3~\(\mu\)g/m\(^3\) às 13 h) e as maiores no fim da tarde (máximo de cerca de 14,8~\(\mu\)g/m\(^3\) às 18 h). Há também um padrão ao longo do ano. Na média de 2017 a 2020, setembro (14,9~\(\mu\)g/m\(^3\)) e outubro (18,0) são os meses de maior concentração, contra cerca de 10~\(\mu\)g/m\(^3\) nos meses chuvosos; esses meses correspondem ao fim da estação seca na região, período de pouca chuva, em que estudos no Brasil também registram mais episódios de poluição associados a queimadas \cite{requia2021health}. O padrão se repete na maior parte dos anos: setembro e outubro estão entre os dois meses de maior média em cinco dos sete anos da série (2017 e de 2019 a 2022). O nível de cada ano, porém, muda muito, como mostrado na Seção~\ref{sec:dados}: outubro teve média de 26,9~\(\mu\)g/m\(^3\) em 2019 e de 8,1 em 2023. Por isso, a autocorrelação de um ano é de apenas 0,04: o valor do mesmo dia do ano anterior quase não ajuda a prever, mesmo havendo um período do ano com concentrações mais altas. Os modelos recebem a posição no ano pelo mês e pelos termos periódicos anuais, e não pelo valor do ano anterior. Na decomposição da Figura~\ref{fig:serie_temporal_componentes_sapo}, essa variação ao longo do ano aparece na tendência, que é uma média de sete dias.
+
+\section{Horizonte de Previsão e Janela de Entrada}
 \label{sec:formulacao_tarefa}
 
-A tarefa é uma previsão multi-horizonte (Seção~\ref{sec:previsao_multi_horizonte}). Para cada instante de emissão \(t\), o modelo recebe as 48 horas anteriores (\(L=48\), de \(t-47\) a \(t\)) e prevê a concentração de PM2,5 para as 24 horas seguintes (\(H=24\), de \(t+1\) a \(t+24\)), como mostra a Figura~\ref{fig:tarefa_48_24_sapo}. O horizonte de 24 horas corresponde a uma previsão para o dia seguinte e à escala do padrão de qualidade do ar de 24 horas da Resolução nº 491/2018 do Conselho Nacional do Meio Ambiente (CONAMA) \cite{conama2018res491}. A escolha de \(L=48\) é uma decisão de projeto: ela cobre dois ciclos diários e contém as defasagens de 24 e de 48 horas usadas pelas referências simples (Seção~\ref{sec:referencias_comparacao}). Como a autocorrelação de PM2,5 é alta em 1 hora (0,813), ainda relevante em 24 horas (0,681) e moderada em 48 horas (0,598), a janela contém o ciclo diário completo. Para verificar que as conclusões não dependem dessa escolha, a janela foi variada em 24, 48, 72 e 96 horas (Seção~\ref{sec:sensibilidade_janela}).
+A previsão é multi-horizonte (Seção~\ref{sec:previsao_multi_horizonte}). Para cada instante de emissão \(t\), o modelo recebe as 48 horas anteriores (\(L=48\), de \(t-47\) a \(t\)) e prevê a concentração de PM2,5 para cada uma das 24 horas seguintes (\(H=24\), de \(t+1\) a \(t+24\)), como mostra a Figura~\ref{fig:tarefa_48_24_sapo}.
 
-\begin{figure}[!htbp]
+\begin{figure}[htbp]
     \centering
     \resizebox{0.95\linewidth}{!}{%
     \begin{tikzpicture}[
@@ -113,68 +260,27 @@ A tarefa é uma previsão multi-horizonte (Seção~\ref{sec:previsao_multi_horiz
         \node[below=0.35cm of output.south east, anchor=north] {\(t+24\)};
     \end{tikzpicture}%
     }
-    \caption{Formulação da tarefa: as 48 horas até o instante de emissão \(t\) são a entrada, e as 24 horas seguintes são a previsão.}
+    \caption{Horizonte de previsão: as 48 horas até o instante de emissão \(t\) são a entrada, e as 24 horas seguintes são a previsão. Elaboração própria.}
     \label{fig:tarefa_48_24_sapo}
 \end{figure}
 
-\subsection{Divisão Temporal e Período de Confirmação}
-\label{sec:divisao_temporal}
-
-Os dados são divididos por datas em quatro blocos cronológicos (Tabela~\ref{tab:split_temporal_sapo} e Figura~\ref{fig:split_datas_sapo}). O treino ajusta os parâmetros dos modelos e as estatísticas de normalização. A validação serve para a parada antecipada, para a escolha do melhor ponto do treinamento e para a busca de hiperparâmetros (Seção~\ref{sec:treinamento_hpo}). O treino e a validação preservam os limites de etapas exploratórias anteriores (70\% e 15\% do período de 2017 a 2020).
-
-O \emph{teste histórico} (27 de maio a 31 de dezembro de 2020) foi consultado nessas etapas exploratórias, quando algumas escolhas de projeto foram feitas olhando seus resultados. Por isso, ele \textbf{não} é tratado como teste independente: seus resultados são apresentados, mas a evidência confirmatória vem do \emph{período de confirmação} (\textit{holdout}, 2021 a 2023), que nenhuma decisão de projeto observou antes da execução final. Todas as métricas são reportadas separadamente nos dois períodos, atribuindo cada previsão ao instante previsto.
-
-\begin{table}[!htbp]
-    \centering
-    \caption{Divisão cronológica dos dados da estação Sapo.}
-    \label{tab:split_temporal_sapo}
-    \resizebox{\textwidth}{!}{%
-    \begin{tabular}{lrll}
-        \toprule
-        \textbf{Bloco} & \textbf{Horas} & \textbf{Intervalo} & \textbf{Papel} \\
-        \midrule
-        Treino & 24.495 & 04/01/2017 a 21/10/2019 & Ajuste dos pesos e da normalização \\
-        Validação & 5.248 & 21/10/2019 a 27/05/2020 & Parada antecipada, ponto de controle e hiperparâmetros \\
-        Teste histórico & 5.249 & 27/05/2020 a 31/12/2020 & Já consultado no desenvolvimento \\
-        Período de confirmação & 26.279 & 01/01/2021 a 31/12/2023 & Avaliação confirmatória \\
-        \bottomrule
-    \end{tabular}%
-    }
-\end{table}
-
-\begin{figure}[!htbp]
-    \centering
-    \resizebox{\linewidth}{!}{%
-    \begin{tikzpicture}[x=1cm,y=1cm]
-        % escala: 1 ano = 2 cm (2017-01 -> 2024-01 = 14 cm)
-        \fill[blue!25]   (0,0)     rectangle (5.60,0.9);
-        \fill[orange!35] (5.60,0)  rectangle (6.80,0.9);
-        \fill[red!25]    (6.80,0)  rectangle (8.00,0.9);
-        \fill[green!30]  (8.00,0)  rectangle (14,0.9);
-        \draw (0,0) rectangle (14,0.9);
-        \node at (2.8,0.45)  {Treino};
-        \node[font=\scriptsize,align=center] at (6.2,0.45) {Val.};
-        \node[font=\scriptsize,align=center] at (7.4,0.45) {Teste\\hist.};
-        \node at (11,0.45)   {Período de confirmação};
-        \foreach \x/\y in {0/2017,2/2018,4/2019,6/2020,8/2021,10/2022,12/2023,14/2024}{
-            \draw (\x,0) -- (\x,-0.15); \node[font=\scriptsize,below] at (\x,-0.15) {\y};
-        }
-        \draw[<->] (0,1.25) -- (8,1.25) node[midway,above,font=\scriptsize] {desenvolvimento (busca de hiperparâmetros e escolhas de projeto)};
-        \draw[<->] (8,1.25) -- (14,1.25) node[midway,above,font=\scriptsize] {não consultado};
-    \end{tikzpicture}%
-    }
-    \caption{Linha do tempo da divisão cronológica. A escala é aproximada. Val.: validação; Teste hist.: teste histórico.}
-    \label{fig:split_datas_sapo}
-\end{figure}
+O horizonte de 24 horas é uma decisão de projeto: corresponde a prever o dia seguinte, escala usual para planejar ações e emitir alertas de qualidade do ar. A janela de entrada foi definida em estudos preliminares. Neles, o mesmo modelo linear simples foi treinado com janelas de 24, 48 e 168 horas, e o erro médio absoluto no teste preliminar foi de 2,764, 2,767 e 2,824~\(\mu\)g/m\(^3\), respectivamente: ampliar a entrada para uma semana não trouxe ganho, e 24 e 48 horas ficaram praticamente iguais. A janela de 48 horas foi mantida por cobrir dois ciclos diários completos e incluir os valores de 24 e 48 horas antes, que ainda têm autocorrelação relevante (Tabela~\ref{tab:padroes_temporais_sapo}). Com os modelos finais, a janela foi novamente variada em 24, 48, 72 e 96 horas, usando apenas o erro de validação, para verificar que as conclusões não dependem dela; esse resultado é apresentado junto com os demais, no Capítulo~\ref{chap:resultados}.
 
 \section{Pré-processamento}
 \label{sec:preprocessamento}
 
-O pré-processamento foi desenhado para evitar vazamento temporal (Seção~\ref{sec:dados_faltantes_imputacao}). Os valores ausentes são preenchidos por interpolação linear no tempo apenas dentro do trecho de treino. Depois do fim do treino, não se usam medições futuras: a transformação apenas repete o último valor disponível até que uma nova medição apareça. Para cada variável preenchida, mantém-se um indicador de ausência, uma variável que vale 1 nos instantes em que o valor original estava faltando. O conjunto de dados é uma função determinística do arquivo original e da data de corte do treino, o que permite recriá-lo com qualquer corte.
+O pré-processamento foi desenhado para evitar vazamento temporal (Seção~\ref{sec:dados_faltantes_imputacao}). Seguindo os trabalhos que indicam métodos univariados simples para séries de qualidade do ar com lacunas \cite{junninen2004methods,moritz2017imputets,hadeed2020imputation}, as lacunas são preenchidas de duas formas, conforme o bloco:
 
-Essa propriedade é essencial para a busca de hiperparâmetros. Em etapas exploratórias anteriores, o arquivo já preenchido era reutilizado antes de formar as partições da validação, de modo que a interpolação podia consultar valores posteriores ao corte de uma partição. Na comparação final, cada partição da validação por janela expansiva recria o conjunto a partir do arquivo original cortado no fim do seu próprio treino, com o preenchimento ajustado até esse ponto. Testes automatizados verificam que alterar valores originais posteriores ao corte não muda nenhuma linha anterior a ele.
+\begin{itemize}
+    \item \textbf{Dentro do treino}, por interpolação linear no tempo entre o último valor medido antes da lacuna e o primeiro depois dela. Como os dois valores pertencem ao próprio treino, nenhuma informação da validação ou do teste é usada.
+    \item \textbf{Depois do fim do treino}, repetindo o último valor medido até que uma nova medição apareça. A interpolação exigiria conhecer o valor posterior à lacuna, que, no momento da previsão, ainda não existiria.
+\end{itemize}
 
-A imputação tem duas consequências. Primeiro, em lacunas longas posteriores ao corte, a entrada do modelo fica constante (por exemplo, na lacuna de 48 dias da validação); isso reproduz o que ocorreria em operação, mas significa que parte das janelas contém valores repetidos, e sua fração é informada na Tabela~\ref{tab:splits}. Segundo, a interpolação linear dentro do treino usa valores posteriores do próprio treino, enquanto na inferência só é possível repetir o último valor; os indicadores de ausência atenuam essa diferença, mas não a eliminam.
+Por exemplo, se a validação tem as medições 15, --, --, 21, as lacunas são preenchidas com 15 e 15, e não com 17 e 19. Para cada variável preenchida, mantém-se um indicador de ausência, que vale 1 nos instantes em que o valor original estava faltando e 0 nos medidos; no exemplo, o indicador é 0, 1, 1, 0. O indicador entra como variável de entrada em todos os modelos, para que eles possam distinguir valores medidos de valores preenchidos, como proposto por \citeonline{lipton2016directly} e \citeonline{che2018recurrent} (Seção~\ref{sec:relacionados_imputacao}). Além disso, os instantes cujo valor a prever foi preenchido ficam fora da perda de treinamento e das métricas de avaliação, pelos motivos explicados junto às métricas.
+
+O conjunto de dados é recriado a partir do arquivo original e da data de corte do treino. Isso é essencial para a busca de hiperparâmetros: cada partição da validação por janela expansiva (Figura~\ref{fig:split_datas_sapo}) recria o conjunto com o corte no fim do seu próprio treino, de modo que a interpolação nunca usa valores posteriores a esse corte. Nos estudos preliminares, o arquivo já preenchido era reutilizado em todas as partições, e a interpolação podia usar valores posteriores ao corte de uma partição; esse vazamento foi corrigido na comparação final. Testes automatizados verificam que alterar valores originais posteriores ao corte não muda nenhuma linha anterior a ele.
+
+O preenchimento tem duas consequências. Primeiro, em lacunas longas depois do corte, a entrada do modelo fica constante, como mostra a coluna ``Entrada propagada'' da Tabela~\ref{tab:splits}; isso reproduz o que ocorreria em uso real. Segundo, no treino a interpolação produz trechos suaves, enquanto nos demais blocos só é possível repetir o último valor; os indicadores de ausência atenuam essa diferença, mas não a eliminam.
 
 A normalização coloca cada variável em escala comparável, subtraindo a média e dividindo pelo desvio-padrão, conforme a Equação~\ref{eq:normalizacao}.
 
@@ -183,102 +289,102 @@ A normalização coloca cada variável em escala comparável, subtraindo a médi
     \label{eq:normalizacao}
 \end{equation}
 
-Na Equação~\ref{eq:normalizacao}, \(\mu_{\text{treino}}\) e \(\sigma_{\text{treino}}\) são a média e o desvio-padrão da variável, calculados somente com o bloco de treino e aplicados igualmente aos blocos de validação e de teste.
+\noindent onde \(x_t\) é o valor da variável no instante \(t\), \(\tilde{x}_t\) é o valor normalizado, e \(\mu_{\text{treino}}\) e \(\sigma_{\text{treino}}\) são a média e o desvio-padrão da variável calculados somente com o bloco de treino e aplicados igualmente à validação e aos testes.
 
 \section{Variáveis}
 \label{sec:variaveis}
 
-O conjunto de variáveis foi mantido enxuto, pois só o PM2,5, o PM10 e as partículas totais em suspensão têm medições (Seção~\ref{sec:dados}). O codificador (ou a entrada, nos modelos sem codificador) recebe o PM2,5, o PM10, seus indicadores de ausência e atributos de calendário. Os modelos que aceitam entradas para o horizonte futuro recebem apenas variáveis cujo valor pode ser determinado no instante de emissão: termos periódicos e duas variáveis derivadas do PM10. A Tabela~\ref{tab:variaveis_contrato} resume os grupos.
+O conjunto de variáveis é enxuto, porque a estação só mede PM2,5, PM10 e partículas totais em suspensão (Seção~\ref{sec:dados}). A Tabela~\ref{tab:variaveis_contrato} resume os grupos.
 
-\begin{table}[!htbp]
+\begin{table}[htbp]
     \centering
     \caption{Variáveis utilizadas pelos modelos.}
     \label{tab:variaveis_contrato}
-    \resizebox{\textwidth}{!}{%
-    \begin{tabular}{lll}
+    \small
+    \begin{tabular}{>{\raggedright\arraybackslash}p{0.2\textwidth}>{\raggedright\arraybackslash}p{0.38\textwidth}>{\raggedright\arraybackslash}p{0.33\textwidth}}
         \toprule
         \textbf{Grupo} & \textbf{Variáveis} & \textbf{Uso} \\
         \midrule
-        Alvo e histórico & PM2,5 & Entrada histórica e valor a prever \\
-        Poluente auxiliar & PM10 & Entrada histórica \\
+        Valor a prever & PM2,5 & Entrada histórica e valor a prever \\
+        Variável exógena & PM10 & Entrada histórica \\
         Ausência & Indicadores de ausência do PM2,5 e do PM10 & Informar quais valores foram preenchidos \\
-        Calendário & Hora do dia, dia da semana e mês & Ciclos discretos \\
-        Termos periódicos & Seno e cosseno com períodos de 6, 12, 24, 168 e 8760 horas & Ciclos contínuos \\
-        PM10 do dia anterior & PM10 na mesma hora, 24 horas antes & Informação sobre o PM10 conhecida no instante de emissão \\
-        Tendência do PM10 & PM10 24 horas antes menos PM10 27 horas antes & Direção recente do PM10, também conhecida no instante de emissão \\
+        Calendário & Hora do dia, dia da semana e mês & Posição nos ciclos (valores inteiros) \\
+        Termos periódicos & Seno e cosseno com períodos de 6, 12, 24, 168 e 8760 horas & Posição nos ciclos (valores contínuos) \\
+        PM10 do dia anterior & PM10 na mesma hora, 24 horas antes & Informação do PM10 já conhecida no instante de emissão \\
+        Tendência do PM10 & PM10 24 horas antes menos PM10 27 horas antes & Direção recente do PM10, também já conhecida \\
         \bottomrule
-    \end{tabular}%
-    }
+    \end{tabular}
 \end{table}
 
-As duas variáveis derivadas do PM10 usam valores defasados de 24 e 27 horas em relação ao instante previsto. Como a previsão é emitida em \(t\) e o instante previsto está no máximo em \(t+24\), essas defasagens são sempre anteriores a \(t\), e não pressupõem conhecer o PM10 futuro.
+Os atributos de calendário e os termos periódicos seguem a Seção~\ref{sec:janelas_variaveis_exogenas}: os períodos de 24, 168 e 8760 horas representam os ciclos diário, semanal e anual, e os de 6 e 12 horas, subdivisões do dia; para cada período, usam-se o seno e o cosseno do ciclo e de seu dobro (dois harmônicos), o que dá 20 termos. As duas variáveis derivadas do PM10 usam valores defasados de 24 e 27 horas em relação ao instante previsto. Como a previsão é emitida em \(t\) e o instante previsto está no máximo em \(t+24\), esses valores são sempre anteriores ou iguais a \(t\) e já são conhecidos quando a previsão é feita.
 
-Distinguem-se dois papéis das variáveis. As \emph{covariáveis do passado} são conhecidas apenas até o instante de emissão \(t\): PM2,5, PM10, seus indicadores, o calendário e os termos periódicos das 48 horas anteriores. As \emph{covariáveis futuras conhecidas} têm valor determinável em \(t\) para cada hora do horizonte: os 20 termos periódicos (seno e cosseno) e as duas variáveis derivadas do PM10. Nenhum valor observado depois de \(t\) entra em nenhum modelo. O conjunto de variáveis, a janela de 48 horas e a lista de covariáveis futuras são idênticos para todos os modelos; o que difere é a forma de consumi-los. A LSTM e o Seq2Seq recebem a janela como sequência, e as covariáveis futuras separadamente. O XGBoost e a regressão Ridge recebem a janela em uma única linha (\(48\times 30\) valores, contando um identificador constante da estação) concatenada às 23 covariáveis futuras de cada uma das 24 horas, o que totaliza 1.992 atributos. Um teste automatizado verifica que a lista de covariáveis futuras é a mesma em todos os modelos.
+As variáveis têm dois papéis. As do \emph{passado} são conhecidas apenas até o instante de emissão \(t\): PM2,5, PM10, seus indicadores, o calendário e os termos periódicos das 48 horas anteriores; elas formam a janela de entrada \(\mathbf{x}_{t-L+1:t}\) da Equação~\ref{eq:janela_supervisionada}. As \emph{conhecidas de antemão} têm valor determinável em \(t\) para cada hora do horizonte: os 20 termos periódicos e as duas variáveis derivadas do PM10; elas formam \(\mathbf{z}_{t+1:t+H}\). Nenhum valor observado depois de \(t\) entra em nenhum modelo. As variáveis, a janela de 48 horas e as variáveis conhecidas de antemão são idênticas para todos os modelos; o que difere é a forma de recebê-las. A LSTM e o Seq2Seq recebem a janela como sequência, e as variáveis conhecidas de antemão separadamente. O XGBoost e a regressão Ridge recebem a janela em uma única linha (\(48\times 30\) valores, contando um identificador constante da estação), seguida das 23 variáveis conhecidas de antemão de cada uma das 24 horas, o que totaliza 1.992 atributos. Um teste automatizado verifica que a lista de variáveis conhecidas de antemão é a mesma em todos os modelos.
 
 \section{Modelos}
 \label{sec:modelos}
 
-Foram comparadas cinco redes neurais e um modelo baseado em árvores, além de referências simples e de uma regressão linear (Tabela~\ref{tab:modelos_metodologia}). Nos nomes, ``padrão'' e ``adaptado'' referem-se às duas versões do Seq2Seq com atenção descritas adiante.
+Foram comparados modelos de quatro famílias: redes LSTM, modelos Seq2Seq, XGBoost e regressão linear. Ao todo, sete modelos foram treinados, e cinco previsões ingênuas, que não são treinadas, servem de referência (Tabela~\ref{tab:modelos_metodologia}). A tabela também indica a estratégia multi-horizonte de cada modelo (Seção~\ref{sec:previsao_multi_horizonte}), pois as três estratégias estão representadas.
 
-\begin{table}[!htbp]
+\begin{table}[htbp]
     \centering
-    \caption{Modelos e referências avaliados.}
+    \caption{Modelos comparados, por família.}
     \label{tab:modelos_metodologia}
-    \resizebox{\textwidth}{!}{%
-    \begin{tabular}{lll}
+    \small
+    \begin{tabular}{>{\raggedright\arraybackslash}p{0.14\textwidth}>{\raggedright\arraybackslash}p{0.25\textwidth}>{\raggedright\arraybackslash}p{0.37\textwidth}c}
         \toprule
-        \textbf{Modelo} & \textbf{Descrição} & \textbf{Papel na comparação} \\
+        \textbf{Família} & \textbf{Modelo} & \textbf{Como produz as 24 horas} & \textbf{Treinado} \\
         \midrule
-        LSTM recursiva & Prevê uma hora por vez e reinsere a previsão como entrada & Estratégia recursiva \\
-        LSTM direta & Produz as 24 horas de uma vez a partir do estado final da janela & Estratégia direta \\
-        Seq2Seq básico & Codificador e decodificador recorrentes, sem atenção & Codificador-decodificador mínimo \\
-        Seq2Seq atenção padrão & Codificador-decodificador com atenção aditiva sobre as 48 posições & Atenção como proposta na literatura \\
-        Seq2Seq atenção adaptado & Seq2Seq com atenção com quatro modificações (descritas adiante) & Variante desenhada para esta série \\
-        XGBoost por horizonte & Um modelo de árvores impulsionadas para cada uma das 24 horas & Modelo baseado em árvores \\
-        Previsores ingênuos & Repetição de valores passados (definidos adiante) & Piso de desempenho \\
-        Regressão Ridge & Regressão linear regularizada, um modelo por horizonte & Referência linear \\
+        LSTM & LSTM recursiva & Recursiva: prevê uma hora e reinsere a previsão & sim \\
+        LSTM & LSTM direta & Direta: as 24 horas de uma vez, a partir da janela resumida & sim \\
+        Seq2Seq & Seq2Seq básico & Codificador-decodificador, sem atenção & sim \\
+        Seq2Seq & Seq2Seq com atenção padrão & Codificador-decodificador com atenção & sim \\
+        Seq2Seq & Seq2Seq com atenção adaptado & Codificador-decodificador com atenção modificada para a série & sim \\
+        XGBoost & XGBoost por horizonte & Direta: um modelo de árvores para cada hora & sim \\
+        Regressão linear & Ridge por horizonte & Direta: uma regressão para cada hora & sim \\
+        Referências & Cinco previsões ingênuas & Repetição ou média de valores passados & não \\
         \bottomrule
-    \end{tabular}%
-    }
+    \end{tabular}
 \end{table}
 
 \subsection{Redes Recorrentes e Seq2Seq}
 
-A \textbf{LSTM direta} lê a janela de 48 horas e agrega os estados da sequência (pelo último estado, pela média ou por atenção, o que é escolhido na busca de hiperparâmetros) em um vetor, do qual uma camada final produz as 24 previsões de uma vez, junto com as covariáveis futuras conhecidas. A \textbf{LSTM recursiva} prevê apenas uma hora à frente e realimenta a previsão para obter as horas seguintes, mantendo as covariáveis futuras conhecidas de cada hora. O \textbf{Seq2Seq básico} usa um codificador LSTM e um decodificador LSTM autorregressivo sem atenção; durante o treinamento, o decodificador recebe o valor real anterior (\textit{teacher forcing}, Seção~\ref{sec:teacher_forcing}).
+A \textbf{LSTM direta} lê a janela de 48 horas e resume os estados da sequência em um vetor (pelo último estado, pela média ou por atenção, o que é escolhido na busca de hiperparâmetros), do qual uma camada final produz as 24 previsões de uma vez, junto com as variáveis conhecidas de antemão. A \textbf{LSTM recursiva} prevê apenas uma hora à frente e reinsere a previsão na janela para obter as horas seguintes, recebendo as variáveis conhecidas de antemão de cada hora. O \textbf{Seq2Seq básico} usa um codificador LSTM e um decodificador LSTM autorregressivo, sem atenção.
 
-O \textbf{Seq2Seq com atenção padrão} usa o codificador LSTM, o decodificador LSTM e a atenção aditiva de \citeonline{bahdanau2014neural} (Equação~\ref{eq:atencao_aditiva}) sobre as 48 posições da janela, com a entrada do passo anterior fornecida ao decodificador (\textit{input feeding}, \citeonline{luong2015effective}). Em ambas as versões com atenção, o decodificador é \emph{semidireto}: em vez da previsão ou do valor real do passo anterior, ele recebe em todos os passos o último valor observado em \(t\), as covariáveis futuras conhecidas do horizonte e o contexto de atenção. Assim, cada horizonte depende apenas dessas entradas e do estado do codificador, e o modelo se comporta como um preditor direto, sem realimentação de previsões, o que elimina o acúmulo de erros e torna o \textit{teacher forcing} irrelevante para elas. O codificador também inclui uma seleção contextual das variáveis de entrada, inspirada na atenção de entrada do modelo DA-RNN (\textit{Dual-stage Attention-based Recurrent Neural Network}) \cite{qin2017darnn}, e uma camada linear que liga diretamente as entradas do passo à saída \cite{cheng2016wide}.
+Os dois modelos que reutilizam as próprias previsões são treinados de formas diferentes (Seção~\ref{sec:teacher_forcing}). A LSTM recursiva é treinada em \textit{free running}: já no treinamento, ela recebe as próprias previsões ao avançar pelas 24 horas, e a perda é calculada sobre as 24 horas previstas, exatamente como no uso real. O Seq2Seq básico é treinado com \textit{teacher forcing}, a forma original desses modelos \cite{sutskever2014sequence}: no treinamento, o decodificador recebe sempre o valor real da hora anterior, e só na previsão passa a receber a própria previsão. Cada modelo foi mantido na forma usual da sua arquitetura; a forma de treinamento não foi comparada isoladamente, o que é uma limitação deste estudo.
 
-O \textbf{Seq2Seq com atenção adaptado} altera quatro pontos do padrão. Primeiro, o estado do decodificador é reiniciado a cada horizonte, de modo que cada hora é prevista de forma independente das demais. Segundo, não usa \textit{input feeding}. Terceiro, a consulta de atenção é condicionada ao número do horizonte e às covariáveis futuras. Quarto, a atenção é calculada sobre seis faixas de defasagem, e não sobre as 48 posições: a última hora, as últimas 6 horas, as últimas 24 horas, o mesmo horário do dia anterior, o mesmo horário de dois dias antes e o restante da janela, cada faixa resumida pela média dos estados do codificador naquelas posições. Essas quatro alterações são decisões de projeto, motivadas pela estrutura diária da série, e não métodos estabelecidos na literatura; por isso são avaliadas uma a uma (Seção~\ref{sec:fatores}).
+O \textbf{Seq2Seq com atenção padrão} usa o codificador LSTM, o decodificador LSTM e a atenção aditiva de \citeonline{bahdanau2014neural} (Equação~\ref{eq:atencao_aditiva}) sobre as 48 posições da janela, com o contexto do passo anterior também fornecido ao decodificador (\textit{input feeding}) \cite{luong2015effective}. Nas duas versões com atenção, o decodificador não é autorregressivo: em vez da previsão ou do valor real do passo anterior, ele recebe em todos os passos o último valor observado em \(t\), as variáveis conhecidas de antemão daquela hora e o contexto de atenção, como no MQ-RNN \cite{wen2017mqrnn}. Assim, nenhuma previsão é reutilizada como entrada, o que evita o acúmulo de erros, e treino e uso recebem as mesmas entradas: nem \textit{teacher forcing} nem \textit{free running} se aplicam a esses dois modelos (Seção~\ref{sec:teacher_forcing}). O codificador também inclui uma seleção das variáveis de entrada, inspirada na primeira atenção do modelo DA-RNN (\textit{Dual-stage Attention-based Recurrent Neural Network}) \cite{qin2017darnn}, e uma camada linear que liga diretamente as entradas à saída \cite{cheng2016wide}.
 
-\subsection{Previsores de Referência}
+O \textbf{Seq2Seq com atenção adaptado} altera quatro pontos do padrão. Primeiro, o estado do decodificador é reiniciado a cada hora do horizonte, de modo que cada hora é prevista de forma independente das demais. Segundo, não usa \textit{input feeding}. Terceiro, o cálculo da atenção recebe também o número da hora prevista e as variáveis conhecidas de antemão. Quarto, a atenção é calculada sobre seis faixas da janela, e não sobre as 48 posições: a última hora, as últimas 6 horas, as últimas 24 horas, o mesmo horário do dia anterior, o mesmo horário de dois dias antes e o restante da janela, cada faixa resumida pela média dos estados do codificador naquelas posições. As faixas acompanham o ciclo diário da série, na linha da observação de \citeonline{cinar2017position} de que a atenção original não considera a sazonalidade. Essas quatro alterações são decisões de projeto, e não métodos estabelecidos; por isso, cada uma é avaliada separadamente, como fator de projeto.
+
+\subsection{Previsões de Referência e Regressão Ridge}
 \label{sec:referencias_comparacao}
 
-Sem referências simples, um erro isolado não indica se o modelo agrega valor \cite{makridakis2018statistical}. Foram usados cinco previsores ingênuos clássicos \cite{hyndman2021forecasting}. Seja \(y(t)\) o valor mais recente da série no instante de emissão \(t\) e \(\hat{y}(t+h)\) a previsão para o horizonte \(h=1,\ldots,24\):
+Sem previsões de referência, um erro isolado não indica se o modelo acrescenta algo \cite{hyndman2021forecasting,zeng2023transformers}. Foram usadas cinco previsões ingênuas clássicas \cite{hyndman2021forecasting}, que não têm parâmetros a treinar. Seja \(y(t)\) o valor mais recente da série no instante de emissão \(t\) e \(\hat{y}(t+h)\) a previsão para o horizonte \(h=1,\ldots,24\):
 
 \begin{itemize}
     \item \textbf{Persistência:} \(\hat{y}(t+h)=y(t)\), isto é, repete o último valor;
     \item \textbf{Sazonal de 24 horas:} \(\hat{y}(t+h)=y(t+h-24)\), o valor da mesma hora no dia anterior;
-    \item \textbf{Sazonal de 48 horas:} \(\hat{y}(t+h)=y(t+h-48)\);
+    \item \textbf{Sazonal de 48 horas:} \(\hat{y}(t+h)=y(t+h-48)\), o valor da mesma hora dois dias antes;
     \item \textbf{Média móvel de 6 horas:} \(\hat{y}(t+h)=\frac{1}{6}\sum_{k=0}^{5} y(t-k)\);
     \item \textbf{Média móvel de 24 horas:} \(\hat{y}(t+h)=\frac{1}{24}\sum_{k=0}^{23} y(t-k)\).
 \end{itemize}
 
-Os valores \(y(\cdot)\) vêm da série já preenchida, como nos modelos. Além disso, a regressão Ridge \cite{hoerl1970ridge}, uma regressão linear com penalização dos coeficientes, usa o mesmo vetor de 1.992 atributos do XGBoost, padronizado com as estatísticas do treino, com o coeficiente de penalização escolhido na validação entre \(\{0{,}1;\,1;\,10;\,10^2;\,10^3;\,10^4\}\). Ela mede quanto do desempenho é explicado por uma relação linear nesses atributos. A habilidade (Seção~\ref{sec:metricas_avaliacao}) usa a média móvel de 24 horas como referência, por ser o melhor previsor ingênuo em etapas exploratórias anteriores.
+Os valores \(y(\cdot)\) vêm da série já preenchida, como nos modelos. A regressão Ridge \cite{hoerl1970ridge} é uma regressão linear em que os coeficientes grandes são penalizados, o que a torna estável mesmo com muitos atributos. Ela usa os mesmos 1.992 atributos do XGBoost, normalizados com as estatísticas do treino, e o coeficiente de penalização é escolhido na validação entre \(\{0{,}1;\,1;\,10;\,10^2;\,10^3;\,10^4\}\). A Ridge mede quanto do desempenho pode ser obtido com uma relação apenas linear entre os atributos e a previsão. A habilidade (Equação~\ref{eq:skill}) usa a média móvel de 24 horas como referência, por ter sido a melhor previsão ingênua nos estudos preliminares.
 
 \subsection{XGBoost e Regressão Ridge por Horizonte}
 
-O XGBoost e a regressão Ridge seguem a estratégia direta \cite{taieb2012review}: um modelo para cada horizonte, todos com os mesmos hiperparâmetros. Cada modelo é treinado com todas as janelas cujo alvo, \emph{naquele horizonte}, foi medido; as linhas restantes recebem peso zero. Essa é a mesma regra das redes, em que apenas os pontos sem medição ficam fora da perda. Uma versão anterior treinava um único modelo com as 24 saídas e exigia as 24 medidas na mesma janela, o que descartava cerca de 70\% das janelas de treino e esgotava a memória de uma placa de vídeo de 8~GB; ela foi abandonada por criar uma desvantagem de dados para o XGBoost. O objetivo de treinamento do XGBoost é o erro absoluto, consistente com o MAE \cite{gneiting2011making}.
+O XGBoost e a regressão Ridge seguem a estratégia direta \cite{taieb2012review}: um modelo para cada uma das 24 horas do horizonte, todos com os mesmos hiperparâmetros. Cada modelo é treinado com todas as janelas cujo valor a prever, \emph{naquela hora}, foi medido; as demais janelas recebem peso zero. É a mesma regra das redes, em que apenas os pontos sem medição ficam fora da perda. Uma versão anterior treinava um único modelo com as 24 saídas e exigia as 24 medições na mesma janela, o que descartava cerca de 70\% das janelas de treino; ela foi abandonada por criar uma desvantagem de dados para o XGBoost. O objetivo de treinamento do XGBoost é o erro absoluto, coerente com o MAE \cite{gneiting2011making}.
 
 \subsection{Fatores Estudados}
 \label{sec:fatores}
 
-Para que as diferenças entre modelos possam ser atribuídas à sua causa, quatro fatores que variavam juntos em etapas anteriores foram separados. Cada um é alterado sozinho em relação a um caso base.
+Para que as diferenças entre modelos possam ser atribuídas à sua causa, quatro fatores que variavam juntos nos estudos preliminares foram separados. Cada um é alterado sozinho em relação a um caso base.
 
 \begin{enumerate}
-    \item \textbf{Arquitetura}, comparada com a perda de Huber e sem aprendizado residual em todas as redes (comparação principal).
-    \item \textbf{Função de perda:} perda de Huber contra uma perda absoluta ponderada, aplicada a todas as arquiteturas. A perda ponderada multiplica o erro absoluto por pesos maiores quando o valor observado excede 15 e 35~\(\mu\)g/m\(^3\), e por um fator adicional quando a previsão fica abaixo de um valor alto (Equação~\ref{eq:perda_ponderada}). Os pesos são uma decisão de projeto, fixos e motivados pelo aprendizado sensível ao custo \cite{elkan2001foundations} e pela ideia de penalizar de forma assimétrica os erros de subestimação, como nas perdas quantílicas \cite{koenker1978regression}.
-    \item \textbf{Aprendizado residual:} a rede prevê a correção sobre uma previsão de base, \(\hat{y}_{t+k}=b_{t+k}+g_{\theta}(\cdot)\), em que \(b_{t+k}\) é a média entre o último valor observado e os valores de 24 e 48 horas antes do instante previsto, uma composição de previsores ingênuos. Está disponível para a LSTM direta e para o Seq2Seq adaptado.
-    \item \textbf{Perda auxiliar de evento:} uma saída adicional do Seq2Seq adaptado prevê, durante o treinamento, se haverá concentração acima de 25 e de 35~\(\mu\)g/m\(^3\), segundo a lógica de aprendizado com várias tarefas \cite{caruana1997multitask}.
+    \item \textbf{Arquitetura}, comparada com a perda de Huber e sem aprendizado residual em todas as redes. Esta é a comparação principal.
+    \item \textbf{Função de perda:} perda de Huber (Equação~\ref{eq:huber}) contra uma perda absoluta ponderada, aplicada a todas as redes. A perda ponderada multiplica o erro absoluto por pesos maiores quando o valor observado é de pelo menos 15~\(\mu\)g/m\(^3\) e, maiores ainda, nas horas de pico (pelo menos 35~\(\mu\)g/m\(^3\)), e por um fator adicional quando, em uma hora de pico, a previsão fica abaixo do observado (Equação~\ref{eq:perda_ponderada}). Os pesos são uma decisão de projeto, fixos e motivados pelo aprendizado sensível ao custo \cite{elkan2001foundations} e pela ideia de penalizar mais os erros de subestimação, como nas perdas quantílicas \cite{koenker1978regression}.
+    \item \textbf{Aprendizado residual:} a rede prevê a correção sobre uma previsão de base, \(\hat{y}_{t+k}=b_{t+k}+g_{\theta}(\cdot)\), em que \(b_{t+k}\) é a média entre o último valor observado e os valores de 24 e 48 horas antes do instante previsto, uma combinação das previsões ingênuas. Está disponível para a LSTM direta e para o Seq2Seq adaptado.
+    \item \textbf{Perda auxiliar de pico:} uma saída adicional do Seq2Seq adaptado prevê, durante o treinamento, se cada hora será uma hora de pico (pelo menos 35~\(\mu\)g/m\(^3\)) e se terá pelo menos 25~\(\mu\)g/m\(^3\), segundo a lógica de aprendizado com várias tarefas \cite{caruana1997multitask}; essa saída serve apenas para orientar o treinamento e não é usada na previsão.
 \end{enumerate}
 
 \begin{equation}
@@ -289,88 +395,59 @@ Para que as diferenças entre modelos possam ser atribuídas à sua causa, quatr
     \label{eq:perda_ponderada}
 \end{equation}
 
-Na Equação~\ref{eq:perda_ponderada}, \(\mathcal{O}\) é o conjunto de pares (exemplo \(i\), horizonte \(k\)) cujo valor foi efetivamente medido, \(y_{i,k}\) é o valor observado, \(\hat{y}_{i,k}\) é a previsão e \(w_{i,k}\) é o peso definido acima. Esta é uma perda absoluta ponderada sobre as previsões, e não uma regularização dos parâmetros.
+\noindent onde \(\mathcal{O}\) é o conjunto de pares (exemplo \(i\), horizonte \(k\)) cujo valor foi efetivamente medido, \(y_{i,k}\) é o valor observado, \(\hat{y}_{i,k}\) é a previsão e \(w_{i,k}\) é o peso definido acima. Esta é uma perda absoluta ponderada sobre as previsões, e não uma penalidade sobre os parâmetros.
 
-Além disso, cada uma das quatro alterações do Seq2Seq adaptado é removida individualmente, mantendo os hiperparâmetros do modelo completo, para medir sua contribuição. E as variáveis do PM10 são removidas em dois cenários: mantendo o PM10 apenas no histórico (sem as duas variáveis derivadas para o futuro) e removendo o PM10 por completo, para a LSTM direta e para o XGBoost, cada cenário com sua própria busca de hiperparâmetros.
+Além disso, cada uma das quatro alterações do Seq2Seq adaptado é removida individualmente, mantendo os hiperparâmetros do modelo completo, para medir sua contribuição. E as variáveis do PM10 são removidas em dois cenários: mantendo o PM10 apenas na janela de entrada (sem as duas variáveis conhecidas de antemão) e removendo o PM10 por completo, para a LSTM direta e para o XGBoost, cada cenário com sua própria busca de hiperparâmetros.
 
-\subsection{O Que É Igual e O Que Muda Entre os Modelos}
+\subsection{Diferenças Inevitáveis Entre os Modelos}
 
-A Tabela~\ref{tab:protocolo_igual} lista o que é idêntico para todos os modelos e a Tabela~\ref{tab:protocolo_casos} lista, caso a caso, o que muda. Três diferenças não podem ser eliminadas: (i) o XGBoost não tem épocas nem agenda de taxa de aprendizado, usa a parada antecipada própria e não aceita a perda ponderada; (ii) a LSTM recursiva realimenta a própria previsão e, por isso, não tem versão com aprendizado residual; (iii) os casos que alteram apenas a perda, o aprendizado residual ou o desenho reaproveitam os hiperparâmetros encontrados para o caso de Huber da mesma arquitetura, o que isola o efeito do fator, ao custo de possivelmente subestimar cada variante. O efeito desse reaproveitamento é verificado refazendo a busca para a perda ponderada em duas arquiteturas (Seção~\ref{sec:sensibilidades}).
+Dados, variáveis, divisão temporal, preenchimento, normalização, busca de hiperparâmetros e avaliação são os mesmos para todos os modelos. Três diferenças, porém, não podem ser eliminadas: (i) o XGBoost não tem épocas nem agenda de taxa de aprendizado, usa a sua própria parada antecipada e não aceita a perda ponderada; (ii) a LSTM recursiva reinsere a própria previsão e, por isso, não tem versão com aprendizado residual; (iii) os casos que alteram apenas a perda, o aprendizado residual ou o desenho reaproveitam os hiperparâmetros encontrados para o caso com perda de Huber da mesma arquitetura, o que isola o efeito do fator, ao custo de possivelmente prejudicar cada variante. O efeito desse reaproveitamento é verificado refazendo a busca para a perda ponderada em duas arquiteturas.
 
-\inputtabela{protocolo_igual}
-
-\inputtabela{protocolo_casos}
-
-Transformers para séries temporais, como o \textit{Temporal Fusion Transformer}, o Informer, o Autoformer e o PatchTST \cite{lim2021tft,zhou2021informer,wu2021autoformer,nie2023patchtst}, não foram incluídos: uma comparação justa exigiria outro espaço de hiperparâmetros, um orçamento de busca equivalente e várias sementes. Além disso, a literatura não indica que eles superem automaticamente os demais modelos \cite{zeng2023transformers}. O recorte deste estudo é comparar redes recorrentes, modelos baseados em árvores e referências simples sob o mesmo tratamento dos dados.
+Transformers para séries temporais, como o \textit{Temporal Fusion Transformer}, o Informer, o Autoformer e o PatchTST \cite{lim2021tft,zhou2021informer,wu2021autoformer,nie2023patchtst}, não foram incluídos: uma comparação justa exigiria outro espaço de hiperparâmetros, um orçamento de busca equivalente e várias sementes, e a literatura não indica que eles superem automaticamente os demais modelos \cite{zeng2023transformers}. O foco deste estudo é comparar redes recorrentes, um modelo baseado em árvores, uma regressão linear e previsões ingênuas sob o mesmo tratamento dos dados.
 
 \section{Treinamento e Busca de Hiperparâmetros}
 \label{sec:treinamento_hpo}
 
-Todos os modelos passam pelo mesmo procedimento (Tabela~\ref{tab:protocolo_igual}). Os hiperparâmetros de cada arquitetura são escolhidos por validação por janela expansiva com três partições (Seção~\ref{sec:validacao_temporal}), dentro dos blocos de treino e validação e sem acesso ao teste histórico nem ao período de confirmação. Cada partição recria a série preenchida a partir do arquivo original cortado no seu fim, e o critério de escolha é o MAE médio das partições, calculado apenas em alvos medidos. O orçamento é o mesmo para todas as famílias: 24 tentativas por arquitetura, com até 18 épocas por tentativa nas redes e a parada antecipada própria no XGBoost. Durante a busca, as janelas de treino avançam de 4 em 4 horas por custo computacional; o treino final avança de 2 em 2 horas e a avaliação, de 1 em 1 hora, para todos os modelos.
+Os hiperparâmetros de cada arquitetura são escolhidos pela validação por janela expansiva com três partições (Figura~\ref{fig:split_datas_sapo}), dentro do treino e da validação, sem acesso ao teste preliminar nem ao teste final. Cada partição recria a série preenchida a partir do arquivo original cortado no seu fim, e o critério de escolha é o MAE médio das partições, calculado apenas em valores medidos. O orçamento é o mesmo para todas as famílias: 24 tentativas por arquitetura, com até 18 épocas por tentativa nas redes e a parada antecipada própria no XGBoost. Durante a busca, as janelas de treino avançam de 4 em 4 horas, para reduzir o custo computacional; no treino final, avançam de 2 em 2 horas e, na avaliação, de 1 em 1 hora, para todos os modelos.
 
-Nas redes, o estudo do Optuna usa o amostrador TPE com semente fixa e a poda \textit{Hyperband}, que exige um mínimo de 4 épocas antes de podar uma tentativa (as 3 primeiras épocas são de aquecimento da taxa de aprendizado, em que o erro ainda não é representativo), com no máximo 18 épocas e fator de redução 3 \cite{akiba2019optuna,li2018hyperband}. Como o recurso é a época, só a primeira partição informa valores intermediários e pode podar a tentativa; a métrica da tentativa continua sendo a média das partições. No XGBoost, a busca minimiza o MAE médio das partições com TPE e poda pela mediana \cite{optunaDocsMedian2026,chen2016xgboost}. Os 24 modelos por horizonte do XGBoost são treinados na placa de vídeo, sem retorno automático ao processador: uma configuração que esgotasse a memória seria podada e contada, mas isso não ocorreu, e o pico medido foi de cerca de 1,4~GB entre os 8~GB disponíveis. As Tabelas~\ref{tab:hpo_espaco_busca} e \ref{tab:hpo_melhores} apresentam, respectivamente, o espaço de busca e a configuração escolhida.
+Nas redes, o Optuna usa o amostrador TPE com semente fixa e a poda \textit{Hyperband} (Seção~\ref{sec:otimizacao_hpo}), que exige um mínimo de 4 épocas antes de interromper uma tentativa (as 3 primeiras épocas são de aquecimento da taxa de aprendizado, em que o erro ainda não é representativo), com no máximo 18 épocas e fator de redução 3 \cite{akiba2019optuna,li2018hyperband}. Como o recurso do \textit{Hyperband} é a época, só a primeira partição informa valores intermediários e pode interromper a tentativa; a métrica da tentativa continua sendo a média das partições. No XGBoost, a busca minimiza o MAE médio das partições com TPE e poda pela mediana \cite{optunaDocsMedian2026,chen2016xgboost}. O espaço de busca e a configuração escolhida para cada caso estão nas Tabelas~\ref{tab:hpo_espaco_busca} e~\ref{tab:hpo_melhores}, no Apêndice~\ref{ap:teste_historico}.
 
-O treino final usa o AdamW \cite{loshchilov2019decoupled}. A taxa de aprendizado tem três épocas de aquecimento linear, de \(10^{-5}\eta_{\max}\) a \(\eta_{\max}\), seguidas de decaimento cosseno até \(0{,}01\,\eta_{\max}\) no fim das 40 épocas \cite{goyal2017accurate,loshchilov2017sgdr}. A validação, ao fim de cada época, mede o MAE e serve à parada antecipada (paciência de 8 épocas) e à escolha do melhor ponto do treinamento. Cada modelo é treinado com várias \emph{sementes}, isto é, várias inicializações aleatórias dos pesos: quatro (42, 7, 21 e 123) na comparação principal e as três primeiras nos demais grupos, que respondem a perguntas sobre o efeito de um fator e não à classificação entre modelos. A média das previsões das sementes forma um \emph{ensemble}, reportado à parte \cite{lakshminarayanan2017simple}.
 
-\begin{table}[!htbp]
-    \centering
-    \caption{Espaço de busca de hiperparâmetros.}
-    \label{tab:hpo_espaco_busca}
-    \small
-    \renewcommand{\arraystretch}{1.08}
-    \begin{tabular}{>{\raggedright\arraybackslash}p{0.22\textwidth}>{\raggedright\arraybackslash}p{0.23\textwidth}>{\raggedright\arraybackslash}p{0.45\textwidth}}
-        \toprule
-        \textbf{Grupo} & \textbf{Hiperparâmetro} & \textbf{Valores avaliados} \\
-        \midrule
-        Redes neurais & Taxa de aprendizado & 0,0004; 0,0008; 0,0012; 0,0018; 0,0025; 0,0035; 0,005; 0,007 \\
-        Redes neurais & Decaimento de pesos & 0; \(10^{-6}\); \(5\times10^{-6}\); \(10^{-5}\); \(5\times10^{-5}\); \(10^{-4}\) \\
-        Redes neurais & \textit{Dropout} e camadas & \textit{dropout} de 0,05 a 0,30 (passo 0,05); 1, 2 ou 3 camadas \\
-        Redes neurais (Huber) & \(\delta\) da perda de Huber & 0,5; 1,0; 1,5; 2,0 \\
-        LSTM direta & Arquitetura & unidades ocultas de 64 a 320; agregação por último estado, média ou atenção \\
-        LSTM recursiva & Arquitetura & unidades ocultas de 64 a 320 \\
-        Seq2Seq básico & Arquitetura & unidades ocultas de 64 a 256 \\
-        Seq2Seq com atenção & Arquitetura & codificador com 64 a 160 unidades; decodificador com 64 a 192; atenção com 64 a 128; representação do horizonte com 8, 16, 24 ou 32 dimensões \\
-        XGBoost & Árvores e profundidade & 160, 240, 320 ou 480 árvores; profundidade de 2 a 7; \texttt{max\_bin} 64, 128 ou 256 \\
-        XGBoost & Regularização e amostragem & taxa de aprendizado entre 0,015 e 0,12 (escala logarítmica); \textit{subsample} e \textit{colsample} entre 0,60 e 1,0; \(\lambda\), \(\alpha\), \(\gamma\) e peso mínimo do filho; parada antecipada após 10, 15 ou 25 rodadas \\
-        \bottomrule
-    \end{tabular}
-\end{table}
-
-\inputtabela{hpo_melhores}
+O treino final usa o AdamW \cite{loshchilov2019decoupled}. A taxa de aprendizado tem três épocas de aquecimento linear, de \(10^{-5}\eta_{\max}\) a \(\eta_{\max}\), seguidas de decaimento cosseno até \(0{,}01\,\eta_{\max}\) no fim das 40 épocas. A validação, ao fim de cada época, mede o MAE e serve à parada antecipada, com paciência de 8 épocas. Cada modelo é treinado com várias \emph{sementes}, isto é, várias inicializações aleatórias dos pesos: quatro (42, 7, 21 e 123) na comparação principal e as três primeiras nos demais casos, que medem o efeito de um fator e não a classificação entre modelos. A média das previsões das sementes forma um \emph{ensemble}, reportado à parte \cite{lakshminarayanan2017simple}.
 
 \section{Métricas de Avaliação}
 \label{sec:metricas}
 
-As métricas globais são as da Seção~\ref{sec:metricas_avaliacao}: MAE, RMSE, \(R^2\), MBE, WAPE e sMAPE, além do MAPE. Como o alvo é baixo e inteiro (mediana próxima de 10~\(\mu\)g/m\(^3\) e mínimo de 1), o MAPE é reportado apenas como referência; o WAPE e o sMAPE acompanham o MAE \cite{hyndman2006another}. Também se reporta o MAE nos horizontes 1 e 24, e a habilidade em relação à média móvel de 24 horas.
+As métricas globais são as da Seção~\ref{sec:metricas_avaliacao}: MAE, RMSE, \(R^2\), MBE, WAPE e sMAPE. O MAPE não é usado, porque o PM2,5 tem muitos valores baixos (mediana de 11~\(\mu\)g/m\(^3\) e mínimo de 1), que inflam o erro percentual \cite{hyndman2006another}. Também se reportam o MAE na primeira e na última hora do horizonte (Equação~\ref{eq:mae_horizonte}) e a habilidade em relação à média móvel de 24 horas.
 
-Para os picos, definem-se o MAE, o viés e a taxa de subestimação (fração das horas em que a previsão fica abaixo do observado) restritos às horas com PM2,5 acima de 25, 35 e 50~\(\mu\)g/m\(^3\), e a razão entre os desvios-padrão da previsão e da observação, que mede o quanto a previsão é suavizada, além do percentil 99 previsto. O limiar de 35~\(\mu\)g/m\(^3\) é uma escolha de projeto, próxima ao padrão intermediário de 37~\(\mu\)g/m\(^3\) para 24 horas da Resolução CONAMA nº 491/2018 \cite{conama2018res491}, e produz eventos em número suficiente; os limiares 25 e 50 verificam a sensibilidade a essa escolha. Um \emph{evento} é uma sequência de horas consecutivas medidas com PM2,5 acima do limiar; para cada evento calculam-se o MAE, o viés, a taxa de subestimação e o erro na hora do pico. A dinâmica horária é avaliada por três medidas sobre pares de horas consecutivas: a correlação entre os níveis, a correlação entre as diferenças de uma hora para a seguinte e a fração de vezes em que a direção da mudança (subida ou descida) é acertada. Elas separam acertar o nível de acertar o momento das mudanças.
+Para os picos, definidos na Seção~\ref{sec:escolha_estacao}, calculam-se o MAE, o viés e a taxa de subestimação (fração das horas em que a previsão fica abaixo do observado) apenas nas horas de pico. Como o valor de 35~\(\mu\)g/m\(^3\) é uma escolha, as mesmas medidas são repetidas para 25 e 50~\(\mu\)g/m\(^3\), que correspondem às metas intermediárias da Organização Mundial da Saúde vizinhas à de 37,5~\(\mu\)g/m\(^3\) \cite{who2021air}; se as conclusões não mudam, elas não dependem do valor escolhido. Calculam-se ainda a razão entre os desvios-padrão da previsão e da observação, que mede o quanto a previsão é suavizada (1 indica a mesma variabilidade da série medida, e valores menores, uma previsão mais ``achatada''), e o percentil 99 da previsão, o valor abaixo do qual ficam 99\% das previsões, comparado ao da série medida. Para cada pico, isto é, cada sequência de horas de pico consecutivas, calculam-se o MAE, o viés, a taxa de subestimação e o erro na hora de maior concentração. A dinâmica horária é avaliada por três medidas sobre pares de horas consecutivas: a correlação entre os níveis, a correlação entre as variações de uma hora para a seguinte e a fração de vezes em que a direção da mudança (subida ou descida) é acertada. Elas separam acertar o nível de acertar o momento das mudanças.
 
-\paragraph{Tratamento dos valores preenchidos.} As métricas são calculadas somente sobre alvos efetivamente medidos, e a perda de treinamento também os ignora. Esta é uma escolha do trabalho, e não uma convenção geral da área de qualidade do ar. Ela tem precedente em previsão com dados faltantes: \citeonline{li2018dcrnn} excluem os valores ausentes do cálculo do MAE, do RMSE e do MAPE em previsão de tráfego, e \citeonline{che2018recurrent} tratam a ausência como informação de entrada, na linha dos indicadores de ausência usados aqui. A justificativa é que um alvo preenchido é uma estimativa (aqui, uma interpolação linear); avaliar contra ele mediria a aderência à interpolação, e não ao fenômeno, e favoreceria previsões suaves. Não encontramos trabalho de previsão de PM2,5 que trate explicitamente dessa escolha; por isso ela é uma decisão metodológica, acompanhada de uma análise de sensibilidade (Seção~\ref{sec:sensibilidades}) que reporta o MAE incluindo os pares preenchidos. As conclusões só são consideradas robustas a essa escolha se a ordenação dos modelos se mantiver. Uma limitação é a possível ausência informativa (falhas do instrumento concentradas em altas concentrações) \cite{littlerubin2019statistical}, que a exclusão não corrige.
+\paragraph{Valores preenchidos.} As métricas são calculadas somente sobre valores efetivamente medidos, e a perda de treinamento também ignora os preenchidos. Esta é uma escolha do trabalho, inspirada em \citeonline{li2018dcrnn}, que excluíram os valores ausentes do cálculo do MAE, do RMSE e do MAPE em previsão de tráfego (Seção~\ref{sec:relacionados_imputacao}). A justificativa é que um valor preenchido é uma estimativa, aqui uma interpolação ou a repetição do último valor; avaliar o modelo contra ele mediria a semelhança com o preenchimento, e não com o fenômeno, e favoreceria previsões suaves. Não encontramos trabalho de previsão de PM2,5 que trate explicitamente dessa escolha; por isso, ela é acompanhada de uma verificação que recalcula o MAE incluindo os valores preenchidos. Uma limitação é que, se o instrumento falhar justamente nos picos \cite{littlerubin2019statistical}, a exclusão não corrige esse viés.
 
 \section{Inferência Estatística}
 \label{sec:inferencia_estatistica}
 
-Cada hora prevista aparece em cerca de 24 janelas sobrepostas, e os erros são autocorrelacionados; tratar os pares como independentes superestimaria a precisão (Seção~\ref{sec:comparacao_estatistica}). As diferenças entre modelos são avaliadas de três formas.
+Cada hora prevista aparece em até 24 janelas sobrepostas, e os erros são autocorrelacionados; tratar os pares como independentes superestimaria a precisão (Seção~\ref{sec:comparacao_estatistica}). As diferenças entre modelos são avaliadas de três formas.
 
 \begin{enumerate}
-    \item \textbf{Bootstrap em blocos, pareado.} Para cada instante de emissão, somam-se os erros absolutos (ou quadráticos) e a quantidade de pares medidos. Sorteiam-se blocos circulares de 168 horas consecutivas (uma semana) \cite{politis1992circular,kunsch1989jackknife}, com os mesmos blocos para os dois modelos comparados e 2.000 repetições, e obtém-se o intervalo de 95\% da diferença do MAE (ou do RMSE). Um intervalo que contém zero indica empate estatístico.
-    \item \textbf{Teste de Diebold-Mariano} \cite{diebold1995comparing}, sobre a série das diferenças de perda média por instante de emissão, com variância de longo prazo de Newey-West \cite{newey1987simple} (defasagem 23, que cobre a dependência induzida pelas janelas de 24 horas) e a correção de amostra pequena de \citeonline{harvey1997testing}.
-    \item \textbf{Bootstrap sobre eventos}, na comparação por evento de pico, sorteando os eventos.
+    \item \textbf{Bootstrap em blocos, pareado.} Para cada instante de emissão, somam-se os erros absolutos (ou quadráticos) e a quantidade de valores medidos. Sorteiam-se blocos circulares de 168 horas consecutivas (uma semana) \cite{politis1992circular,kunsch1989jackknife}, com os mesmos blocos para os dois modelos comparados e 2.000 repetições, como na Figura~\ref{fig:bootstrap_blocos}, e obtém-se o intervalo de 95\% da diferença do MAE (ou do RMSE). Um intervalo que contém zero indica empate estatístico. Blocos de uma semana preservam a dependência entre horas vizinhas e o ciclo diário dentro de cada bloco.
+    \item \textbf{Teste de Diebold-Mariano} \cite{diebold1995comparing}, sobre a série das diferenças de perda média por instante de emissão, com a variância de Newey-West \cite{newey1987simple} (defasagem 23, que cobre a dependência induzida pelas janelas de 24 horas) e a correção para amostras finitas de \citeonline{harvey1997testing}.
+    \item \textbf{Bootstrap sobre picos}, na comparação pico a pico, sorteando os picos em vez de blocos de horas.
 \end{enumerate}
 
-Para estimar a diferença entre famílias de modelos, e não a de uma semente em particular, as comparações usam a média das estatísticas entre as sementes de cada caso; a variabilidade entre sementes é reportada à parte. As comparações são feitas contra duas referências fixadas antes da execução: a LSTM direta com perda de Huber, por ter sido o melhor modelo em etapas exploratórias anteriores, e a média móvel de 24 horas. Todas as tabelas e testes são gerados por um programa a partir das previsões salvas, sem retreinar os modelos.
+Para estimar a diferença entre modelos, e não a de uma semente em particular, as comparações usam a média das estatísticas entre as sementes de cada caso; a variabilidade entre sementes é reportada à parte. As comparações são feitas contra duas referências fixadas antes da execução: a LSTM direta com perda de Huber, por ter sido o melhor modelo nos estudos preliminares, e a média móvel de 24 horas. Todas as tabelas e testes são gerados por um programa a partir das previsões salvas, sem retreinar os modelos.
 
 \section{Verificações de Sensibilidade}
 \label{sec:sensibilidades}
 
-Três verificações testam se as conclusões dependem de escolhas de projeto. A primeira varia a janela de entrada em 24, 48, 72 e 96 horas, com o horizonte fixo em 24 horas, para a LSTM direta e para o XGBoost; os hiperparâmetros são os do caso de 48 horas, e a comparação usa exclusivamente o MAE de \emph{validação}, de modo que o teste não participa da escolha (Seção~\ref{sec:sensibilidade_janela}). A segunda recalcula o MAE incluindo, além das medições, os pares cujo alvo foi preenchido. A terceira refaz a busca de hiperparâmetros para a perda ponderada na LSTM direta e no Seq2Seq adaptado, para medir o viés de reaproveitar os hiperparâmetros do caso de Huber.
+Três verificações testam se as conclusões dependem de escolhas de projeto. A primeira varia a janela de entrada em 24, 48, 72 e 96 horas, com o horizonte fixo em 24 horas, para a LSTM direta e para o XGBoost; os hiperparâmetros são os do caso de 48 horas, e a comparação usa apenas o MAE de \emph{validação}, de modo que nenhum teste participa da escolha. A segunda recalcula o MAE incluindo, além das medições, os valores preenchidos. A terceira refaz a busca de hiperparâmetros para a perda ponderada na LSTM direta e no Seq2Seq adaptado, para medir o efeito de reaproveitar os hiperparâmetros do caso com perda de Huber.
 
 \section{Diagnóstico da Atenção}
 \label{sec:diagnostico_atencao}
 
-Os pesos de atenção nem sempre indicam a importância de uma entrada \cite{jain2019attention,serrano2019attention,wiegreffe2019attention}. Por isso a leitura da atenção usa dois instrumentos. O primeiro são medidas dos pesos: a entropia normalizada (1 para pesos uniformes e menor quando os pesos se concentram), o peso máximo e a fração do peso total (massa) concentrada na última hora, nas últimas seis horas e nas posições do mesmo horário de um e de dois dias antes. Para pesos uniformes sobre 48 posições, cada posição recebe \(1/48\approx0{,}021\). O segundo é uma contraprova feita sem novo treinamento: os pesos aprendidos são substituídos por pesos uniformes, por pesos uniformes dentro de cada faixa de defasagem, apenas pela última hora, apenas pela posição de 24 ou de 48 horas antes, ou o contexto é zerado, e mede-se a variação do erro. Se um padrão fixo produz erro equivalente ao da atenção aprendida, a atenção aprendida não é decisiva para a previsão, independentemente do seu aspecto. \citeonline{cinar2017position} argumentam que a atenção de \citeonline{bahdanau2014neural} não atende por si só à sazonalidade de séries temporais; a variante adaptada, com faixas de defasagem alinhadas ao dia anterior, é uma resposta estrutural a essa limitação.
+Os pesos de atenção nem sempre indicam a importância de uma entrada \cite{jain2019attention,serrano2019attention,wiegreffe2019attention}. Por isso, a atenção do Seq2Seq adaptado é avaliada por uma contraprova, feita sem novo treinamento: os pesos aprendidos são substituídos por padrões fixos (pesos iguais em todas as posições, pesos iguais dentro de cada faixa, apenas a última hora, apenas o mesmo horário de um ou de dois dias antes) ou o contexto é zerado, e mede-se a variação do erro. Se um padrão fixo produz erro equivalente ao da atenção aprendida, a ponderação aprendida não é decisiva para a previsão.
 
 \section{Reprodutibilidade}
 \label{sec:reprodutibilidade}
 
-Toda a execução é orquestrada por um programa único, com o procedimento definido em arquivos de configuração e testes automatizados que verificam que o treino é idêntico entre os casos e que a construção dos dados não vaza informação posterior ao corte. Cada execução grava as sementes, os hiperparâmetros, o código de identificação dos dados, a versão do código e a indicação de árvore de código limpa. As tabelas do Capítulo~\ref{chap:resultados} são geradas por programa e incluídas diretamente no texto, sem transcrição manual. O código e os comandos de reprodução acompanham o repositório técnico do trabalho.
+Toda a execução segue arquivos de configuração e testes automatizados que verificam que o treino é igual entre os casos e que a construção dos dados não usa informação posterior ao corte. Cada execução grava as sementes, os hiperparâmetros e a versão do código e dos dados, e as tabelas do Capítulo~\ref{chap:resultados} são geradas por programa a partir das previsões salvas, sem transcrição manual.

@@ -2,72 +2,62 @@
 \chapter{Tabelas Complementares}
 \label{ap:teste_historico}
 
-Este apêndice reúne as tabelas do teste histórico (27 de maio a 31 de dezembro de 2020), que já foi consultado durante o desenvolvimento e, portanto, não é confirmatório, e as tabelas do período de confirmação que são longas demais para o corpo do texto. A leitura das colunas é a mesma do Capítulo~\ref{chap:resultados}.
+Este apêndice reúne as tabelas citadas no texto que não couberam no corpo dos capítulos: os hiperparâmetros escolhidos (Capítulo~\ref{chap:materiais_metodos}), as tabelas complementares do teste final (Capítulo~\ref{chap:resultados}) e os resultados do teste preliminar. A leitura das colunas é a mesma do Capítulo~\ref{chap:resultados}.
 
-\section{Comparação Principal}
+\section{Busca de Hiperparâmetros}
 
-A Tabela~\ref{tab:metricas_teste_historico} traz as métricas do teste histórico e a Tabela~\ref{tab:ensemble_teste_historico}, as do \textit{ensemble} nesse período. A Tabela~\ref{tab:pareado_teste_historico} traz a diferença de MAE em relação à referência, com intervalo de confiança, e as Tabelas~\ref{tab:matriz_holdout} e~\ref{tab:matriz_teste_historico} trazem a diferença entre todos os pares de modelos no período de confirmação e no teste histórico.
+A Tabela~\ref{tab:hpo_espaco_busca} apresenta o espaço de busca de hiperparâmetros, e a Tabela~\ref{tab:hpo_melhores}, a configuração escolhida para cada caso (Seção~\ref{sec:treinamento_hpo}).
 
-\inputtabela{metricas_teste_historico}
+\begin{table}[htbp]
+    \centering
+    \caption{Espaço de busca de hiperparâmetros.}
+    \label{tab:hpo_espaco_busca}
+    \footnotesize
+    \renewcommand{\arraystretch}{1.05}
+    \begin{tabular}{>{\raggedright\arraybackslash}p{0.22\textwidth}>{\raggedright\arraybackslash}p{0.23\textwidth}>{\raggedright\arraybackslash}p{0.45\textwidth}}
+        \toprule
+        \textbf{Grupo} & \textbf{Hiperparâmetro} & \textbf{Valores avaliados} \\
+        \midrule
+        Redes neurais & Taxa de aprendizado & 0,0004; 0,0008; 0,0012; 0,0018; 0,0025; 0,0035; 0,005; 0,007 \\
+        Redes neurais & Decaimento de pesos & 0; \(10^{-6}\); \(5\times10^{-6}\); \(10^{-5}\); \(5\times10^{-5}\); \(10^{-4}\) \\
+        Redes neurais & \textit{Dropout} e camadas & \textit{dropout} de 0,05 a 0,30 (passo 0,05); 1, 2 ou 3 camadas \\
+        Redes neurais (Huber) & \(\delta\) da perda de Huber & 0,5; 1,0; 1,5; 2,0 \\
+        LSTM direta & Arquitetura & 64 a 320 neurônios no estado oculto; resumo pelo último estado, pela média ou por atenção \\
+        LSTM recursiva & Arquitetura & 64 a 320 neurônios no estado oculto \\
+        Seq2Seq básico & Arquitetura & 64 a 256 neurônios no estado oculto \\
+        Seq2Seq com atenção & Arquitetura & codificador com 64 a 160 neurônios; decodificador com 64 a 192; atenção com 64 a 128; representação do horizonte com 8, 16, 24 ou 32 dimensões \\
+        XGBoost & Árvores e profundidade & 160, 240, 320 ou 480 árvores; profundidade de 2 a 7; \texttt{max\_bin} 64, 128 ou 256 \\
+        XGBoost & Regularização e amostragem & taxa de aprendizado entre 0,015 e 0,12 (escala logarítmica); \textit{subsample} e \textit{colsample} entre 0,60 e 1,0; \(\lambda\), \(\alpha\), \(\gamma\) e peso mínimo do filho; parada antecipada após 10, 15 ou 25 rodadas \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 
-\inputtabela{ensemble_teste_historico}
+\inputtabela{hpo_melhores}
 
-\inputtabela{pareado_teste_historico}
+\section{Tabelas Complementares do Teste Final}
+
+As tabelas desta seção detalham resultados discutidos no Capítulo~\ref{chap:resultados}, na ordem em que são citados.
 
 \inputtabela{matriz_holdout}
 
-\inputtabela{matriz_teste_historico}
+\inputtabela{eventos_holdout}
 
-\section{Picos, Cauda e Dinâmica}
+\inputtabela{dinamica_holdout}
 
-As Tabelas~\ref{tab:cauda_teste_historico} e~\ref{tab:eventos_teste_historico} descrevem o desempenho nas concentrações altas e nos eventos de pico do teste histórico, e a Tabela~\ref{tab:eventos_pareado_teste_historico} compara os modelos por evento. A Tabela~\ref{tab:dinamica_teste_historico} e as Figuras~\ref{fig:erro_por_horizonte_teste_historico} e~\ref{fig:janela_evento_teste_historico} mostram a dinâmica horária, o erro por horizonte e o maior evento do período.
+\inputtabela{extras_holdout}
 
-\inputtabela{cauda_teste_historico}
+\inputtabela{ablacao_desenho_holdout}
 
-\inputtabela{eventos_teste_historico}
+\inputtabela{atencao_contrafactual_seq2seq_attention_new__huber}
 
-\inputtabela{eventos_pareado_teste_historico}
+\inputtabela{ablacao_pm10_holdout}
 
-\inputtabela{dinamica_teste_historico}
+\inputtabela{sensibilidade_imputados_holdout}
 
-\begin{figure}[!htbp]
-    \centering
-    \figuragerada{0.9\linewidth}{erro_por_horizonte_teste_historico}
-    \caption{MAE por horizonte no teste histórico (média das sementes). Linhas tracejadas: previsores de referência e regressão Ridge.}
-    \label{fig:erro_por_horizonte_teste_historico}
-\end{figure}
+\inputtabela{verificacao_hpo_holdout}
 
-\begin{figure}[!htbp]
-    \centering
-    \figuragerada{\linewidth}{janela_evento_teste_historico}
-    \caption{Previsões (média das sementes) em torno do maior evento do teste histórico, em painéis separados por modelo e com escala comum.}
-    \label{fig:janela_evento_teste_historico}
-\end{figure}
+\section{Resultados do Teste Preliminar}
 
-\section{Fatores de Projeto}
+A Tabela~\ref{tab:metricas_teste_historico} apresenta as métricas no teste preliminar (27 de maio a 31 de dezembro de 2020). Esse período foi consultado nos estudos preliminares e, por isso, não serve como teste independente (Seção~\ref{sec:divisao_temporal}); seus resultados são apresentados apenas para mostrar que o quadro é semelhante ao do teste final. Observe que, também nesse período, a regressão Ridge (MAE de 2,673), o XGBoost (2,696) e o Seq2Seq com atenção adaptado (2,721) têm os menores erros, todos os modelos treinados superam as previsões ingênuas, e o erro cresce devagar com o horizonte.
 
-As Tabelas~\ref{tab:metricas_fatores_holdout} e~\ref{tab:metricas_fatores_teste_historico} comparam as variantes de projeto no período de confirmação e no teste histórico, e a Tabela~\ref{tab:cauda_fatores_teste_historico} mostra o efeito delas nas concentrações altas. As Tabelas~\ref{tab:fatorial_perda_teste_historico}, \ref{tab:extras_teste_historico}, \ref{tab:ablacao_desenho_teste_historico} e~\ref{tab:ablacao_pm10_teste_historico} detalham a perda, as variantes extras e as ablações do desenho e das variáveis derivadas do PM10 no teste histórico.
-
-\inputtabela{metricas_fatores_holdout}
-
-\inputtabela{metricas_fatores_teste_historico}
-
-\inputtabela{cauda_fatores_teste_historico}
-
-\inputtabela{fatorial_perda_teste_historico}
-
-\inputtabela{extras_teste_historico}
-
-\inputtabela{ablacao_desenho_teste_historico}
-
-\inputtabela{ablacao_pm10_teste_historico}
-
-\section{Sensibilidades e Vencedores por Critério}
-
-As Tabelas~\ref{tab:sensibilidade_imputados_teste_historico}, \ref{tab:verificacao_hpo_teste_historico} e~\ref{tab:vitorias_teste_historico} trazem, para o teste histórico, a sensibilidade aos alvos preenchidos, a verificação da busca de hiperparâmetros e o modelo com menor erro em cada critério.
-
-\inputtabela{sensibilidade_imputados_teste_historico}
-
-\inputtabela{verificacao_hpo_teste_historico}
-
-\inputtabela{vitorias_teste_historico}
+\inputtabela{metricas_teste_historico}

@@ -6,7 +6,7 @@
     \begin{adjustbox}{max width=\textwidth}
     \begin{tabular}{>{\raggedright\arraybackslash}p{0.41\textwidth}llllll}
         \toprule
-        Caso & Grupo & Perda & Aprend. residual & Perda de evento & Variáveis & Busca própria \\
+        Caso & Grupo & Perda & Aprend. residual & Perda aux. de pico & Variáveis & Busca própria \\
         \midrule
         LSTM direta (Huber) & comparação principal & Huber & não & não & todas & sim \\
         LSTM recursiva (Huber) & comparação principal & Huber & não & não & todas & sim \\
@@ -14,15 +14,15 @@
         Seq2Seq atenção padrão (Huber) & comparação principal & Huber & não & não & todas & sim \\
         Seq2Seq atenção adaptado (Huber) & comparação principal & Huber & não & não & todas & sim \\
         XGBoost (erro abs.) & comparação principal & erro absoluto & não & não & todas & sim \\
-        LSTM direta (L1 pond.) & função de perda & L1 ponderada & não & não & todas & não \\
-        LSTM recursiva (L1 pond.) & função de perda & L1 ponderada & não & não & todas & não \\
-        Seq2Seq básico (L1 pond.) & função de perda & L1 ponderada & não & não & todas & não \\
-        Seq2Seq atenção padrão (L1 pond.) & função de perda & L1 ponderada & não & não & todas & não \\
-        Seq2Seq atenção adaptado (L1 pond.) & função de perda & L1 ponderada & não & não & todas & não \\
-        Seq2Seq atenção adaptado (L1 pond. + evento) & fatores adicionais & L1 ponderada & não & sim & todas & não \\
+        LSTM direta (abs. pond.) & função de perda & abs. ponderada & não & não & todas & não \\
+        LSTM recursiva (abs. pond.) & função de perda & abs. ponderada & não & não & todas & não \\
+        Seq2Seq básico (abs. pond.) & função de perda & abs. ponderada & não & não & todas & não \\
+        Seq2Seq atenção padrão (abs. pond.) & função de perda & abs. ponderada & não & não & todas & não \\
+        Seq2Seq atenção adaptado (abs. pond.) & função de perda & abs. ponderada & não & não & todas & não \\
+        Seq2Seq atenção adaptado (abs. pond. + aux. de pico) & fatores adicionais & abs. ponderada & não & sim & todas & não \\
         LSTM direta (Huber + resíduo) & fatores adicionais & Huber & sim & não & todas & não \\
         Seq2Seq atenção adaptado (Huber + resíduo) & fatores adicionais & Huber & sim & não & todas & não \\
-        Seq2Seq atenção adaptado (L1 pond. + evento + resíduo) & fatores adicionais & L1 ponderada & sim & sim & todas & não \\
+        Seq2Seq atenção adaptado (abs. pond. + aux. de pico + resíduo) & fatores adicionais & abs. ponderada & sim & sim & todas & não \\
         Seq2Seq atenção adaptado (sem reinício por horizonte) & desenho do Seq2Seq & Huber & não & não & todas & não \\
         Seq2Seq atenção adaptado (com input feeding) & desenho do Seq2Seq & Huber & não & não & todas & não \\
         Seq2Seq atenção adaptado (sem faixas de defasagem) & desenho do Seq2Seq & Huber & não & não & todas & não \\
@@ -31,8 +31,8 @@
         XGBoost (erro abs.) [PM10 só no histórico] & variáveis de PM10 & erro absoluto & não & não & PM10 só no histórico & sim \\
         LSTM direta (Huber) [só PM2,5 e tempo] & variáveis de PM10 & Huber & não & não & só PM2,5 e tempo & sim \\
         XGBoost (erro abs.) [só PM2,5 e tempo] & variáveis de PM10 & erro absoluto & não & não & só PM2,5 e tempo & sim \\
-        LSTM direta (L1 pond., HPO própria) & verificação da busca & L1 ponderada & não & não & todas & sim \\
-        Seq2Seq atenção adaptado (L1 pond., HPO própria) & verificação da busca & L1 ponderada & não & não & todas & sim \\
+        LSTM direta (abs. pond., HPO própria) & verificação da busca & abs. ponderada & não & não & todas & sim \\
+        Seq2Seq atenção adaptado (abs. pond., HPO própria) & verificação da busca & abs. ponderada & não & não & todas & sim \\
         \bottomrule
     \end{tabular}
     \end{adjustbox}

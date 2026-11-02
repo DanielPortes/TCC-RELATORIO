@@ -50,3 +50,9 @@ venv/
 # Local environment
 .env
 .env.*
+
+# Arquivos locais (PDFs de release, rascunhos, metadados do Windows)
+/tcc-relatorio-release-*.pdf
+/TCC_Capitulo1_para_envio.pdf
+/tmp/
+*:Zone.Identifier

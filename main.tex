@@ -26,7 +26,8 @@
 \usepackage{subcaption} % Para o ambiente subfigure
 \usepackage{xcolor} % Para marcar trechos pendentes de preenchimento
 \usepackage{tikz} % Para diagramas vetoriais do protocolo experimental
-\usetikzlibrary{arrows.meta,positioning,fit}
+\usetikzlibrary{arrows.meta,positioning,fit,calc,decorations.pathreplacing}
+\usepackage[section]{placeins} % Impede que figuras e tabelas passem para a seção seguinte
 \usepackage[hidelinks,breaklinks=true,plainpages=false,pdfpagelabels,hypertexnames=false]{hyperref} % Links internos e externos sem caixas/colorização
 \usepackage[alf,abnt-repeated-title-omit=yes,bibjustif]{abntex2cite} % Carrega o pacote de citações
 
@@ -95,6 +96,15 @@
 \pagestyle{ruledheader} % Estilo de cabeçalho para o corpo do texto
 \pagenumbering{arabic} % Começa a contagem de páginas arábicas aqui
 
+\setcounter{secnumdepth}{3} % numera subsubseções (ex.: 2.1.4.1)
+\setlength{\emergencystretch}{3em} % evita linhas que ultrapassam a margem
+% posicionamento de figuras e tabelas: aceita flutuantes maiores no topo da página e evita páginas só com uma figura
+\renewcommand{\topfraction}{0.85}
+\renewcommand{\bottomfraction}{0.6}
+\renewcommand{\textfraction}{0.1}
+\renewcommand{\floatpagefraction}{0.8}
+\setcounter{topnumber}{3}
+\setcounter{totalnumber}{4}
 \input{tex/capitulos/cap_01_introducao.tex}
 \input{tex/capitulos/cap_02_fundamentacao.tex}
 \input{tex/capitulos/cap_03_relacionados.tex}

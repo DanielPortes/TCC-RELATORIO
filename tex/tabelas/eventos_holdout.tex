@@ -1,12 +1,12 @@
 \begin{table}[!htbp]
     \centering
-    \caption{Desempenho nos eventos de pico: período de confirmação (2021--2023)}
+    \caption{Desempenho nos picos: teste final (2021--2023)}
     \label{tab:eventos_holdout}
     \small
     \begin{adjustbox}{max width=\textwidth}
     \begin{tabular}{lrrrrrr}
         \toprule
-        Modelo & Limiar & Eventos & MAE por evento & Viés no evento & Subestimação & Erro no pico \\
+        Modelo & Limiar & Picos & MAE por pico & Viés no pico & Subestimação & Erro no máximo \\
         \midrule
         LSTM direta (Huber) & 35 & 58 & 18,964 & -18,938 & 0,995 & -22,499 \\
         LSTM recursiva (Huber) & 35 & 58 & 17,233 & -17,197 & 0,989 & -20,632 \\
