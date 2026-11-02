@@ -5,10 +5,11 @@ The repository has two main parts. The thesis sources live at the root: `main.te
 
 ## Preferências da Orientadora para a Escrita do TCC
 
-Esta seção substitui uma versão anterior que era inferência. Agora vem de três rodadas de correção da orientadora (áudios transcritos e anotações manuscritas
-lidas por visão): ver `revisoes-orientadora/CRITICAS_E_PREFERENCIAS_ORIENTADORA.md` (consolidado), `revisoes-orientadora/anotacoes_manuscritas_pdf.md` e as
-transcrições `revisoes-orientadora/luciana{1,2,3}_transcricao.md`. **Antes de editar qualquer capítulo, leia o consolidado.** Ela revisou até agora o Resumo, o Capítulo 1 (três vezes)
-e o Capítulo 2; os Capítulos 3 a 6 ainda não foram lidos.
+Esta seção substitui uma versão anterior que era inferência. Agora vem de quatro rodadas de correção da orientadora (áudios transcritos e anotações manuscritas
+lidas por visão): ver `revisoes-orientadora/CRITICAS_E_PREFERENCIAS_ORIENTADORA.md` (consolidado), `revisoes-orientadora/anotacoes_manuscritas_pdf.md`, as
+transcrições `revisoes-orientadora/luciana{1,2,3,4}_transcricao.md` e a análise da rodada 4 em `revisoes-orientadora/luciana4_resumo_das_correcoes.md`.
+**Antes de editar qualquer capítulo, leia o consolidado.** Ela revisou até agora o Resumo, os Capítulos 1 a 3 e o Capítulo 4 até a Seção 4.2.1;
+o restante do Capítulo 4 e os Capítulos 5 e 6 ainda não foram lidos.
 
 ### Regras de escrita (em ordem de frequência nas correções)
 1. **Defina antes de usar; sigla depois da explicação.** "Coloca a sigla depois da explicação, não antes." Vale para termos e para símbolos matemáticos (L, h, y, ȳ, ε, p_TF...) no ponto do primeiro uso.

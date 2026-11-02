@@ -1,4 +1,4 @@
-# Críticas e preferências da orientadora (consolidado das rodadas 1, 2 e 3)
+# Críticas e preferências da orientadora (consolidado das rodadas 1 a 4)
 
 Fontes (todas relidas do zero em 2026-09-29):
 
@@ -7,9 +7,11 @@ Fontes (todas relidas do zero em 2026-09-29):
 | 1 | 15/06/2026 | 7 áudios (`luciana1_transcricao.md`) + `luciana1/TccDaniel.pdf` | Resumo e Capítulo 1 |
 | 2 | 16/06/2026 | 13 áudios (`luciana2_transcricao.md`) + `luciana2/TccDaniel.pdf` | Capítulo 2 inteiro (o Capítulo 1 igual à rodada 1) |
 | 3 | 25/09/2026 | Chamada de 22 min (`luciana3_transcricao.md`) + PDF comentado | Resumo e Capítulo 1 (versão reescrita) |
+| 4 | 25/10–01/11/2026 | Reunião de 1 h 30 min (`luciana4_transcricao.md`) + `luciana4_pdf_anotado.pdf` + `luciana4_texto_xgboost.docx` | Resumo, Capítulos 1 a 3 e Capítulo 4 até a Seção 4.2.1 |
 
-A leitura das marcas manuscritas está em `anotacoes_manuscritas_pdf.md`, com a confiança de cada leitura. Os capítulos 3, 4, 5 e 6
-**ainda não foram lidos por ela**: tudo o que este arquivo diz sobre eles é extrapolação dos princípios abaixo (marcada como tal).
+A leitura das marcas manuscritas das rodadas 1 a 3 está em `anotacoes_manuscritas_pdf.md`, com a confiança de cada leitura. A rodada 4
+(marcas, áudio e veredito de cada pedido conferido nos dados e no código) está em `luciana4_resumo_das_correcoes.md` e resumida na Seção 9.
+Os capítulos 4 (a partir da Seção 4.2.2), 5 e 6 **ainda não foram lidos por ela**: o que este arquivo diz sobre eles é extrapolação (marcada como tal).
 
 ---
 
@@ -170,7 +172,7 @@ Os problemas que ela apontou nos Capítulos 1 e 2 são estruturais e vão se rep
   ter a sensibilidade/ablação como suporte.
 - **Cada capítulo no seu papel:** metodologia não faz revisão, fundamentação não descreve o experimento, resultados não repetem a definição.
 
-## 8. Checklist de revisão de qualquer trecho (derivado das três rodadas)
+## 8. Checklist de revisão de qualquer trecho (derivado das rodadas 1 a 4)
 
 - [ ] Todo termo, sigla e símbolo está definido no primeiro uso, com a sigla **depois** da explicação?
 - [ ] O parágrafo motiva, ou só resume? (Motivação = por que quis fazer.)
@@ -181,3 +183,28 @@ Os problemas que ela apontou nos Capítulos 1 e 2 são estruturais e vão se rep
 - [ ] Nada falso ou polêmico (tabular, "acurácia", "estudo experimental", "comparação nunca é direta")?
 - [ ] Nada redundante (resumo de capítulo, "isto é…" óbvio, parágrafo sem contexto)?
 - [ ] O leitor da introdução entende sem saber o que é janela, recorte, contrato ou métrica?
+- [ ] A referência é só para trás (nada de "veja adiante")? O termo usado foi explicado antes?
+- [ ] O mesmo conceito tem sempre o mesmo nome (pico, variável exógena, neurônio, teste final)?
+
+## 9. Rodada 4 (cap. 1 a 4.2.1): o que mudou
+
+Detalhes, página a página e com veredito, em `luciana4_resumo_das_correcoes.md`. O que vale para o texto todo:
+
+- **Referenciar só para trás.** "Isso é para trás, não para frente": se algo é usado antes, a explicação sobe. Ela critica "explicado lá na frente".
+- **Explicar o termo antes de usar** (variável exógena, defasagem, L, h₀, estatísticas de normalização, gargalo).
+- **Fundamentação sem elaboração própria.** Figuras e definições da literatura (originais de Sutskever, Bahdanau, Chen e Guestrin; Wikimedia para RNN/LSTM),
+  com texto, figura e equação ligados. Nada sobre "o meu trabalho" no Capítulo 2.
+- **Equações:** depois de cada uma, "onde …" em vez de "Na Equação X, …".
+- **Estrutura do Capítulo 2:** 2.1 Séries temporais (janelas e exógenas; validação temporal; dados faltantes), 2.2 Redes neurais (RNN/LSTM; Seq2Seq), 2.3 XGBoost,
+  2.4 Treinamento, 2.5 Métricas (com comparação estatística). Seção só quebra quando muda o assunto.
+- **Termos únicos:** "neurônio" (não "unidade"), "variável exógena" (não "auxiliar"), "pico" (não "evento de alta concentração", "cauda" ou sinônimos),
+  "conjunto de dados" (não "artefato"), "estudos preliminares". O limiar de 35 µg/m³ precisa ser explicado de onde vem (perto da meta intermediária 3 da OMS, 37,5 µg/m³ em 24 h).
+- **Motivação:** tirar a **seção**, manter o texto corrido na introdução. **Objetivos específicos** = etapas da metodologia.
+- **Quantos modelos:** ela conta referências ingênuas também como modelos. Usar sempre a mesma contagem: 4 famílias, 7 modelos treinados, 5 referências ingênuas.
+- **Períodos:** ela não entendeu "teste histórico" nem por que há holdout se há validação cruzada. Adotado: "teste preliminar" (2020, consultado nos estudos
+  preliminares, só no apêndice) e "teste final" (2021–2023), com a função de cada um explicada (validação cruzada escolhe, teste final mede).
+- **Escolha da estação:** o parágrafo parecia contraditório (previsibilidade × picos). Reescrito como critério claro com tabela Rio Doce × Sapo.
+- **Figuras:** devem ficar perto do texto que as chama (LaTeX empurrava figuras para longe). Conferir o PDF ao final.
+- **Tamanho:** 110 páginas é excessivo para TCC de graduação; resultados com o essencial no texto e tabelas complementares no apêndice.
+- **Horizonte de 24 h:** a referência à Resolução CONAMA 491/2018 foi retirada (parcialmente revogada pela 506/2024 e não justifica o horizonte).
+- **Fluxo:** ela lê os Capítulos 4 a 6 enquanto as correções anteriores são feitas; mandar o Capítulo 4 arrumado primeiro.
