@@ -6,7 +6,7 @@ Este apêndice reúne as tabelas citadas no texto que não couberam no corpo dos
 
 \section{Busca de Hiperparâmetros}
 
-A Tabela~\ref{tab:hpo_espaco_busca} apresenta o espaço de busca de hiperparâmetros, e a Tabela~\ref{tab:hpo_melhores}, a configuração escolhida para cada caso (Seção~\ref{sec:treinamento_hpo}).
+A Tabela~\ref{tab:hpo_espaco_busca} apresenta o espaço de busca de hiperparâmetros, e as Tabelas~\ref{tab:hpo_melhores} e~\ref{tab:hpo_xgboost}, a configuração escolhida para as redes e para o XGBoost (Seção~\ref{sec:treinamento_hpo}). Na Tabela~\ref{tab:hpo_xgboost}, a busca sem o PM10 chegou aos mesmos valores da comparação principal.
 
 \begin{table}[htbp]
     \centering
@@ -36,9 +36,13 @@ A Tabela~\ref{tab:hpo_espaco_busca} apresenta o espaço de busca de hiperparâme
 
 \section{Tabelas Complementares do Teste Final}
 
-As tabelas desta seção detalham resultados discutidos no Capítulo~\ref{chap:resultados}, na ordem em que são citados.
+As tabelas desta seção detalham resultados discutidos no Capítulo~\ref{chap:resultados}.
 
 \inputtabela{matriz_holdout}
+
+\inputtabela{fatorial_perda_holdout}
+
+\inputtabela{janela_validacao}
 
 \inputtabela{eventos_holdout}
 
@@ -56,8 +60,10 @@ As tabelas desta seção detalham resultados discutidos no Capítulo~\ref{chap:r
 
 \inputtabela{verificacao_hpo_holdout}
 
+\inputtabela{contexto_holdout}
+
 \section{Resultados do Teste Preliminar}
 
-A Tabela~\ref{tab:metricas_teste_historico} apresenta as métricas no teste preliminar (27 de maio a 31 de dezembro de 2020). Esse período foi consultado nos estudos preliminares e, por isso, não serve como teste independente (Seção~\ref{sec:divisao_temporal}); seus resultados são apresentados apenas para mostrar que o quadro é semelhante ao do teste final. Observe que, também nesse período, a regressão Ridge (MAE de 2,673), o XGBoost (2,696) e o Seq2Seq com atenção adaptado (2,721) têm os menores erros, todos os modelos treinados superam as previsões ingênuas, e o erro cresce devagar com o horizonte.
+A Tabela~\ref{tab:metricas_teste_historico} apresenta as métricas no teste preliminar (27 de maio a 31 de dezembro de 2020). Esse período foi consultado durante o desenvolvimento e, por isso, não serve como teste independente (Seção~\ref{sec:divisao_temporal}); seus resultados são apresentados apenas para mostrar que o quadro é semelhante ao do teste final. Observe que, também nesse período, a regressão Ridge (MAE de 2,673), o XGBoost (2,696) e o Seq2Seq com atenção por faixas (2,721) têm os menores erros, todos os modelos treinados superam as previsões ingênuas, e o erro cresce devagar com o horizonte.
 
 \inputtabela{metricas_teste_historico}

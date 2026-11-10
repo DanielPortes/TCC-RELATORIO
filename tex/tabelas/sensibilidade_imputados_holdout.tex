@@ -6,14 +6,14 @@
     \begin{adjustbox}{max width=\textwidth}
     \begin{tabular}{lrrrrrrr}
         \toprule
-        Modelo & Pares observados & Pares imputados & MAE observados & MAE imputados & MAE todos & Posição (observados) & Posição (todos) \\
+        Modelo & Pares observados & Pares preenchidos & MAE observados & MAE preenchidos & MAE todos & Posição (observados) & Posição (todos) \\
         \midrule
-        LSTM direta (Huber) & 549252 & 81168 & 2,979 & 3,535 & 3,051 & 6 & 6 \\
-        LSTM recursiva (Huber) & 549252 & 81168 & 2,944 & 3,271 & 2,986 & 4 & 5 \\
-        Seq2Seq básico (Huber) & 549252 & 81168 & 2,965 & 3,103 & 2,982 & 5 & 4 \\
-        Seq2Seq atenção padrão (Huber) & 549252 & 81168 & 2,870 & 3,087 & 2,898 & 2 & 2 \\
-        Seq2Seq atenção adaptado (Huber) & 549252 & 81168 & 2,876 & 3,398 & 2,943 & 3 & 3 \\
-        XGBoost (erro abs.) & 549252 & 81168 & 2,767 & 2,511 & 2,734 & 1 & 1 \\
+        LSTM direta (Huber) & 549.252 & 81.168 & 2,979 & 3,535 & 3,051 & 6 & 6 \\
+        LSTM recursiva (Huber) & 549.252 & 81.168 & 2,944 & 3,271 & 2,986 & 4 & 5 \\
+        Seq2Seq básico (Huber) & 549.252 & 81.168 & 2,965 & 3,103 & 2,982 & 5 & 4 \\
+        Seq2Seq com atenção (Huber) & 549.252 & 81.168 & 2,870 & 3,087 & 2,898 & 2 & 2 \\
+        Seq2Seq com atenção por faixas (Huber) & 549.252 & 81.168 & 2,876 & 3,398 & 2,943 & 3 & 3 \\
+        XGBoost (erro abs.) & 549.252 & 81.168 & 2,767 & 2,511 & 2,734 & 1 & 1 \\
         \bottomrule
     \end{tabular}
     \end{adjustbox}

@@ -342,7 +342,7 @@
 \def\orientador#1{\gdef\@orientador{#1}}
 \def\ttorientador#1{\gdef\@ttorientador{#1}}
 \def\setorientador{%
-     Orientador: \@orientador \\ \footnotesize\@ttorientador}
+     Orientadora: \@orientador \\ \footnotesize\@ttorientador}
 \def\ttcoorientador#1{\gdef\@ttcoorientador{#1}}
 \def\coorientador#1{\gdef\@coorientador{#1}\co@dtrue}
 \def\setcoorientador{%
@@ -529,11 +529,11 @@
  \end{flushright}
  \begin{flushright}
  \ifco@d
- { Orientador: \@orientador}\\
+ { Orientadora: \@orientador}\\
 
  { Coorientador: \@coorientador}
     \else
- {  Orientador: \@orientador}
+ {  Orientadora: \@orientador}
  \fi
  \end{flushright}
  \vfill

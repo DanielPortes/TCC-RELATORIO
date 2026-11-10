@@ -1,25 +1,26 @@
 \begin{table}[!htbp]
     \centering
-    \caption{Métricas nas horas de pico e amplitude no teste preliminar (jun.--dez./2020)}
+    \caption{Métricas nas horas de pico e amplitude no teste preliminar (27/05 a 31/12/2020) (MAE em µg/m³)}
     \label{tab:cauda_teste_historico}
     \small
     \begin{adjustbox}{max width=\textwidth}
-    \begin{tabular}{lrrrrrrr}
+    \begin{tabular}{lrrrrrr}
         \toprule
-        Modelo & MAE $\geq$25 & MAE $\geq$35 & MAE $\geq$50 & Subestim. $\geq$35 & Razão DP & p99 prev. & p99 obs. \\
+        Modelo & MAE $\geq$25 & MAE $\geq$35 & MAE $\geq$50 & Subestim. $\geq$35 (\%) & Razão DP & p99 prev. \\
         \midrule
-        LSTM direta (Huber) & 8,722 & 14,370 & 27,061 & 0,996 & 0,728 & 28,157 & 34 \\
-        LSTM recursiva (Huber) & 6,884 & 12,281 & 18,524 & 0,979 & 0,850 & 30,322 & 34 \\
-        Seq2Seq básico (Huber) & 7,452 & 11,414 & 21,580 & 0,704 & 0,964 & 34,366 & 34 \\
-        Seq2Seq atenção padrão (Huber) & 7,444 & 12,846 & 22,153 & 0,988 & 0,790 & 29,887 & 34 \\
-        Seq2Seq atenção adaptado (Huber) & 7,441 & 13,295 & 24,148 & 0,998 & 0,783 & 29,271 & 34 \\
-        XGBoost (erro abs.) & 7,280 & 13,405 & 26,076 & 0,986 & 0,769 & 27,934 & 34 \\
-        Persistência y(t) & 8,290 & 11,977 & 25,083 & 0,879 & 0,987 & 33,000 & 34 \\
-        Sazonal y(t-24) & 7,371 & 12,423 & 24,000 & 0,936 & 0,990 & 33,000 & 34 \\
-        Sazonal y(t-48) & 8,114 & 13,508 & 21,000 & 0,871 & 0,996 & 34,000 & 34 \\
-        Média móvel 6 h & 7,720 & 11,923 & 25,479 & 0,933 & 0,843 & 32,500 & 34 \\
-        Média móvel 24 h & 7,646 & 12,596 & 27,800 & 0,993 & 0,746 & 31,500 & 34 \\
-        Ridge & 7,028 & 12,440 & 23,485 & 0,989 & 0,770 & 29,389 & 34 \\
+        LSTM direta (Huber) & 7,89 & 13,55 & 27,06 & 98,97 & 0,73 & 28,16 \\
+        LSTM recursiva (Huber) & 6,25 & 11,45 & 18,52 & 96,11 & 0,85 & 30,32 \\
+        Seq2Seq básico (Huber) & 6,79 & 10,89 & 21,58 & 68,42 & 0,96 & 34,37 \\
+        Seq2Seq com atenção (Huber) & 6,76 & 11,96 & 22,15 & 96,64 & 0,79 & 29,89 \\
+        Seq2Seq com atenção por faixas (Huber) & 6,75 & 12,28 & 24,15 & 98,75 & 0,78 & 29,27 \\
+        XGBoost (erro abs.) & 7,28 & 13,40 & 26,08 & 98,57 & 0,77 & 27,93 \\
+        Regressão Ridge & 7,03 & 12,44 & 23,49 & 98,93 & 0,77 & 29,39 \\
+        \midrule
+        Persistência & 8,29 & 11,98 & 25,08 & 87,91 & 0,99 & 33,00 \\
+        Sazonal de 24 h & 7,37 & 12,42 & 24,00 & 93,55 & 0,99 & 33,00 \\
+        Sazonal de 48 h & 8,11 & 13,51 & 21,00 & 87,11 & 1,00 & 34,00 \\
+        Média móvel 6 h & 7,72 & 11,92 & 25,48 & 93,29 & 0,84 & 32,50 \\
+        Média móvel 24 h & 7,65 & 12,60 & 27,80 & 99,28 & 0,75 & 31,50 \\
         \bottomrule
     \end{tabular}
     \end{adjustbox}

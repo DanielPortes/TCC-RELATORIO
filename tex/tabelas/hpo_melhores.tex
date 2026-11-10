@@ -1,26 +1,45 @@
 \begin{table}[!htbp]
     \centering
-    \caption{Hiperparâmetros selecionados pela busca com validação em janela expansiva}
+    \caption[Hiperparâmetros escolhidos para as redes neurais]{Hiperparâmetros escolhidos para as redes neurais. As cinco primeiras linhas são os modelos da comparação principal; as demais, as verificações. A coluna Taxa é a taxa de aprendizado; Decaimento, o decaimento de pesos; $\delta$, o parâmetro da perda de Huber; e Completas, quantas das 24 tentativas da busca foram até o fim.}
     \label{tab:hpo_melhores}
     \small
-    \begin{adjustbox}{max width=\textwidth}
-    \begin{tabular}{>{\raggedright\arraybackslash}p{0.14\textwidth}rrr>{\raggedright\arraybackslash}p{0.52\textwidth}}
+    \setlength{\tabcolsep}{4pt}
+    \begin{tabular}{>{\raggedright\arraybackslash}p{0.24\textwidth}rrrrrrr}
         \toprule
-        Modelo & Tentativas & Podadas & Época mediana da poda & Hiperparâmetros \\
+        Modelo & Taxa & Decaimento & \textit{Dropout} & Camadas & Neurônios & $\delta$ & Completas \\
         \midrule
-        LSTM direta (Huber) & 24 & 17 & 12 & taxa de aprendizado = 0,0025; decaimento de pesos = 0,0001; dropout = 0,3; camadas = 2; unidades ocultas = 192; agregação = atenção; $\delta$ de Huber = 0,5 \\
-        LSTM direta (Huber) [PM10 só no histórico] & 24 & 18 & 4 & taxa de aprendizado = 0,0025; decaimento de pesos = 1e-06; dropout = 0,3; camadas = 2; unidades ocultas = 320; agregação = média; $\delta$ de Huber = 0,5 \\
-        LSTM direta (Huber) [só PM2,5 e tempo] & 24 & 16 & 4 & taxa de aprendizado = 0,0012; decaimento de pesos = 1e-06; dropout = 0,3; camadas = 2; unidades ocultas = 320; agregação = média; $\delta$ de Huber = 2 \\
-        LSTM direta (abs. pond., HPO própria) & 24 & 16 & 4 & taxa de aprendizado = 0,007; decaimento de pesos = 1e-06; dropout = 0,05; camadas = 2; unidades ocultas = 192; agregação = atenção; $\delta$ de Huber = 1 \\
-        LSTM recursiva (Huber) & 24 & 14 & 4 & taxa de aprendizado = 0,0018; decaimento de pesos = 5e-06; dropout = 0,05; camadas = 3; unidades ocultas = 320; $\delta$ de Huber = 1 \\
-        Seq2Seq atenção padrão (Huber) & 24 & 16 & 4 & taxa de aprendizado = 0,0025; decaimento de pesos = 5e-05; dropout = 0,15; camadas = 1; unidades do codificador = 160; unidades do decodificador = 160; unidades da atenção = 128; dimensão do horizonte = 16; $\delta$ de Huber = 0,5 \\
-        Seq2Seq atenção adaptado (Huber) & 24 & 13 & 4 & taxa de aprendizado = 0,007; decaimento de pesos = 5e-05; dropout = 0,3; camadas = 1; unidades do codificador = 128; unidades do decodificador = 160; unidades da atenção = 64; dimensão do horizonte = 8; $\delta$ de Huber = 1 \\
-        Seq2Seq atenção adaptado (abs. pond., HPO própria) & 24 & 15 & 4 & taxa de aprendizado = 0,007; decaimento de pesos = 1e-06; dropout = 0,3; camadas = 3; unidades do codificador = 160; unidades do decodificador = 160; unidades da atenção = 96; dimensão do horizonte = 24; $\delta$ de Huber = 0,5 \\
-        Seq2Seq básico (Huber) & 24 & 12 & 4 & taxa de aprendizado = 0,0018; decaimento de pesos = 5e-05; dropout = 0,05; camadas = 3; unidades ocultas = 96; $\delta$ de Huber = 1,5 \\
-        XGBoost (erro abs.) & 24 & 0 & -- & árvores = 320; taxa de aprendizado = 0,07453; max\_bin = 128; profundidade = 2; peso mínimo do filho = 0,6743; subsample = 0,6126; colsample = 0,8546; $\lambda$ = 0,7432; $\alpha$ = 1,126e-05; $\gamma$ = 0,09712; parada antecipada = 25 \\
-        XGBoost (erro abs.) [PM10 só no histórico] & 24 & 0 & -- & árvores = 480; taxa de aprendizado = 0,08094; max\_bin = 128; profundidade = 2; peso mínimo do filho = 4,72; subsample = 0,8809; colsample = 0,9092; $\lambda$ = 1,192; $\alpha$ = 8,888e-05; $\gamma$ = 4,624e-05; parada antecipada = 25 \\
-        XGBoost (erro abs.) [só PM2,5 e tempo] & 24 & 0 & -- & árvores = 320; taxa de aprendizado = 0,07453; max\_bin = 128; profundidade = 2; peso mínimo do filho = 0,6743; subsample = 0,6126; colsample = 0,8546; $\lambda$ = 0,7432; $\alpha$ = 1,126e-05; $\gamma$ = 0,09712; parada antecipada = 25 \\
+        LSTM direta & 0,0025 & $10^{-4}$ & 0,3 & 2 & 192 & 0,5 & 7 \\
+        LSTM recursiva & 0,0018 & $5\times10^{-6}$ & 0,05 & 3 & 320 & 1 & 10 \\
+        Seq2Seq básico & 0,0018 & $5\times10^{-5}$ & 0,05 & 3 & 96 & 1,5 & 12 \\
+        Seq2Seq com atenção & 0,0025 & $5\times10^{-5}$ & 0,15 & 1 & 160/160 & 0,5 & 8 \\
+        Seq2Seq com atenção por faixas & 0,007 & $5\times10^{-5}$ & 0,3 & 1 & 128/160 & 1 & 11 \\
+        \midrule
+        LSTM direta, perda ponderada & 0,007 & $10^{-6}$ & 0,05 & 2 & 192 & -- & 8 \\
+        Seq2Seq com atenção por faixas, perda ponderada & 0,007 & $10^{-6}$ & 0,3 & 3 & 160/160 & -- & 9 \\
+        LSTM direta, PM10 só na janela & 0,0025 & $10^{-6}$ & 0,3 & 2 & 320 & 0,5 & 6 \\
+        LSTM direta, sem PM10 & 0,0012 & $10^{-6}$ & 0,3 & 2 & 320 & 2 & 8 \\
         \bottomrule
     \end{tabular}
-    \end{adjustbox}
+\end{table}
+
+\begin{table}[!htbp]
+    \centering
+    \caption[Hiperparâmetros escolhidos para o XGBoost]{Hiperparâmetros escolhidos para o XGBoost na comparação principal e nas duas verificações sem o PM10. No XGBoost, as 24 tentativas de cada busca foram até o fim.}
+    \label{tab:hpo_xgboost}
+    \small
+    \begin{tabular}{lrrr}
+        \toprule
+        Hiperparâmetro & Comparação principal & PM10 só na janela & Sem PM10 \\
+        \midrule
+        Número máximo de árvores & 320 & 480 & 320 \\
+        Taxa de aprendizado & 0,0745 & 0,0809 & 0,0745 \\
+        Profundidade máxima & 2 & 2 & 2 \\
+        Peso mínimo por folha & 0,674 & 4,72 & 0,674 \\
+        Fração das janelas por árvore & 0,613 & 0,881 & 0,613 \\
+        Fração dos atributos por árvore & 0,855 & 0,909 & 0,855 \\
+        Penalização $\lambda$ & 0,743 & 1,19 & 0,743 \\
+        Penalização $\alpha$ & $1{,}1\times10^{-5}$ & $8{,}9\times10^{-5}$ & $1{,}1\times10^{-5}$ \\
+        Ganho mínimo por divisão ($\gamma$) & 0,0971 & $4{,}6\times10^{-5}$ & 0,0971 \\
+        \bottomrule
+    \end{tabular}
 \end{table}

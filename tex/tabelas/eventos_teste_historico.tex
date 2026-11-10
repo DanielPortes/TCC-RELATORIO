@@ -1,37 +1,38 @@
 \begin{table}[!htbp]
     \centering
-    \caption{Desempenho nos picos: teste preliminar (jun.--dez./2020)}
+    \caption{Desempenho nos picos: teste preliminar (27/05 a 31/12/2020)}
     \label{tab:eventos_teste_historico}
     \small
     \begin{adjustbox}{max width=\textwidth}
     \begin{tabular}{lrrrrrr}
         \toprule
-        Modelo & Limiar & Picos & MAE por pico & Viés no pico & Subestimação & Erro no máximo \\
+        Modelo & Corte & Picos & MAE por pico & Viés no pico & Subestimação & Erro no máximo \\
         \midrule
-        LSTM direta (Huber) & 35 & 21 & 16,210 & -16,210 & 0,999 & -17,147 \\
-        LSTM recursiva (Huber) & 35 & 21 & 13,168 & -13,149 & 0,987 & -13,912 \\
-        Seq2Seq básico (Huber) & 35 & 21 & 12,495 & -10,428 & 0,793 & -11,253 \\
-        Seq2Seq atenção padrão (Huber) & 35 & 21 & 14,178 & -14,178 & 1,000 & -15,032 \\
-        Seq2Seq atenção adaptado (Huber) & 35 & 21 & 14,501 & -14,501 & 1,000 & -15,354 \\
-        XGBoost (erro abs.) & 35 & 21 & 15,556 & -15,556 & 1,000 & -16,542 \\
-        Persistência y(t) & 35 & 21 & 13,880 & -13,869 & 0,989 & -14,921 \\
-        Sazonal y(t-24) & 35 & 21 & 14,368 & -14,249 & 0,940 & -15,381 \\
-        Sazonal y(t-48) & 35 & 21 & 15,753 & -14,221 & 0,876 & -15,619 \\
-        Média móvel 6 h & 35 & 21 & 14,337 & -14,337 & 1,000 & -15,374 \\
-        Média móvel 24 h & 35 & 21 & 15,391 & -15,391 & 1,000 & -16,433 \\
-        Ridge & 35 & 21 & 14,889 & -14,889 & 1,000 & -15,912 \\
-        LSTM direta (Huber) & 25 & 65 & 9,623 & -9,545 & 0,979 & -11,138 \\
-        LSTM recursiva (Huber) & 25 & 65 & 7,786 & -7,339 & 0,911 & -8,812 \\
-        Seq2Seq básico (Huber) & 25 & 65 & 7,866 & -7,057 & 0,859 & -8,475 \\
-        Seq2Seq atenção padrão (Huber) & 25 & 65 & 8,454 & -8,163 & 0,944 & -9,614 \\
-        Seq2Seq atenção adaptado (Huber) & 25 & 65 & 8,411 & -8,204 & 0,945 & -9,695 \\
-        XGBoost (erro abs.) & 25 & 65 & 8,989 & -8,979 & 0,994 & -10,620 \\
-        Persistência y(t) & 25 & 65 & 9,615 & -9,476 & 0,947 & -11,273 \\
-        Sazonal y(t-24) & 25 & 65 & 8,929 & -7,639 & 0,828 & -9,292 \\
-        Sazonal y(t-48) & 25 & 65 & 9,406 & -8,565 & 0,876 & -10,262 \\
-        Média móvel 6 h & 25 & 65 & 9,762 & -9,663 & 0,964 & -11,453 \\
-        Média móvel 24 h & 25 & 65 & 10,224 & -10,168 & 0,986 & -11,972 \\
-        Ridge & 25 & 65 & 9,003 & -8,885 & 0,955 & -10,517 \\
+        LSTM direta (Huber) & 35 & 22 & 16,676 & $-$16,674 & 0,997 & $-$17,875 \\
+        LSTM recursiva (Huber) & 35 & 22 & 13,699 & $-$13,679 & 0,994 & $-$14,757 \\
+        Seq2Seq básico (Huber) & 35 & 22 & 12,949 & $-$11,859 & 0,880 & $-$12,871 \\
+        Seq2Seq com atenção (Huber) & 35 & 22 & 14,688 & $-$14,673 & 0,992 & $-$15,850 \\
+        Seq2Seq com atenção por faixas (Huber) & 35 & 22 & 14,869 & $-$14,863 & 0,998 & $-$16,034 \\
+        XGBoost (erro abs.) & 35 & 22 & 15,621 & $-$15,621 & 1,000 & $-$16,839 \\
+        Regressão Ridge & 35 & 22 & 15,396 & $-$15,396 & 1,000 & $-$16,646 \\
+        \midrule
+        Persistência & 35 & 22 & 14,995 & $-$14,971 & 0,988 & $-$16,259 \\
+        Sazonal de 24 h & 35 & 22 & 14,787 & $-$13,774 & 0,925 & $-$15,727 \\
+        Sazonal de 48 h & 35 & 22 & 15,373 & $-$15,024 & 0,924 & $-$16,727 \\
+        Média móvel 6 h & 35 & 22 & 15,498 & $-$15,489 & 0,996 & $-$16,742 \\
+        Média móvel 24 h & 35 & 22 & 16,280 & $-$16,280 & 1,000 & $-$17,522 \\
+        LSTM direta (Huber) & 25 & 87 & 8,254 & $-$8,114 & 0,961 & $-$9,547 \\
+        LSTM recursiva (Huber) & 25 & 87 & 6,628 & $-$5,975 & 0,882 & $-$7,266 \\
+        Seq2Seq básico (Huber) & 25 & 87 & 6,702 & $-$5,676 & 0,834 & $-$6,966 \\
+        Seq2Seq com atenção (Huber) & 25 & 87 & 7,245 & $-$6,833 & 0,931 & $-$8,106 \\
+        Seq2Seq com atenção por faixas (Huber) & 25 & 87 & 7,220 & $-$6,861 & 0,933 & $-$8,193 \\
+        XGBoost (erro abs.) & 25 & 87 & 7,726 & $-$7,626 & 0,967 & $-$9,047 \\
+        Regressão Ridge & 25 & 87 & 7,836 & $-$7,638 & 0,952 & $-$9,079 \\
+        Persistência & 25 & 87 & 8,357 & $-$8,120 & 0,912 & $-$9,654 \\
+        Sazonal de 24 h & 25 & 87 & 7,707 & $-$6,456 & 0,818 & $-$7,862 \\
+        Sazonal de 48 h & 25 & 87 & 8,294 & $-$7,347 & 0,871 & $-$8,713 \\
+        Média móvel 6 h & 25 & 87 & 8,482 & $-$8,298 & 0,935 & $-$9,831 \\
+        Média móvel 24 h & 25 & 87 & 8,887 & $-$8,847 & 0,977 & $-$10,390 \\
         \bottomrule
     \end{tabular}
     \end{adjustbox}

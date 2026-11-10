@@ -1,0 +1,22 @@
+\begin{table}[!htbp]
+    \centering
+    \caption[Verificação com as estações vizinhas e com variáveis meteorológicas]{Verificação com as estações vizinhas e com variáveis meteorológicas: MAE no teste final (2021-$-$2023). A diferença e o IC de 95\% são do XGBoost em relação à primeira linha de cada série. Os valores da primeira linha diferem ligeiramente dos da comparação principal porque esta verificação usa uma montagem simplificada das entradas.}
+    \label{tab:contexto_holdout}
+    \small
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{llrrrl}
+        \toprule
+        Série prevista & Entradas & Ridge & XGBoost & $\Delta$ MAE & IC de 95\% \\
+        \midrule
+        Sapo & Apenas a própria estação & 2,806 & 2,776 & -- & -- \\
+        Sapo & + PM2,5 e PM10 das vizinhas & 2,832 & 2,775 & $-$0,001 & $-$0,015 a 0,012 \\
+        Sapo & + meteorologia do Aeroporto & 3,149 & 2,777 & 0,001 & $-$0,017 a 0,021 \\
+        Sapo & + vizinhas e meteorologia & 3,300 & 2,771 & $-$0,005 & $-$0,026 a 0,017 \\
+        Sapo & Treino com as três estações & 2,835 & 2,761 & $-$0,014 & $-$0,024 a $-$0,005 \\
+        \midrule
+        Aeroporto & Apenas a própria estação & 3,251 & 3,074 & -- & -- \\
+        Aeroporto & + meteorologia própria & 3,393 & 3,077 & 0,003 & $-$0,028 a 0,037 \\
+        \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}

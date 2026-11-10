@@ -42,9 +42,9 @@ Outra medida útil é a autocorrelação, que indica o quanto os valores da sér
 \subsection{Janelas, Defasagens e Variáveis Exógenas}
 \label{sec:janelas_variaveis_exogenas}
 
-Os modelos de aprendizado de máquina aprendem a partir de exemplos, cada um formado por um vetor de entrada e pela saída que se espera obter. Uma série temporal, porém, é uma única sequência contínua. Para usá-la, ela é dividida em exemplos por meio de uma \emph{janela deslizante} (janelamento): a janela de entrada reúne os \(L\) valores mais recentes até o instante \(t\), e a saída desejada reúne os \(H\) valores seguintes, na ordem em que ocorrem, de \(t+1\) a \(t+H\). O número \(L\) é o comprimento da janela de entrada, e \(H\) é o horizonte de previsão, isto é, quantos instantes à frente se deseja prever. Ao avançar a janela um instante de cada vez, obtém-se um novo exemplo a cada passo.
+Os modelos de aprendizado de máquina aprendem a partir de exemplos formados por um vetor de entrada e pela saída que se espera obter. Uma série temporal, porém, é uma única sequência contínua. Para ser usada, a série é dividida em exemplos por meio de uma \emph{janela deslizante} (janelamento): a janela de entrada reúne os \(L\) valores mais recentes até o instante \(t\), e a saída desejada reúne os \(H\) valores seguintes (de \(t+1\) a \(t+H\)). O número \(L\) é a ordem que representa o comprimento da janela de entrada, e \(H\) é o horizonte de previsão, isto é, quantos instantes à frente se deseja prever. Ao avançar a janela um instante de cada vez, obtém-se um novo exemplo a cada passo.
 
-A Figura~\ref{fig:janelamento} ilustra o procedimento com \(L=3\) e \(H=2\). Observe que cada linha é a mesma série, numerada pelo instante \(t=1,\ldots,9\), e que as caixas azuis mostram a entrada e as caixas laranja mostram a saída desejada. Na amostra 1, a entrada é formada por \(y_1\), \(y_2\) e \(y_3\), e a saída desejada por \(y_4\) e \(y_5\). Na amostra 2, a janela avança uma posição: a entrada passa a ser \(y_2\), \(y_3\) e \(y_4\), e a saída desejada, \(y_5\) e \(y_6\). E segue assim até percorrer toda a série.
+A Figura~\ref{fig:janelamento} ilustra o procedimento com \(L=3\) e \(H=2\). Observe que cada linha é a mesma série, numerada pelo instante \(t=1,\ldots,9\), e que as caixas azuis mostram a entrada e as caixas laranja mostram a saída desejada. Na amostra 1, a entrada é formada por \(y_1\), \(y_2\) e \(y_3\), e a saída desejada por \(y_4\) e \(y_5\). Na amostra 2, a janela avança uma posição: a entrada passa a ser \(y_2\), \(y_3\) e \(y_4\), e a saída desejada, \(y_5\) e \(y_6\). O processo se repete até o fim da série.
 
 \begin{figure}[htbp]
     \centering
@@ -66,7 +66,7 @@ A Figura~\ref{fig:janelamento} ilustra o procedimento com \(L=3\) e \(H=2\). Obs
         \node[box,fill=orange!45] at (2.5,-2.15) {};
         \node[anchor=west,font=\small] at (3.0,-2.15) {saída desejada (\(H=2\) valores)};
     \end{tikzpicture}
-    \caption{Janela deslizante sobre uma série, com \(L=3\) valores de entrada e \(H=2\) valores de saída. A cada amostra a janela avança um instante. Elaboração própria.}
+    \caption[Janela deslizante sobre uma série, com \(L=3\) valores de entrada e \(H=2\) valores de saída]{Janela deslizante sobre uma série, com \(L=3\) valores de entrada e \(H=2\) valores de saída. A cada amostra a janela avança um instante. Elaboração própria.}
     \label{fig:janelamento}
 \end{figure}
 
@@ -83,7 +83,7 @@ Há ainda informações que são conhecidas com antecedência para qualquer inst
 
 \noindent onde \(P\) é o período do ciclo, em instantes (por exemplo, \(P=24\) para o ciclo diário de uma série horária), e \(s(t)\) e \(c(t)\) variam continuamente e voltam ao mesmo valor a cada \(P\) instantes. Considere o ciclo diário, com \(t\) igual à hora do dia. Para \(t=23\), \((s,c)=(-0{,}259;\ 0{,}966)\); para \(t=0\), \((s,c)=(0;\ 1)\); e para \(t=12\), \((s,c)=(0;\ -1)\). A distância entre os pares de 23 h e de 0 h é 0,26, e a distância entre os pares de 0 h e de 12 h é 2. Com a hora usada como número, a ordem se inverteria: 23 h ficaria a 23 unidades da 0 hora, mais longe do que as 12 h.
 
-Com essas definições, seja \(\mathbf{x}_t\) o vetor de entrada no instante \(t\), com o valor da série, as variáveis exógenas, os atributos de calendário e as demais informações conhecidas nesse instante, e seja \(\mathbf{z}_{t+k}\), com \(k=1,\ldots,H\), o vetor das variáveis conhecidas de antemão para o instante futuro \(t+k\), como os termos periódicos. Um modelo \(f_{\theta}\), cujos parâmetros são reunidos em \(\theta\), transforma uma janela de entrada em uma previsão, conforme a Equação~\ref{eq:janela_supervisionada}.
+Com essas definições, seja \(\mathbf{x}_t\) o vetor de entrada no instante \(t\), com o valor da série, as variáveis exógenas, os atributos de calendário e as demais informações conhecidas nesse instante, e seja \(\mathbf{z}_{t+k}\), com \(k=1,\ldots,H\), o vetor das variáveis exógenas conhecidas de antemão para o instante futuro \(t+k\), como os termos periódicos. Um modelo \(f_{\theta}\), cujos parâmetros são reunidos em \(\theta\), transforma uma janela de entrada em uma previsão, conforme a Equação~\ref{eq:janela_supervisionada}.
 
 \begin{equation}
     \hat{\mathbf{y}}_{t+1:t+H}
@@ -95,25 +95,25 @@ Com essas definições, seja \(\mathbf{x}_t\) o vetor de entrada no instante \(t
     \label{eq:janela_supervisionada}
 \end{equation}
 
-\noindent onde \(\mathbf{x}_{t-L+1:t}\) é a janela de entrada, formada pelos vetores dos instantes \(t-L+1\) até \(t\); \(\mathbf{z}_{t+1:t+H}\) reúne as variáveis conhecidas de antemão para o horizonte; e \(\hat{\mathbf{y}}_{t+1:t+H}=(\hat{y}_{t+1},\ldots,\hat{y}_{t+H})\) é a sequência prevista. O acento circunflexo indica que o valor é uma previsão, e não uma observação. O treinamento consiste em ajustar \(\theta\) para que \(\hat{\mathbf{y}}\) se aproxime dos valores observados. O instante \(t\) é chamado de \emph{instante de emissão} da previsão.
+\noindent onde \(\mathbf{x}_{t-L+1:t}\) é a janela de entrada, formada pelos vetores dos instantes \(t-L+1\) até \(t\); \(\mathbf{z}_{t+1:t+H}\) reúne as variáveis exógenas conhecidas de antemão para o horizonte; e \(\hat{\mathbf{y}}_{t+1:t+H}=(\hat{y}_{t+1},\ldots,\hat{y}_{t+H})\) é a sequência prevista. O acento circunflexo indica que o valor é uma previsão, e não uma observação conhecida. O treinamento consiste em ajustar \(\theta\) para que \(\hat{\mathbf{y}}\) se aproxime dos valores observados. O instante \(t\) é chamado de \emph{instante de emissão} da previsão.
 
 \subsection{Previsão Multi-Horizonte}
 \label{sec:previsao_multi_horizonte}
 
-Quando \(H=1\), o modelo prevê apenas o instante seguinte. Quando \(H>1\), como na Equação~\ref{eq:janela_supervisionada}, ele precisa estimar vários instantes futuros a partir do mesmo instante de emissão \(t\); é a previsão multi-horizonte \cite{lim2021survey,benidis2022deep}. Há três estratégias principais para obter os \(H\) valores \cite{taieb2012review}:
+Quando \(H=1\), o modelo prevê apenas o instante seguinte. Quando \(H>1\), como na Equação~\ref{eq:janela_supervisionada}, ele precisa estimar vários instantes futuros a partir do mesmo instante de emissão \(t\); é a previsão multi-horizonte \cite{lim2021survey,benidis2022deep}. Entre as estratégias para obter os \(H\) valores \cite{taieb2012review}, três são as mais usuais:
 
 \begin{itemize}
     \item \textbf{Recursiva:} treina-se um modelo com \(H=1\), \(\hat{y}_{t+1}=g_{\theta}(\mathbf{x}_{t-L+1:t})\), e ele é aplicado repetidas vezes: a previsão \(\hat{y}_{t+1}\) é colocada no fim da janela, no lugar do valor que ainda não foi medido, para se obter \(\hat{y}_{t+2}\), e assim por diante até \(\hat{y}_{t+H}\). Essa estratégia é usada, por exemplo, pelo DeepAR \cite{salinas2020deepar}. Sua desvantagem é que o erro de uma previsão entra na entrada das seguintes e se acumula.
-    \item \textbf{Direta:} o modelo produz cada um dos \(H\) valores sem reutilizar as próprias previsões, como na Equação~\ref{eq:janela_supervisionada}. Isso pode ser feito com um modelo para cada horizonte, \(\hat{y}_{t+h}=g_{\theta}^{(h)}(\mathbf{x}_{t-L+1:t})\), ou com um único modelo de \(H\) saídas. Um exemplo é o MQ-RNN (\textit{Multi-horizon Quantile Recurrent Neural Network}) \cite{wen2017mqrnn}, que produz os vários horizontes de uma só vez.
+    \item \textbf{Direta:} o modelo produz cada um dos \(H\) valores sem reutilizar as próprias previsões, como na Equação~\ref{eq:janela_supervisionada}. Isso pode ser feito com um modelo para cada horizonte, \(\hat{y}_{t+k}=g_{\theta}^{(k)}(\mathbf{x}_{t-L+1:t})\), ou com um único modelo de \(H\) saídas. Um exemplo é o MQ-RNN (\textit{Multi-horizon Quantile Recurrent Neural Network}) \cite{wen2017mqrnn}, que produz os vários horizontes de uma só vez.
     \item \textbf{Codificador-decodificador:} uma parte do modelo, o codificador, resume a janela de entrada; outra parte, o decodificador, gera a sequência prevista a partir desse resumo, um instante de cada vez. O \textit{Temporal Fusion Transformer} \cite{lim2021tft}, por exemplo, contém uma estrutura desse tipo.
 \end{itemize}
 
-Nenhuma estratégia é superior em todos os casos: um amplo estudo empírico com redes recorrentes para previsão concluiu que não há solução universal \cite{hewamalage2021rnn}. Por isso, as três estratégias são comparadas neste trabalho.
+Nenhuma das três é superior em todos os casos \cite{taieb2012review}.
 
 \subsection{Validação Temporal}
 \label{sec:validacao_temporal}
 
-Para saber se um modelo prevê bem, é preciso avaliá-lo em dados que ele não viu durante o treinamento. Por isso, os dados são divididos em três conjuntos. O conjunto de \emph{treino} é usado para ajustar os parâmetros do modelo. O conjunto de \emph{validação} é usado para comparar configurações do modelo e escolher a melhor, sem alterar os parâmetros. O conjunto de \emph{teste} é reservado desde o início e usado apenas no final, para estimar a qualidade da previsão em dados novos, o que chamamos de capacidade de generalização.
+Para saber se um modelo prevê bem, é preciso avaliá-lo em dados que ele não viu durante o treinamento. Por isso, os dados são divididos em três conjuntos. O conjunto de \emph{treino} é usado para ajustar os parâmetros do modelo. O conjunto de \emph{validação} é usado para comparar configurações do modelo e escolher a melhor, sem alterar os parâmetros. O conjunto de \emph{teste} é reservado desde o início e usado apenas no final, para estimar a qualidade da previsão em dados novos, o que se chama de capacidade de generalização.
 
 O teste precisa ser separado da validação porque a configuração escolhida é justamente a que teve menor erro na validação. Como ela foi selecionada entre muitas, parte dessa vantagem pode ser sorte, e o erro de validação da configuração escolhida tende a ser otimista. Só um conjunto que não participou de nenhuma escolha fornece uma estimativa sem esse viés de seleção \cite{cawley2010overfitting}.
 
@@ -139,7 +139,7 @@ A validação cruzada tradicional repete a avaliação em várias divisões dos 
             \node at (4.5,{-0.6*\p}) {teste};
         }
     \end{tikzpicture}
-    \caption{Validação por janela expansiva com três partições. Em cada partição, o treino usa apenas dados anteriores à validação, e o bloco final fica reservado para o teste. Elaboração própria, com base em \citeonline{tashman2000out}, \citeonline{bergmeir2012crossvalidation} e \citeonline{hyndman2021forecasting}.}
+    \caption[Validação por janela expansiva com três partições]{Validação por janela expansiva com três partições. Em cada partição, o treino usa apenas dados anteriores à validação, e o bloco final fica reservado para o teste. Elaboração própria, com base em \citeonline{tashman2000out}, \citeonline{bergmeir2012crossvalidation} e \citeonline{hyndman2021forecasting}.}
     \label{fig:validacao_walk_forward}
 \end{figure}
 
@@ -158,7 +158,7 @@ Para \(K\) partições, o resultado usado para comparar configurações é a mé
 \subsection{Dados Faltantes, Imputação e Vazamento Temporal}
 \label{sec:dados_faltantes_imputacao}
 
-\subsubsection{Dados faltantes}
+\subsubsection{Dados Faltantes}
 
 Dados ambientais reais frequentemente apresentam lacunas, isto é, instantes em que a medição esperada não foi registrada. As causas incluem falhas do sensor, manutenção, problemas de comunicação e descarte de leituras inconsistentes. \citeonline{littlerubin2019statistical} distinguem os casos conforme o motivo da ausência: ela pode ser independente dos valores (por exemplo, uma queda de energia), depender de outras variáveis observadas, ou depender do próprio valor que deixou de ser medido (por exemplo, um sensor que falha justamente quando a concentração é alta). No último caso, a ausência carrega informação sobre o valor perdido e é mais difícil de tratar.
 
@@ -168,7 +168,7 @@ Imputação é o preenchimento das lacunas com valores estimados, o que permite 
 
 Um valor imputado é uma estimativa e não uma medição. Uma forma de informar essa diferença ao modelo é acrescentar um \emph{indicador de ausência}, uma variável que vale 1 quando o valor original estava faltando e 0 quando foi medido. \citeonline{lipton2016directly} e \citeonline{che2018recurrent} mostraram, em séries clínicas com muitas lacunas, que redes recorrentes que recebem esse indicador junto com os valores preenchidos têm desempenho melhor do que as que recebem apenas os valores preenchidos, porque o padrão de ausência também carrega informação. Considere uma série com os valores medidos 12, 14, --, --, 20, em que os traços são lacunas. A interpolação linear preenche as lacunas com 16 e 18, e o indicador de ausência correspondente é 0, 0, 1, 1, 0. O modelo recebe as duas colunas, \((12, 14, 16, 18, 20)\) e \((0, 0, 1, 1, 0)\), e pode aprender a confiar menos nos instantes marcados com 1.
 
-\subsubsection{Vazamento temporal}
+\subsubsection{Vazamento Temporal}
 
 Vazamento temporal ocorre quando uma etapa de preparação dos dados usa informação que não estaria disponível no instante real da previsão. Três exemplos ilustram o problema. No primeiro, a média e o desvio-padrão usados para normalizar a série (colocar as variáveis em escala comparável) são calculados com todos os dados, inclusive os de validação e de teste, de modo que estatísticas do futuro influenciam o treinamento. No segundo, uma lacuna na validação é preenchida por interpolação linear usando uma medição posterior ao instante de emissão. No terceiro, um atributo como a média das últimas 24 horas é calculado incluindo horas posteriores ao instante de emissão.
 
@@ -207,7 +207,7 @@ Na Figura~\ref{fig:neuronio_artificial_perceptron}, observe que cada entrada \(x
     \label{eq:neuronio_artificial}
 \end{equation}
 
-\noindent onde \(d\) é o número de entradas, \(a\) é a soma ponderada e \(\phi\) é a função de ativação, que introduz não linearidade à rede neural. Exemplos de função de ativação são a sigmoide, \(\sigma(a)=1/(1+e^{-a})\), que devolve valores entre 0 e 1, e a tangente hiperbólica, \(\tanh(a)\), que devolve valores entre \(-1\) e 1. Neste texto, \(\hat{y}\) é sempre a previsão produzida pela camada final da rede, e \(\mathbf{h}\) é o vetor de saídas de uma camada intermediária.
+\noindent onde \(d\) é o número de entradas, \(a\) é a soma ponderada e \(\phi\) é a função de ativação, que introduz não linearidade na rede neural. Exemplos de função de ativação são a sigmoide, \(\sigma(a)=1/(1+e^{-a})\), que devolve valores entre 0 e 1, e a tangente hiperbólica, \(\tanh(a)\), que devolve valores entre \(-1\) e 1. Neste texto, \(\hat{y}\) é sempre a previsão produzida pela camada final da rede, e \(\mathbf{h}\) é o vetor de saídas de uma camada intermediária.
 
 Uma rede neural organiza vários neurônios em camadas: as saídas de uma camada são as entradas da camada seguinte. A camada de índice \(\ell\) é descrita pela Equação~\ref{eq:camada_neural}.
 
@@ -222,7 +222,7 @@ Uma rede neural organiza vários neurônios em camadas: as saídas de uma camada
     \label{eq:camada_neural}
 \end{equation}
 
-\noindent onde \(\mathbf{h}^{(\ell-1)}\) é o vetor de saídas da camada anterior (na primeira camada, é a própria entrada), \(W^{(\ell)}\) é a matriz cujos elementos são os pesos da camada \(\ell\), \(\mathbf{b}^{(\ell)}\) é o vetor de vieses e \(\mathbf{h}^{(\ell)}\) é a saída da camada. O treinamento ajusta pesos e vieses para reduzir a \emph{perda}, um número que mede a distância entre as previsões e os valores observados. Para isso, calcula-se o gradiente da perda, isto é, a derivada da perda em relação a cada parâmetro, que indica em que direção e com que intensidade alterá-lo para reduzir a perda; a retropropagação é o procedimento que calcula esses gradientes camada por camada, da saída para a entrada \cite{goodfellow2016deep}.
+\noindent onde \(\mathbf{h}^{(\ell-1)}\) é o vetor de saídas da camada anterior (na primeira camada, é a própria entrada), \(W^{(\ell)}\) é a matriz cujos elementos são os pesos da camada \(\ell\), \(\mathbf{b}^{(\ell)}\) é o vetor de vieses e \(\mathbf{h}^{(\ell)}\) é a saída da camada. Em problemas de regressão, como o deste trabalho, a última camada não aplica a função de ativação, e a sua saída é a previsão \(\hat{y}\). O treinamento ajusta pesos e vieses para reduzir a \emph{perda}, um número que mede a distância entre as previsões e os valores observados. Para isso, calcula-se o gradiente da perda, isto é, a derivada da perda em relação a cada parâmetro, que indica em que direção e com que intensidade alterá-lo para reduzir a perda; a retropropagação é o procedimento que calcula esses gradientes camada por camada, da saída para a entrada \cite{goodfellow2016deep}.
 
 Aprendizado profundo (\textit{deep learning}) é o treinamento de redes neurais com várias camadas, em que cada camada produz uma representação mais elaborada dos dados \cite{goodfellow2016deep,lecun2015deep}. Ele é um caso particular do aprendizado de máquina.
 
@@ -243,19 +243,19 @@ Redes neurais recorrentes (\textit{Recurrent Neural Networks}, RNNs) são projet
 \begin{equation}
     \mathbf{h}_t = \tanh\left(U\mathbf{x}_t + V\mathbf{h}_{t-1} + \mathbf{b}\right),
     \qquad
-    \mathbf{o}_t = W\mathbf{h}_t + \mathbf{c}
+    \mathbf{o}_t = W\mathbf{h}_t + \mathbf{b}_y
     \label{eq:rnn}
 \end{equation}
 
-\noindent onde \(U\), \(V\) e \(W\) são as matrizes de pesos da figura, \(\mathbf{b}\) e \(\mathbf{c}\) são vetores de vieses e \(\mathbf{o}_t\) é a saída da rede no instante \(t\), que corresponde à previsão \(\hat{y}_t\) quando a rede é usada para prever. No primeiro instante, \(t=1\), não há estado anterior; usa-se um estado inicial \(\mathbf{h}_0\), normalmente igual ao vetor nulo \cite{goodfellow2016deep}. A partir daí, a informação dos primeiros instantes chega aos últimos pela cadeia de estados.
+\noindent onde \(U\), \(V\) e \(W\) são as matrizes de pesos da figura, \(\mathbf{b}\) e \(\mathbf{b}_y\) são vetores de vieses e \(\mathbf{o}_t\) é a saída da rede no instante \(t\), que corresponde à previsão \(\hat{y}_t\) quando a rede é usada para prever. No primeiro instante, \(t=1\), não há estado anterior; usa-se um estado inicial \(\mathbf{h}_0\), normalmente igual ao vetor nulo \cite{goodfellow2016deep}. A partir daí, a informação dos primeiros instantes chega aos últimos pela cadeia de estados.
 
-Essa cadeia também explica a principal dificuldade das RNNs simples. Para ajustar os pesos, é preciso saber como o estado de um instante antigo \(k\) influencia a perda \(\mathcal{L}_t\) em um instante posterior \(t\). Pela regra da cadeia, essa influência é um produto de derivadas, uma por passo de tempo, como mostra a Equação~\ref{eq:gradiente_rnn} \cite{bengio1994learning,pascanu2013difficulty}.
+Essa cadeia também explica a principal dificuldade das RNNs simples. Para ajustar os pesos, é preciso saber como o estado de um instante antigo \(\tau\) influencia a perda \(\mathcal{L}_t\) em um instante posterior \(t\). Pela regra da cadeia, essa influência é um produto de derivadas, uma por passo de tempo, como mostra a Equação~\ref{eq:gradiente_rnn} \cite{bengio1994learning,pascanu2013difficulty}.
 
 \begin{equation}
-    \frac{\partial \mathcal{L}_t}{\partial \mathbf{h}_k}
+    \frac{\partial \mathcal{L}_t}{\partial \mathbf{h}_\tau}
     =
     \frac{\partial \mathcal{L}_t}{\partial \mathbf{h}_t}
-    \prod_{j=k+1}^{t}\frac{\partial \mathbf{h}_j}{\partial \mathbf{h}_{j-1}},
+    \prod_{j=\tau+1}^{t}\frac{\partial \mathbf{h}_j}{\partial \mathbf{h}_{j-1}},
     \qquad
     \frac{\partial \mathbf{h}_j}{\partial \mathbf{h}_{j-1}}
     =
@@ -263,9 +263,9 @@ Essa cadeia também explica a principal dificuldade das RNNs simples. Para ajust
     \label{eq:gradiente_rnn}
 \end{equation}
 
-\noindent onde \(\operatorname{diag}(1-\mathbf{h}_j^{2})\) é a derivada da tangente hiperbólica, cujos valores estão entre 0 e 1, e \(V\) é a matriz recorrente da Equação~\ref{eq:rnn}. O produto tem \(t-k\) fatores. Quando esses fatores são, em geral, menores que 1, o produto diminui exponencialmente com a distância \(t-k\) e o gradiente desaparece: os instantes antigos praticamente não contribuem para o ajuste dos pesos, e a rede não aprende dependências longas. Quando são maiores que 1, o produto cresce exponencialmente e o gradiente explode: as atualizações dos pesos ficam enormes e instáveis, e o treinamento pode divergir. A explosão costuma ser contornada limitando o tamanho do gradiente \cite{pascanu2013difficulty}; o desaparecimento exige mudar a própria estrutura da rede.
+\noindent onde \(\operatorname{diag}(1-\mathbf{h}_j^{2})\) é a derivada da tangente hiperbólica, cujos valores estão entre 0 e 1, e \(V\) é a matriz recorrente da Equação~\ref{eq:rnn}. O produto tem \(t-\tau\) fatores. Quando esses fatores, em geral, reduzem o sinal (têm norma menor que 1), o produto diminui exponencialmente com a distância \(t-\tau\) e o gradiente desaparece: os instantes antigos praticamente não contribuem para o ajuste dos pesos, e a rede não aprende dependências longas. Quando o ampliam, o produto cresce exponencialmente e o gradiente explode: as atualizações dos pesos ficam enormes e instáveis, e o treinamento pode divergir. A explosão costuma ser contornada limitando o tamanho do gradiente \cite{pascanu2013difficulty}; o desaparecimento exige mudar a própria estrutura da rede.
 
-A rede de memória de curto e longo prazo (\textit{Long Short-Term Memory}, LSTM) foi proposta para reduzir o desaparecimento \cite{hochreiter1997long}. Ela acrescenta uma \emph{célula de memória} \(\mathbf{c}_t\), atualizada por somas em vez de multiplicações sucessivas, e três \emph{portões} (\textit{gates}) que controlam o que entra, o que permanece e o que sai dessa memória. Cada portão é um vetor de valores entre 0 e 1, obtido com a função sigmoide, que multiplica outro vetor elemento a elemento: valores próximos de 0 bloqueiam a informação, e valores próximos de 1 a deixam passar. A Figura~\ref{fig:lstm_cell} mostra a célula, e a Equação~\ref{eq:lstm} dá as operações correspondentes.
+A rede de memória de curto e longo prazo (\textit{Long Short-Term Memory}, LSTM) foi proposta para reduzir o desaparecimento \cite{hochreiter1997long}. Na forma usada hoje, que inclui o portão de esquecimento acrescentado por \citeonline{gers2000learning}, ela tem uma \emph{célula de memória} \(\mathbf{c}_t\), atualizada por somas em vez de multiplicações sucessivas, e três \emph{portões} (\textit{gates}) que controlam o que entra, o que permanece e o que sai dessa memória. Cada portão é um vetor de valores entre 0 e 1, obtido com a função sigmoide, que multiplica outro vetor elemento a elemento: valores próximos de 0 bloqueiam a informação, e valores próximos de 1 a deixam passar. A Figura~\ref{fig:lstm_cell} mostra a célula, e a Equação~\ref{eq:lstm} dá as operações correspondentes.
 
 \begin{figure}[htbp]
     \centering
@@ -276,12 +276,12 @@ A rede de memória de curto e longo prazo (\textit{Long Short-Term Memory}, LSTM
 
 \begin{equation}
 \begin{aligned}
-    \mathbf{f}_t &= \sigma(U_f\mathbf{x}_t + V_f\mathbf{h}_{t-1} + \mathbf{b}_f),\\
-    \mathbf{i}_t &= \sigma(U_i\mathbf{x}_t + V_i\mathbf{h}_{t-1} + \mathbf{b}_i),\\
+    \mathbf{F}_t &= \sigma(U_f\mathbf{x}_t + V_f\mathbf{h}_{t-1} + \mathbf{b}_f),\\
+    \mathbf{I}_t &= \sigma(U_i\mathbf{x}_t + V_i\mathbf{h}_{t-1} + \mathbf{b}_i),\\
     \tilde{\mathbf{c}}_t &= \tanh(U_c\mathbf{x}_t + V_c\mathbf{h}_{t-1} + \mathbf{b}_c),\\
-    \mathbf{o}_t &= \sigma(U_o\mathbf{x}_t + V_o\mathbf{h}_{t-1} + \mathbf{b}_o),\\
-    \mathbf{c}_t &= \mathbf{f}_t \odot \mathbf{c}_{t-1} + \mathbf{i}_t \odot \tilde{\mathbf{c}}_t,\\
-    \mathbf{h}_t &= \mathbf{o}_t \odot \tanh(\mathbf{c}_t)
+    \mathbf{O}_t &= \sigma(U_o\mathbf{x}_t + V_o\mathbf{h}_{t-1} + \mathbf{b}_o),\\
+    \mathbf{c}_t &= \mathbf{F}_t \odot \mathbf{c}_{t-1} + \mathbf{I}_t \odot \tilde{\mathbf{c}}_t,\\
+    \mathbf{h}_t &= \mathbf{O}_t \odot \tanh(\mathbf{c}_t)
 \end{aligned}
 \label{eq:lstm}
 \end{equation}
@@ -290,19 +290,19 @@ A rede de memória de curto e longo prazo (\textit{Long Short-Term Memory}, LSTM
 
 \begin{enumerate}
     \item A célula recebe, pela linha inferior da Figura~\ref{fig:lstm_cell}, a entrada atual \(\mathbf{x}_t\) e o estado oculto anterior \(\mathbf{h}_{t-1}\); pela linha superior, chega a memória anterior \(\mathbf{c}_{t-1}\).
-    \item O primeiro bloco \(\sigma\), marcado \(F_t\) na figura, é o \emph{portão de esquecimento} \(\mathbf{f}_t\) (primeira linha da equação). Ele decide quanto da memória anterior é mantido: o produto \(\mathbf{f}_t\odot\mathbf{c}_{t-1}\) corresponde ao primeiro círculo \(\times\) da linha superior.
-    \item O segundo bloco \(\sigma\), marcado \(I_t\), é o \emph{portão de entrada} \(\mathbf{i}_t\) (segunda linha), e o bloco \(\tanh\) ao seu lado produz o \emph{conteúdo candidato} \(\tilde{\mathbf{c}}_t\) (terceira linha), a informação nova que pode ser gravada. O produto \(\mathbf{i}_t\odot\tilde{\mathbf{c}}_t\) é somado à memória no círculo \(+\) da linha superior, o que resulta na nova memória \(\mathbf{c}_t\) (quinta linha).
-    \item O último bloco \(\sigma\), marcado \(O_t\), é o \emph{portão de saída} \(\mathbf{o}_t\) (quarta linha). Ele decide quanto da memória, depois de passar pela \(\tanh\) do lado direito, é exposto como novo estado oculto \(\mathbf{h}_t\) (sexta linha), que segue para o próximo instante e para a saída da rede.
+    \item O primeiro bloco \(\sigma\), marcado \(F_t\) na figura, é o \emph{portão de esquecimento} \(\mathbf{F}_t\) (primeira linha da equação). Ele decide quanto da memória anterior é mantido: o produto \(\mathbf{F}_t\odot\mathbf{c}_{t-1}\) corresponde ao primeiro círculo \(\times\) da linha superior.
+    \item O segundo bloco \(\sigma\), marcado \(I_t\), é o \emph{portão de entrada} \(\mathbf{I}_t\) (segunda linha), e o bloco \(\tanh\) ao seu lado produz o \emph{conteúdo candidato} \(\tilde{\mathbf{c}}_t\) (terceira linha), a informação nova que pode ser gravada. O produto \(\mathbf{I}_t\odot\tilde{\mathbf{c}}_t\) é somado à memória no círculo \(+\) da linha superior, o que resulta na nova memória \(\mathbf{c}_t\) (quinta linha).
+    \item O último bloco \(\sigma\), marcado \(O_t\), é o \emph{portão de saída} \(\mathbf{O}_t\) (quarta linha). Ele decide quanto da memória, depois de passar pela \(\tanh\) do lado direito, é exposto como novo estado oculto \(\mathbf{h}_t\) (sexta linha), que segue para o próximo instante e para a saída da rede.
 \end{enumerate}
 
-A quinta linha é o que reduz o desaparecimento do gradiente: de um instante para o seguinte, a memória é multiplicada apenas pelo portão de esquecimento \(\mathbf{f}_t\). Se esse portão fica próximo de 1, a informação, e com ela o gradiente, atravessa muitos passos sem diminuir \cite{hochreiter1997long,goodfellow2016deep}. Os círculos rosa da figura, \(o_{t-1}\), \(o_t\) e \(o_{t+1}\), representam a saída da rede em cada instante, como na Figura~\ref{fig:rnn_desdobrada}, e não devem ser confundidos com o portão de saída \(\mathbf{o}_t\) da equação.
+A quinta linha é o que reduz o desaparecimento do gradiente: de um instante para o seguinte, a memória é multiplicada apenas pelo portão de esquecimento \(\mathbf{F}_t\). Se esse portão fica próximo de 1, a informação, e com ela o gradiente, atravessa muitos passos sem diminuir \cite{hochreiter1997long,goodfellow2016deep}. Os círculos rosa da figura, \(o_{t-1}\), \(o_t\) e \(o_{t+1}\), representam a saída da rede em cada instante, como na Figura~\ref{fig:rnn_desdobrada}, e não devem ser confundidos com o portão de saída \(\mathbf{O}_t\) da equação.
 
 \subsection{\textit{Sequence-to-Sequence} e Atenção}
 \label{sec:encoder_decoder_attention}
 
-Os modelos sequência-para-sequência (\textit{Sequence-to-Sequence}, Seq2Seq) foram propostos para transformar uma sequência de entrada em uma sequência de saída, que pode ter outro comprimento \cite{sutskever2014sequence}. Esse modelo é composto por duas redes recorrentes. O \emph{codificador} lê a sequência de entrada, um instante de cada vez, e a resume em seus estados. O \emph{decodificador} parte desse resumo e gera a sequência de saída também um instante de cada vez: no passo \(k\), ele produz o \(k\)-ésimo valor da saída, e esse valor é usado no passo seguinte. Na previsão de séries temporais, a sequência de entrada é a janela com os \(L\) valores observados, e a sequência de saída são os \(H\) valores previstos.
+Os modelos sequência-para-sequência (\textit{Sequence-to-Sequence}, Seq2Seq) foram propostos para transformar uma sequência de entrada em uma sequência de saída, que pode ter outro comprimento \cite{sutskever2014sequence}. Esse tipo de modelo é composto por duas redes recorrentes. O \emph{codificador} lê a sequência de entrada, um instante de cada vez, e a resume em seus estados. O \emph{decodificador} parte desse resumo e gera a sequência de saída também um instante de cada vez: no passo \(k\), ele produz o \(k\)-ésimo valor da saída, e esse valor é usado no passo seguinte. Na previsão de séries temporais, a sequência de entrada é a janela com os \(L\) valores observados, e a sequência de saída são os \(H\) valores previstos.
 
-A Figura~\ref{fig:seq2seq_sutskever} reproduz a figura original de \citeonline{sutskever2014sequence}, em que o modelo traduz a frase ``ABC'' na frase ``WXYZ''. Observe que cada retângulo é a mesma rede recorrente em um passo, e que a seta horizontal leva o estado de um passo ao seguinte, como na Figura~\ref{fig:rnn_desdobrada}. Nos três primeiros passos, o codificador lê A, B e C, sem produzir saída. No quarto passo, a entrada é o símbolo \texttt{<EOS>} (\textit{end of sequence}), que marca o fim da frase de entrada; a partir dele, o decodificador produz um elemento por passo (W, X, Y e Z), e cada elemento produzido é a entrada do passo seguinte (o W que sai do quarto passo entra, embaixo, no quinto), até que ele produza \texttt{<EOS>} na saída.
+A Figura~\ref{fig:seq2seq_sutskever} reproduz a figura original de \citeonline{sutskever2014sequence}, em que o modelo traduz a frase ``ABC'' na frase ``WXYZ''. Observe que cada retângulo é um passo de uma rede recorrente, e que a seta horizontal leva o estado de um passo ao seguinte, como na Figura~\ref{fig:rnn_desdobrada}; os três primeiros retângulos são o codificador e os demais, o decodificador. Nos três primeiros passos, o codificador lê A, B e C, sem produzir saída. No quarto passo, a entrada é o símbolo \texttt{<EOS>} (\textit{end of sequence}), que marca o fim da frase de entrada; a partir dele, o decodificador produz um elemento por passo (W, X, Y e Z), e cada elemento produzido é a entrada do passo seguinte (o W que sai do quarto passo entra, embaixo, no quinto), até que ele produza \texttt{<EOS>} na saída.
 
 \begin{figure}[htbp]
     \centering
@@ -313,7 +313,7 @@ A Figura~\ref{fig:seq2seq_sutskever} reproduz a figura original de \citeonline{s
 
 Na previsão de PM2,5, as letras são substituídas por concentrações. Com uma janela de \(L=3\) horas e horizonte \(H=2\), por exemplo, o codificador lê 12, 15 e 14~\(\mu\)g/m\(^3\), no lugar de A, B e C, e seu último estado resume a janela. No primeiro passo, o decodificador recebe esse resumo e o último valor observado, 14, e produz a previsão para a hora seguinte, digamos \(\hat{y}_{t+1}=13\), no lugar de W. No segundo passo, recebe o valor 13 e produz \(\hat{y}_{t+2}=11\), no lugar de X. Como o horizonte é fixo, não é preciso o símbolo \texttt{<EOS>}: o decodificador para depois de \(H\) passos.
 
-O codificador segue a Equação~\ref{eq:seq2seq_encoder}.
+A Equação~\ref{eq:seq2seq_encoder} apresenta como cada estado \(\mathbf{h}_j\) do codificador é calculado.
 
 \begin{equation}
     \mathbf{h}_j = \mathrm{Enc}_{\theta}(\mathbf{x}_{t-L+j}, \mathbf{h}_{j-1}),
@@ -353,39 +353,51 @@ O decodificador atualiza seu estado e produz a previsão conforme a Equação~\r
 \begin{equation}
 \begin{aligned}
     \mathbf{s}_k &= \mathrm{Dec}_{\theta}(\mathbf{s}_{k-1}, \tilde{y}_{t+k-1}, \mathbf{z}_{t+k}, \mathbf{c}_k),\\
-    \hat{y}_{t+k} &= g_{\theta}(\mathbf{s}_k, \mathbf{c}_k, \mathbf{z}_{t+k})
+    \hat{y}_{t+k} &= \mathrm{Out}_{\theta}(\mathbf{s}_k, \mathbf{c}_k, \mathbf{z}_{t+k})
 \end{aligned}
 \label{eq:seq2seq_decoder}
 \end{equation}
 
-\noindent onde \(\mathrm{Dec}_{\theta}\) é a rede recorrente do decodificador; \(\tilde{y}_{t+k-1}\) é o valor do passo anterior fornecido como entrada, que no exemplo numérico acima foi 14 no passo 1 e 13 no passo 2; \(\mathbf{z}_{t+k}\) são as variáveis conhecidas de antemão para o instante \(t+k\) (Seção~\ref{sec:janelas_variaveis_exogenas}); e \(g_{\theta}\) é a camada que converte o estado em previsão. A escolha desse valor durante o treinamento é discutida a seguir.
+\noindent onde \(\mathrm{Dec}_{\theta}\) é a rede recorrente do decodificador; \(\tilde{y}_{t+k-1}\) é o valor do passo anterior fornecido como entrada, que no exemplo numérico acima foi 14 no passo 1 e 13 no passo 2; \(\mathbf{z}_{t+k}\) são as variáveis conhecidas de antemão para o instante \(t+k\) (Seção~\ref{sec:janelas_variaveis_exogenas}); e \(\mathrm{Out}_{\theta}\) é a camada que converte o estado em previsão. O estado inicial do decodificador é o último estado do codificador, \(\mathbf{s}_0=\mathbf{h}_L\), e, no modelo sem atenção, \(\mathbf{c}_k\) é omitido.
 
 \subsection{Decodificador Autorregressivo e \textit{Teacher Forcing}}
 \label{sec:teacher_forcing}
 
-O decodificador da Seção~\ref{sec:encoder_decoder_attention} é \emph{autorregressivo}: usa, como entrada do passo \(k\), o valor do passo \(k-1\). Quando o modelo é usado de fato, para prever o futuro, esse valor só pode ser a previsão anterior do próprio modelo, porque o valor verdadeiro ainda não foi medido. Durante o treinamento, porém, o valor verdadeiro já é conhecido, e há duas possibilidades. No \textit{teacher forcing}, a entrada do passo seguinte é o valor verdadeiro anterior; no \textit{free running}, é a previsão anterior do modelo, como acontecerá no uso real. A Figura~\ref{fig:teacher_forcing} compara os dois modos.
+O decodificador da Seção~\ref{sec:encoder_decoder_attention} é \emph{autorregressivo}: usa, como entrada do passo \(k\), o valor do passo \(k-1\). Quando o modelo é usado de fato, para prever o futuro, esse valor só pode ser a previsão anterior do próprio modelo, porque o valor verdadeiro ainda não foi medido. Durante o treinamento, porém, o valor verdadeiro já é conhecido, e há duas possibilidades. No \textit{teacher forcing}, a entrada do passo seguinte é o valor verdadeiro anterior; no \textit{free running}, é a previsão anterior do modelo, como acontecerá no uso real. A Figura~\ref{fig:teacher_forcing} compara os dois modos nas duas primeiras linhas. Observe que, em todas as linhas, a seta horizontal leva o estado do decodificador de um passo ao seguinte e o primeiro passo recebe o último valor observado, \(y_t\). A diferença está na entrada dos passos seguintes, que é o \(\tilde{y}_{t+k-1}\) da Equação~\ref{eq:seq2seq_decoder}: o valor real \(y_{t+k-1}\), vindo dos dados, em \textit{teacher forcing}, e a previsão \(\hat{y}_{t+k-1}\) do próprio modelo em \textit{free running}.
 
 \begin{figure}[htbp]
     \centering
     \resizebox{0.95\linewidth}{!}{%
-    \begin{tikzpicture}[x=2.8cm,y=1.2cm,every node/.style={font=\small},dec/.style={draw,rounded corners,minimum width=1.4cm,minimum height=0.8cm,fill=orange!25}]
-        \node[anchor=east] at (0.35,0) {\textit{Teacher forcing}};
-        \node[anchor=east] at (0.35,-2.6) {\textit{Free running}};
+    \begin{tikzpicture}[x=3.2cm,y=1cm,every node/.style={font=\small},dec/.style={draw,rounded corners,minimum width=1.5cm,minimum height=0.8cm,fill=orange!25},seta/.style={-{Latex[length=2.2mm]}}]
+        \foreach \r/\y/\nome in {a/0/{\textit{Teacher forcing}},b/-3.6/{\textit{Free running}},c/-7.2/{Sem realimentação}}{
+            \node[anchor=east] at (0.45,\y) {\nome};
+            \foreach \i in {1,2,3}{
+                \node[dec] (\r\i) at (\i,\y) {passo \i};
+                \node (o\r\i) at (\i,\y+1.25) {\(\hat{y}_{t+\i}\)};
+                \draw[seta] (\r\i) -- (o\r\i);
+            }
+            \draw[seta,gray] (\r1) -- (\r2);
+            \draw[seta,gray] (\r2) -- (\r3);
+        }
+        % teacher forcing: entradas vêm dos dados
+        \node (ia1) at (1,-1.25) {\(y_t\)};
+        \node[blue!70!black] (ia2) at (2,-1.25) {valor real \(y_{t+1}\)};
+        \node[blue!70!black] (ia3) at (3,-1.25) {valor real \(y_{t+2}\)};
+        \foreach \i in {1,2,3}{\draw[seta] (ia\i) -- (a\i);}
+        % free running: a previsão volta como entrada
+        \node (ib1) at (1,-4.85) {\(y_t\)};
+        \node[green!40!black] (ib2) at (2,-4.85) {previsão \(\hat{y}_{t+1}\)};
+        \node[green!40!black] (ib3) at (3,-4.85) {previsão \(\hat{y}_{t+2}\)};
+        \foreach \i in {1,2,3}{\draw[seta] (ib\i) -- (b\i);}
+        \draw[seta,green!50!black,thick,dashed] (ob1.east) to[out=0,in=180] (ib2.west);
+        \draw[seta,green!50!black,thick,dashed] (ob2.east) to[out=0,in=180] (ib3.west);
+        % sem realimentação: último valor observado e variáveis conhecidas de antemão
         \foreach \i in {1,2,3}{
-            \node[dec] (a\i) at (\i,0) {passo \i};
-            \node[dec] (b\i) at (\i,-2.6) {passo \i};
-            \node (pa\i) at (\i,1.3) {\(\hat{y}_{\i}\)};
-            \node (pb\i) at (\i,-1.3) {\(\hat{y}_{\i}\)};
-            \draw[-{Latex[length=2.5mm]}] (a\i) -- (pa\i);
-            \draw[-{Latex[length=2.5mm]}] (b\i) -- (pb\i);
+            \node (ic\i) at (\i,-8.45) {\(y_t,\ \mathbf{z}_{t+\i}\)};
+            \draw[seta] (ic\i) -- (c\i);
         }
-        \foreach \i/\j in {1/2,2/3}{
-            \draw[-{Latex[length=2.5mm]},blue!70!black,thick] (a\i.south east) to[bend right=25] node[below,pos=0.5,font=\scriptsize] {valor real \(y_{\i}\)} (a\j.south west);
-            \draw[-{Latex[length=2.5mm]},green!50!black,thick] (pb\i.east) to[out=0,in=110] (b\j.north west);
-        }
-        \node[font=\scriptsize,green!40!black] at (2.0,-3.7) {a previsão \(\hat{y}\) de cada passo volta como entrada do passo seguinte};
     \end{tikzpicture}}
-    \caption{Duas formas de alimentar o decodificador no treinamento. Em \textit{teacher forcing} (azul), a entrada do passo seguinte é o valor real anterior; em \textit{free running} (verde), é a previsão anterior do modelo. Elaboração própria, com base em \citeonline{bengio2015scheduled}.}
+    \caption[Três formas de alimentar o decodificador]{Três formas de alimentar o decodificador. Em \textit{teacher forcing}, a entrada de cada passo é o valor real anterior; em \textit{free running}, é a previsão anterior do modelo (setas tracejadas); no decodificador sem realimentação, todos os passos recebem o último valor observado e as variáveis conhecidas de antemão. As variáveis conhecidas de antemão e o contexto de atenção, quando existem, entram em todos os passos e foram omitidos nas duas primeiras linhas. Elaboração própria, com base em \citeonline{bengio2015scheduled} e \citeonline{wen2017mqrnn}.}
     \label{fig:teacher_forcing}
 \end{figure}
 
@@ -394,15 +406,30 @@ Considere um exemplo: se o valor real em uma hora foi 12 e o modelo previu 11, o
 Nenhum dos dois modos é melhor em todos os casos; cada um resolve um problema e cria outro \cite{bengio2015scheduled}:
 
 \begin{itemize}
-    \item O \textbf{\textit{teacher forcing}} é a forma original de treinar decodificadores autorregressivos \cite{sutskever2014sequence}. No início do treinamento, as previsões do modelo ainda são ruins; recebendo sempre o valor correto, cada passo aprende a partir de uma entrada certa, e o treinamento é mais rápido e estável. O problema é que o decodificador nunca vê, no treino, os próprios erros que verá no uso real, e pode não saber lidar com eles: um erro no passo 1 vira uma entrada errada no passo 2, e assim por diante.
+    \item O \textbf{\textit{teacher forcing}} é a forma usual de treinar decodificadores autorregressivos \cite{sutskever2014sequence}. No início do treinamento, as previsões do modelo ainda são ruins; recebendo sempre o valor correto, cada passo aprende a partir de uma entrada certa, e o treinamento é mais rápido e estável. O problema é que o decodificador nunca vê, no treino, os próprios erros que verá no uso real, e pode não saber lidar com eles: um erro no passo 1 vira uma entrada errada no passo 2, e assim por diante.
     \item O \textbf{\textit{free running}} treina o modelo exatamente como ele será usado, recebendo as próprias previsões, e por isso o modelo aprende a conviver com seus erros. O problema é que, no início do treinamento, os erros se acumulam ao longo do horizonte, o que torna o treinamento mais lento e instável.
 \end{itemize}
 
-Quando há um descompasso grande entre treino e uso, \citeonline{bengio2015scheduled} propõem começar com \textit{teacher forcing} e passar gradualmente ao \textit{free running} ao longo do treinamento (\textit{scheduled sampling}). Essa técnica não foi usada neste trabalho.
+Há ainda um terceiro tipo de decodificador, que não é autorregressivo e ao qual, por isso, o \textit{teacher forcing} não se aplica: ele não reutiliza valor nenhum do passo anterior, como mostra a terceira linha da Figura~\ref{fig:teacher_forcing}. Nele, \(\tilde{y}_{t+k-1}\) é substituído, em todos os passos, pelo último valor observado \(y_t\), e o que muda de um passo para outro são as variáveis conhecidas de antemão \(\mathbf{z}_{t+k}\) e, quando há atenção, o contexto \(\mathbf{c}_k\). Como nenhuma previsão volta como entrada, não há acúmulo de erros, e o treinamento e o uso recebem exatamente as mesmas entradas: a escolha entre \textit{teacher forcing} e \textit{free running} não se aplica.
 
-A questão só existe para decodificadores autorregressivos. Há decodificadores que não recebem a previsão anterior como entrada, mas apenas o contexto e as variáveis conhecidas de antemão para cada passo; o MQ-RNN \cite{wen2017mqrnn} é um exemplo. Nesse caso, treino e uso recebem as mesmas entradas, e nenhum dos dois modos se aplica.
+\section{Regressão Linear}
+\label{sec:regressao_linear}
 
-Neste trabalho, os três casos aparecem: um modelo é treinado com \textit{teacher forcing}, outro com \textit{free running}, e os demais usam decodificadores sem realimentação. Isso permite observar, nos resultados, se o acúmulo de erros ao longo do horizonte depende da forma de treinamento.
+O modelo mais simples usado neste trabalho é a regressão linear, em que a previsão é uma soma ponderada dos atributos de entrada, conforme a Equação~\ref{eq:regressao_linear}.
+
+\begin{equation}
+    \hat{y} = w_0 + \sum_{j=1}^{p} w_j\,x_j
+    \label{eq:regressao_linear}
+\end{equation}
+
+\noindent onde \(x_1,\ldots,x_p\) são os \(p\) atributos de entrada, \(w_1,\ldots,w_p\) são os coeficientes e \(w_0\) é o termo constante. Os coeficientes são escolhidos para minimizar a soma dos erros quadráticos no treino. Quando há muitos atributos parecidos entre si, como valores de horas vizinhas de uma mesma série, esse ajuste se torna instável. A regressão Ridge \cite{hoerl1970ridge} resolve isso acrescentando uma penalidade aos coeficientes grandes, como mostra a Equação~\ref{eq:ridge}.
+
+\begin{equation}
+    \min_{w}\;\sum_{i=1}^{N}\left(y_i-\hat{y}_i\right)^2+\alpha\sum_{j=1}^{p}w_j^2
+    \label{eq:ridge}
+\end{equation}
+
+\noindent onde \(N\) é o número de exemplos de treino, \(y_i\) é o valor observado, \(\hat{y}_i\) é a previsão da Equação~\ref{eq:regressao_linear} e \(\alpha\geq 0\) é o coeficiente de penalização, um valor escolhido antes do treinamento: quanto maior, menores os coeficientes e mais suave o modelo. Por só representar relações lineares, a regressão serve de ponto de comparação para os modelos seguintes, que conseguem representar relações mais complexas.
 
 \section{Impulsionamento por Gradiente e XGBoost}
 \label{sec:xgboost}
@@ -482,7 +509,7 @@ Os \emph{parâmetros} de um modelo, como os pesos de uma rede neural ou os valor
 
 \paragraph{Otimizador e taxa de aprendizado.} O treinamento de uma rede percorre os dados de treino várias vezes; cada passagem completa é uma \emph{época}. A cada lote de exemplos, um otimizador baseado em gradiente, como o Adam ou o AdamW \cite{kingma2014adam,loshchilov2019decoupled}, altera os parâmetros na direção que reduz a perda (Seção~\ref{sec:redes_neurais_deep_learning}). A \emph{taxa de aprendizado} \(\eta\) controla o tamanho desse passo, isto é, o quanto os parâmetros mudam em cada atualização: uma taxa grande demais faz o treinamento oscilar, e uma pequena demais o torna lento. Ela pode ser constante ou seguir uma \emph{agenda}, um plano que a altera ao longo das épocas. Uma agenda comum combina aquecimento linear, em que a taxa cresce no início, e decaimento cosseno, em que ela diminui suavemente depois \cite{goyal2017accurate,loshchilov2017sgdr}.
 
-\paragraph{Sobreajuste.} O principal risco do treinamento é o \emph{sobreajuste}: o modelo memoriza particularidades do treino, inclusive o ruído, em vez de aprender padrões gerais, e passa a errar mais em dados novos. Três técnicas comuns reduzem esse risco nas redes neurais. O \textit{dropout} desliga aleatoriamente uma fração dos neurônios a cada passo do treinamento; como nenhum neurônio pode contar sempre com os outros, a rede não depende demais de poucos neurônios \cite{srivastava2014dropout}. O decaimento de pesos (\textit{weight decay}) acrescenta à perda uma penalidade proporcional ao tamanho dos pesos, o que favorece redes mais simples \cite{loshchilov2019decoupled}. A parada antecipada mede o erro no conjunto de validação ao fim de cada época e interrompe o treinamento quando ele deixa de melhorar por um número de épocas; os pesos guardados são os da época de menor erro de validação. A validação apenas mede o erro: ela não altera os pesos.
+\paragraph{Sobreajuste.} O principal risco do treinamento é o \emph{sobreajuste}: o modelo memoriza particularidades do treino, inclusive o ruído, em vez de aprender padrões gerais, e passa a errar mais em dados novos. Três técnicas comuns reduzem esse risco nas redes neurais. O \textit{dropout} desliga aleatoriamente uma fração dos neurônios a cada passo do treinamento; como nenhum neurônio pode contar sempre com os outros, a rede não depende demais de poucos neurônios \cite{srivastava2014dropout}. O decaimento de pesos (\textit{weight decay}) reduz um pouco os pesos a cada atualização, o que favorece redes mais simples \cite{loshchilov2019decoupled}. A parada antecipada mede o erro no conjunto de validação ao fim de cada época e interrompe o treinamento quando ele deixa de melhorar por um número de épocas; os pesos guardados são os da época de menor erro de validação. A validação apenas mede o erro: ela não altera os pesos.
 
 \paragraph{Função de perda.} A escolha da função de perda define o que o modelo procura minimizar. A perda quadrática eleva cada erro ao quadrado e é muito sensível a valores extremos; a perda absoluta usa o valor absoluto do erro. A perda de Huber combina as duas: é quadrática para erros pequenos e linear para erros grandes, o que a torna menos sensível a valores extremos do que a perda quadrática \cite{huber1964robust}. Para o erro \(e=y-\hat{y}\), ela é definida pela Equação~\ref{eq:huber}.
 
@@ -514,7 +541,7 @@ O Optuna é uma ferramenta que realiza essa busca \cite{akiba2019optuna}. Cada \
 \section{Métricas de Avaliação}
 \label{sec:metricas_avaliacao}
 
-Todas as medidas desta seção são usadas na avaliação dos modelos deste trabalho, cada uma para responder a uma pergunta diferente. Nas equações, \(N\) é o número de previsões avaliadas, \(y_i\) é o valor observado, \(\hat{y}_i\) é o valor previsto e \(\bar{y}\) é a média dos valores observados. O erro médio absoluto (\textit{Mean Absolute Error}, MAE) é a média das diferenças absolutas, como mostra a Equação~\ref{eq:mae}, e tem a mesma unidade da grandeza prevista (aqui, \(\mu\)g/m\(^3\)).
+ Nas equações, \(N\) é o número de previsões avaliadas, \(y_i\) é o valor observado, \(\hat{y}_i\) é o valor previsto e \(\bar{y}\) é a média dos valores observados. O erro médio absoluto (\textit{Mean Absolute Error}, MAE) é a média das diferenças absolutas, como mostra a Equação~\ref{eq:mae}, e tem a mesma unidade da grandeza prevista (aqui, \(\mu\)g/m\(^3\)).
 
 \begin{equation}
     \text{MAE} =
@@ -530,20 +557,9 @@ O erro quadrático médio (\textit{Mean Squared Error}, MSE) é a média dos err
     \label{eq:rmse}
 \end{equation}
 
-Como o quadrado é aplicado antes da média, um erro de 10 pesa 100 vezes mais que um erro de 1 dentro da soma, e a raiz final não desfaz esse peso. Por isso, o MAE e o RMSE respondem a perguntas diferentes \cite{willmott2005advantages,chai2014rmse}. O MAE responde ``quanto o modelo erra, em média, em uma hora típica''. O RMSE, por pesar mais os erros grandes, indica se o modelo erra muito em algumas horas: dois modelos com o mesmo MAE podem ter RMSE diferentes, e o de RMSE maior concentra seus erros em poucas horas, como os picos. Reportar os dois evita depender de uma única medida.
+Como o quadrado é aplicado antes da média, um erro de 10 pesa 100 vezes mais que um erro de 1 dentro da soma, e a raiz final não desfaz esse peso. Por isso, o MAE e o RMSE respondem a perguntas diferentes \cite{willmott2005advantages,chai2014rmse}. O MAE responde à pergunta ``quanto o modelo erra, em média, em uma hora típica''. O RMSE, por pesar mais os erros grandes, indica se o modelo erra muito em algumas horas: dois modelos com o mesmo MAE podem ter RMSE diferentes, e o de RMSE maior concentra seus erros em poucas horas, como os picos. Reportar os dois evita depender de uma única medida.
 
-Para expressar o erro em termos relativos, uma medida comum é o erro percentual médio absoluto (\textit{Mean Absolute Percentage Error}, MAPE), a média de \(|y_i-\hat{y}_i|/|y_i|\) em porcentagem. Como \(y_i\) aparece no denominador, o MAPE cresce muito quando os valores observados são pequenos, o que é comum no PM2,5. Duas medidas percentuais menos sensíveis a isso são o erro percentual absoluto ponderado (\textit{Weighted Absolute Percentage Error}, WAPE) e o MAPE simétrico (sMAPE) \cite{hyndman2006another}, definidos na Equação~\ref{eq:wape_smape}.
-
-\begin{equation}
-    \text{WAPE} =
-    100\,\frac{\sum_{i=1}^{N}|y_i - \hat{y}_i|}{\sum_{i=1}^{N}|y_i|},
-    \qquad
-    \text{sMAPE} =
-    \frac{100}{N}\sum_{i=1}^{N}\frac{2\,|y_i - \hat{y}_i|}{|y_i| + |\hat{y}_i|}
-    \label{eq:wape_smape}
-\end{equation}
-
-\noindent onde o WAPE é o erro absoluto total dividido pelo total observado, ou seja, o MAE em relação à média das observações, e, no sMAPE, o termo da soma é considerado zero quando \(y_i=\hat{y}_i=0\). O coeficiente de determinação, \(R^2\), compara o erro do modelo com a variabilidade do próprio alvo, conforme a Equação~\ref{eq:r2}.
+O coeficiente de determinação, \(R^2\), compara o erro do modelo com a variabilidade do próprio alvo, conforme a Equação~\ref{eq:r2}.
 
 \begin{equation}
     R^2 =
@@ -553,7 +569,7 @@ Para expressar o erro em termos relativos, uma medida comum é o erro percentual
 
 \noindent onde o denominador é o erro de uma previsão constante igual à média \(\bar{y}\). Valores próximos de 1 indicam que o modelo explica boa parte da variação; valores próximos de 0, que ele não supera essa previsão constante; e valores negativos, que ele é pior do que ela.
 
-As medidas acima indicam o tamanho do erro, mas não o seu sinal: um modelo que sempre prevê abaixo e outro que erra ora para cima, ora para baixo podem ter o mesmo MAE. O viés médio (\textit{Mean Bias Error}, MBE), na Equação~\ref{eq:mbe}, mostra a direção do erro.
+As medidas acima indicam o tamanho do erro, mas não o seu sinal: um modelo que sempre prevê abaixo e outro que erra ora para cima, ora para baixo podem ter o mesmo MAE. O viés médio (\textit{Mean Bias Error}, MBE), na Equação~\ref{eq:mbe}, mostra a direção do erro \cite{willmott2005advantages}.
 
 \begin{equation}
     \text{MBE} =
@@ -561,27 +577,19 @@ As medidas acima indicam o tamanho do erro, mas não o seu sinal: um modelo que 
     \label{eq:mbe}
 \end{equation}
 
-Valores negativos indicam que o modelo subestima a concentração de forma sistemática, e positivos, que a superestima. Em qualidade do ar, a subestimação é a direção mais preocupante, porque significa anunciar uma concentração menor do que a real.
+Valores negativos indicam que o modelo subestima a concentração de forma sistemática, e positivos, que a superestima.
 
-Um erro isolado também não diz se o modelo é útil: um MAE de 3~\(\mu\)g/m\(^3\) pode ser bom ou ruim, conforme a dificuldade da série. A \emph{habilidade} (\textit{skill score}) compara o erro do modelo com o de uma previsão de referência simples, como a repetição do último valor, conforme a Equação~\ref{eq:skill} \cite{murphy1988skill}.
+Um erro isolado também não diz se o modelo é útil: um MAE de 3~\(\mu\)g/m\(^3\) pode ser bom ou ruim, conforme a dificuldade da série. Por isso, o erro de um modelo é comparado com o de \emph{previsões ingênuas}, que não exigem treinamento, como repetir o último valor observado (persistência), repetir o valor da mesma hora do dia anterior (previsão sazonal) ou usar a média das últimas horas (média móvel) \cite{hyndman2021forecasting}. Um modelo só acrescenta algo se errar menos que elas.
 
-\begin{equation}
-    \text{Habilidade} =
-    1-\frac{\text{MAE}}{\text{MAE}_{\text{ref}}}
-    \label{eq:skill}
-\end{equation}
-
-\noindent onde \(\text{MAE}_{\text{ref}}\) é o MAE da previsão de referência no mesmo período. A habilidade é positiva quando o modelo erra menos que a referência; por exemplo, 0,10 indica um erro 10\% menor. Valores negativos indicam que o modelo não supera a referência.
-
-Por fim, o MAE pode ser calculado separadamente para cada horizonte \(h=1,\ldots,H\), como na Equação~\ref{eq:mae_horizonte}.
+Por fim, o MAE pode ser calculado separadamente para cada horizonte \(k=1,\ldots,H\), como na Equação~\ref{eq:mae_horizonte}.
 
 \begin{equation}
-    \text{MAE}_{h} =
-    \frac{1}{N_h}\sum_{i=1}^{N_h}|y_{i,h}-\hat{y}_{i,h}|
+    \text{MAE}_{k} =
+    \frac{1}{N_k}\sum_{i=1}^{N_k}|y_{i,k}-\hat{y}_{i,k}|
     \label{eq:mae_horizonte}
 \end{equation}
 
-\noindent onde \(N_h\) é o número de previsões avaliadas para o horizonte \(h\), \(y_{i,h}\) é o valor observado \(h\) instantes após a emissão da previsão \(i\) e \(\hat{y}_{i,h}\) é o valor previsto correspondente. O MAE global mistura previsões para a hora seguinte, mais fáceis, com previsões para 24 horas depois, mais difíceis. O MAE por horizonte separa esses casos e mostra se o erro cresce devagar ou rapidamente à medida que a previsão se afasta do instante de emissão. Isso importa para comparar as estratégias da Seção~\ref{sec:previsao_multi_horizonte}: na recursiva, por exemplo, o acúmulo de erros aparece como um crescimento do erro nos últimos horizontes \cite{taieb2012review}.
+\noindent onde \(N_k\) é o número de previsões avaliadas para o horizonte \(k\), \(y_{i,k}\) é o valor observado \(k\) instantes após a emissão da previsão \(i\) e \(\hat{y}_{i,k}\) é o valor previsto correspondente. O MAE global mistura previsões para a hora seguinte, mais fáceis, com previsões para 24 horas depois, mais difíceis. O MAE por horizonte separa esses casos e mostra se o erro cresce devagar ou rapidamente à medida que a previsão se afasta do instante de emissão. Isso importa para comparar as estratégias da Seção~\ref{sec:previsao_multi_horizonte}: na recursiva, por exemplo, o acúmulo de erros aparece como um crescimento do erro nos últimos horizontes \cite{taieb2012review}.
 
 \subsection{Comparação Estatística de Previsões}
 \label{sec:comparacao_estatistica}
@@ -590,7 +598,7 @@ Dois modelos com MAE parecidos podem diferir apenas por acaso do período avalia
 
 O \emph{bootstrap} faz essa estimativa por reamostragem \cite{efron1979bootstrap}. A ideia é criar muitos ``períodos de teste alternativos'' sorteando, \emph{com reposição}, partes do período original: cada parte sorteada volta ao conjunto antes do próximo sorteio, de modo que uma mesma parte pode aparecer mais de uma vez e outra pode não aparecer. Em cada período alternativo, recalcula-se a diferença de erro entre os modelos. Se essas diferenças ficam todas do mesmo lado do zero, a vantagem de um modelo não depende de quais partes do período foram usadas; se ora favorecem um modelo, ora o outro, a diferença observada pode ser apenas acaso.
 
-Em séries temporais, porém, os erros de horas vizinhas são parecidos, e as janelas de previsão se sobrepõem. Sortear horas isoladas misturaria horas de dias diferentes e destruiria essa dependência, o que faz a incerteza parecer menor do que é. O \emph{bootstrap em blocos}, proposto para séries temporais \cite{kunsch1989jackknife,politis1992circular}, sorteia blocos de horas consecutivas: dentro de cada bloco, a ordem e a dependência entre as horas são preservadas, e apenas a ordem dos blocos muda. É esse o procedimento usado neste trabalho para comparar os modelos. Na versão circular, o fim da série é ligado ao começo, para que todos os instantes tenham a mesma chance de entrar em um bloco \cite{politis1992circular}.
+Em séries temporais, porém, os erros de horas vizinhas são parecidos, e as janelas de previsão se sobrepõem. Sortear horas isoladas misturaria horas de dias diferentes e destruiria essa dependência, o que faria a incerteza parecer menor do que é. O \emph{bootstrap em blocos}, proposto para séries temporais \cite{kunsch1989jackknife,politis1992circular}, sorteia blocos de horas consecutivas: dentro de cada bloco, a ordem e a dependência entre as horas são preservadas, e apenas a ordem dos blocos muda. É esse o procedimento usado neste trabalho para comparar os modelos. Na versão circular, o fim da série é ligado ao começo, para que todos os instantes tenham a mesma chance de entrar em um bloco \cite{politis1992circular}.
 
 A Figura~\ref{fig:bootstrap_blocos} mostra o procedimento com um período de teste de seis semanas, dividido em blocos de uma semana. Observe que cada reamostragem tem o mesmo número de blocos do período original, mas alguns blocos aparecem repetidos (a semana 5, na reamostragem 1) e outros não aparecem. Para comparar dois modelos A e B, calcula-se, em cada reamostragem, a diferença \(\text{MAE}_A-\text{MAE}_B\), usando os mesmos blocos para os dois modelos. Repetindo isso, por exemplo, 2.000 vezes, obtêm-se 2.000 diferenças. Ordenando-as e descartando as 2,5\% menores e as 2,5\% maiores, o intervalo entre as restantes é o \emph{intervalo de confiança de 95\%} (IC): a faixa em que a diferença verdadeira provavelmente está. Se o IC for, por exemplo, de \(-0{,}25\) a \(-0{,}17\)~\(\mu\)g/m\(^3\), ele fica inteiro abaixo de zero, e o modelo A erra menos que o B. Se for de \(-0{,}07\) a \(0{,}01\), ele contém o zero: não há evidência de que um modelo seja melhor que o outro, o que se chama de \emph{empate estatístico}.
 
@@ -615,15 +623,6 @@ A Figura~\ref{fig:bootstrap_blocos} mostra o procedimento com um período de tes
         \node[anchor=west,font=\scriptsize] at (6.6,-2.1) {\(\Rightarrow\ \text{MAE}_A-\text{MAE}_B = d_2\)};
         \node[anchor=west,font=\scriptsize,align=left] at (6.6,-3.0) {\(d_1,d_2,\ldots,d_{2000}\ \Rightarrow\) IC de 95\%};
     \end{tikzpicture}
-    \caption{Bootstrap em blocos com blocos de uma semana. Dentro de cada bloco, as horas mantêm a ordem original; os blocos são sorteados com reposição, e a diferença de erro entre os modelos é recalculada em cada reamostragem. Elaboração própria, com base em \citeonline{kunsch1989jackknife} e \citeonline{politis1992circular}.}
+    \caption[Bootstrap em blocos com blocos de uma semana]{Bootstrap em blocos com blocos de uma semana. Dentro de cada bloco, as horas mantêm a ordem original; os blocos são sorteados com reposição, e a diferença de erro entre os modelos é recalculada em cada reamostragem. Elaboração própria, com base em \citeonline{kunsch1989jackknife} e \citeonline{politis1992circular}.}
     \label{fig:bootstrap_blocos}
 \end{figure}
-
-O teste de Diebold-Mariano \cite{diebold1995comparing} é uma segunda forma de responder à mesma pergunta, com um teste estatístico. Sendo \(d_t\) a diferença entre a perda do modelo A e a do modelo B na previsão emitida no instante \(t\), a estatística do teste é a média das diferenças dividida pelo seu erro-padrão, como na Equação~\ref{eq:dm}.
-
-\begin{equation}
-    DM=\frac{\bar{d}}{\sqrt{\widehat{V}(\bar{d})}}
-    \label{eq:dm}
-\end{equation}
-
-\noindent onde \(\bar{d}\) é a média das diferenças de perda, e \(\widehat{V}(\bar{d})\) é uma estimativa da variância dessa média que leva em conta a autocorrelação das diferenças, como a de \citeonline{newey1987simple}. A correção de \citeonline{harvey1997testing} ajusta o teste para amostras finitas. O resultado do teste é resumido pelo \emph{valor-\(p\)}: a probabilidade de observar uma diferença tão grande quanto a obtida se, na verdade, os dois modelos tivessem a mesma qualidade. Um valor-\(p\) pequeno (abaixo de 0,05, por convenção) indica que a diferença dificilmente é acaso. O bootstrap fornece o intervalo na própria unidade do erro, e o teste fornece um valor-\(p\); por isso, os dois são reportados juntos.

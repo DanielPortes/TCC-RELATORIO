@@ -1,22 +1,22 @@
 \begin{table}[!htbp]
     \centering
-    \caption{Fatores (perda, resíduo e perda auxiliar de pico), métricas nas horas de pico: teste preliminar (jun.--dez./2020)}
+    \caption{Fatores (perda, resíduo e perda auxiliar de pico), métricas nas horas de pico: teste preliminar (27/05 a 31/12/2020)}
     \label{tab:cauda_fatores_teste_historico}
     \small
     \begin{adjustbox}{max width=\textwidth}
-    \begin{tabular}{>{\raggedright\arraybackslash}p{0.33\textwidth}rrrrrrr}
+    \begin{tabular}{>{\raggedright\arraybackslash}p{0.41\textwidth}rrrrrr}
         \toprule
-        Modelo & MAE $\geq$25 & MAE $\geq$35 & MAE $\geq$50 & Subestim. $\geq$35 & Razão DP & p99 prev. & p99 obs. \\
+        Modelo & MAE $\geq$25 & MAE $\geq$35 & MAE $\geq$50 & Subestim. $\geq$35 & Razão DP & p99 prev. \\
         \midrule
-        LSTM direta (abs. pond.) & 8,206 & 13,482 & 25,131 & 0,996 & 0,776 & 29,681 & 34 \\
-        LSTM recursiva (abs. pond.) & 6,369 & 10,799 & 15,659 & 0,956 & 0,913 & 31,848 & 34 \\
-        Seq2Seq básico (abs. pond.) & 8,446 & 11,376 & 19,904 & 0,645 & 0,993 & 37,293 & 34 \\
-        Seq2Seq atenção padrão (abs. pond.) & 7,121 & 11,736 & 18,538 & 0,945 & 0,841 & 32,015 & 34 \\
-        Seq2Seq atenção adaptado (abs. pond.) & 7,075 & 12,205 & 22,590 & 0,985 & 0,827 & 30,728 & 34 \\
-        Seq2Seq atenção adaptado (abs. pond. + aux. de pico) & 7,063 & 11,652 & 22,719 & 0,931 & 0,837 & 31,312 & 34 \\
-        LSTM direta (Huber + resíduo) & 8,132 & 13,997 & 24,976 & 0,982 & 0,793 & 29,087 & 34 \\
-        Seq2Seq atenção adaptado (Huber + resíduo) & 7,541 & 12,775 & 24,527 & 0,941 & 0,823 & 30,459 & 34 \\
-        Seq2Seq atenção adaptado (abs. pond. + aux. de pico + resíduo) & 7,732 & 13,139 & 24,228 & 0,958 & 0,817 & 30,427 & 34 \\
+        LSTM direta (abs. pond.) & 7,507 & 12,606 & 25,131 & 0,990 & 0,776 & 29,681 \\
+        LSTM recursiva (abs. pond.) & 5,852 & 10,087 & 15,659 & 0,930 & 0,913 & 31,848 \\
+        Seq2Seq básico (abs. pond.) & 7,776 & 11,049 & 19,904 & 0,618 & 0,993 & 37,293 \\
+        Seq2Seq com atenção (abs. pond.) & 6,575 & 10,975 & 18,538 & 0,908 & 0,841 & 32,015 \\
+        Seq2Seq com atenção por faixas (abs. pond.) & 6,483 & 11,237 & 22,590 & 0,950 & 0,827 & 30,728 \\
+        Seq2Seq com atenção por faixas (abs. pond. + aux. de pico) & 6,476 & 10,872 & 22,719 & 0,891 & 0,837 & 31,312 \\
+        LSTM direta (Huber + resíduo) & 7,385 & 13,113 & 24,976 & 0,964 & 0,793 & 29,087 \\
+        Seq2Seq com atenção por faixas (Huber + resíduo) & 6,894 & 11,884 & 24,527 & 0,919 & 0,823 & 30,459 \\
+        Seq2Seq com atenção por faixas (abs. pond. + aux. de pico + resíduo) & 7,068 & 12,252 & 24,228 & 0,943 & 0,817 & 30,427 \\
         \bottomrule
     \end{tabular}
     \end{adjustbox}

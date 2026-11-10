@@ -4,14 +4,14 @@
     \label{tab:extras_holdout}
     \small
     \begin{adjustbox}{max width=\textwidth}
-    \begin{tabular}{>{\raggedright\arraybackslash}p{0.33\textwidth}lrrrrrl}
+    \begin{tabular}{>{\raggedright\arraybackslash}p{0.22\textwidth}>{\raggedright\arraybackslash}p{0.19\textwidth}rrrrrl}
         \toprule
         Caso & Base & MAE caso & MAE base & $\Delta$ MAE & IC inf. & IC sup. & Veredito \\
         \midrule
-        Seq2Seq atenção adaptado (abs. pond. + aux. de pico) & Seq2Seq atenção adaptado (abs. pond.) & 2,814 & 2,835 & -0,021 & -0,033 & -0,011 & melhor \\
-        LSTM direta (Huber + resíduo) & LSTM direta (Huber) & 2,969 & 2,965 & 0,004 & -0,037 & 0,044 & empate estatístico \\
-        Seq2Seq atenção adaptado (Huber + resíduo) & Seq2Seq atenção adaptado (Huber) & 2,946 & 2,884 & 0,063 & 0,018 & 0,112 & pior \\
-        Seq2Seq atenção adaptado (abs. pond. + aux. de pico + resíduo) & Seq2Seq atenção adaptado (abs. pond. + aux. de pico) & 2,914 & 2,814 & 0,099 & 0,065 & 0,144 & pior \\
+        Seq2Seq com atenção por faixas (abs. pond. + aux. de pico) & Seq2Seq com atenção por faixas (abs. pond.) & 2,814 & 2,835 & $-$0,021 & $-$0,032 & $-$0,011 & melhor \\
+        LSTM direta (Huber + resíduo) & LSTM direta (Huber) & 2,969 & 2,965 & 0,004 & $-$0,036 & 0,042 & empate estatístico \\
+        Seq2Seq com atenção por faixas (Huber + resíduo) & Seq2Seq com atenção por faixas (Huber) & 2,946 & 2,884 & 0,063 & 0,018 & 0,110 & pior \\
+        Seq2Seq com atenção por faixas (abs. pond. + aux. de pico + resíduo) & Seq2Seq com atenção por faixas (abs. pond. + aux. de pico) & 2,914 & 2,814 & 0,099 & 0,064 & 0,143 & pior \\
         \bottomrule
     \end{tabular}
     \end{adjustbox}

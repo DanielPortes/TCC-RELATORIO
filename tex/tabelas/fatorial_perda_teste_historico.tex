@@ -1,6 +1,6 @@
 \begin{table}[!htbp]
     \centering
-    \caption{Efeito da perda por arquitetura (abs. ponderada - Huber): teste preliminar (jun.--dez./2020)}
+    \caption{Efeito da perda por arquitetura (abs. ponderada - Huber): teste preliminar (27/05 a 31/12/2020)}
     \label{tab:fatorial_perda_teste_historico}
     \small
     \begin{adjustbox}{max width=\textwidth}
@@ -8,11 +8,11 @@
         \toprule
         Arquitetura & MAE Huber & MAE abs. pond. & $\Delta$ MAE & IC inf. & IC sup. & Veredito \\
         \midrule
-        LSTM direta & 2,829 & 2,869 & 0,039 & -0,004 & 0,075 & empate estatístico \\
-        LSTM recursiva & 2,827 & 2,954 & 0,127 & 0,087 & 0,168 & pior \\
-        Seq2Seq básico & 2,851 & 2,904 & 0,053 & 0,003 & 0,108 & pior \\
-        Seq2Seq atenção padrão & 2,739 & 2,749 & 0,010 & -0,013 & 0,037 & empate estatístico \\
-        Seq2Seq atenção adaptado & 2,722 & 2,695 & -0,027 & -0,050 & -0,003 & melhor \\
+        LSTM direta & 2,829 & 2,869 & 0,039 & $-$0,002 & 0,078 & empate estatístico \\
+        LSTM recursiva & 2,827 & 2,954 & 0,127 & 0,088 & 0,168 & pior \\
+        Seq2Seq básico & 2,851 & 2,904 & 0,053 & 0,002 & 0,110 & pior \\
+        Seq2Seq com atenção & 2,739 & 2,749 & 0,010 & $-$0,012 & 0,037 & empate estatístico \\
+        Seq2Seq com atenção por faixas & 2,722 & 2,695 & $-$0,027 & $-$0,050 & $-$0,004 & melhor \\
         \bottomrule
     \end{tabular}
     \end{adjustbox}
