@@ -143,17 +143,17 @@ A validação cruzada tradicional repete a avaliação em várias divisões dos 
     \label{fig:validacao_walk_forward}
 \end{figure}
 
-Para \(K\) partições, o resultado usado para comparar configurações é a média dos erros obtidos na validação de cada partição, como mostra a Equação~\ref{eq:cv_temporal}.
+Para \(P\) partições, o resultado usado para comparar configurações é a média dos erros obtidos na validação de cada partição, como mostra a Equação~\ref{eq:cv_temporal}.
 
 \begin{equation}
-    \mathcal{L}_{CV}
+    \mathcal{L}_{\mathrm{CV}}
     =
-    \frac{1}{K}\sum_{k=1}^{K}
-    \mathcal{L}_{val}^{(k)}
+    \frac{1}{P}\sum_{p=1}^{P}
+    \mathcal{L}_{\mathrm{val}}^{(p)}
     \label{eq:cv_temporal}
 \end{equation}
 
-\noindent onde \(\mathcal{L}\) designa uma medida de erro (também chamada de perda), como o erro médio absoluto, a média das diferenças absolutas entre os valores previstos e os observados; \(\mathcal{L}_{val}^{(k)}\) é o erro obtido na validação da partição \(k\); e \(\mathcal{L}_{CV}\) é a média entre as \(K\) partições (o índice \(CV\) vem de \textit{cross-validation}, validação cruzada).
+\noindent onde \(\mathcal{L}\) designa uma medida de erro (também chamada de perda), como o erro médio absoluto, a média das diferenças absolutas entre os valores previstos e os observados; \(\mathcal{L}_{\mathrm{val}}^{(p)}\) é o erro obtido na validação da partição \(p\); e \(\mathcal{L}_{\mathrm{CV}}\) é a média entre as \(P\) partições (o índice CV vem de \textit{cross-validation}, validação cruzada).
 
 \subsection{Dados Faltantes, Imputação e Vazamento Temporal}
 \label{sec:dados_faltantes_imputacao}
@@ -434,9 +434,16 @@ O modelo mais simples usado neste trabalho é a regressão linear, em que a prev
 \section{Impulsionamento por Gradiente e XGBoost}
 \label{sec:xgboost}
 
-Uma árvore de decisão é um modelo que divide os exemplos por uma sequência de perguntas sobre os atributos e associa um valor de previsão a cada grupo final, chamado de folha. Uma única árvore pequena é simples, mas limitada: com poucas perguntas, ela só consegue produzir poucos valores diferentes; com muitas perguntas, passa a decorar o treino.
+Uma árvore de decisão é um modelo que divide os exemplos por uma sequência de perguntas sobre os atributos e associa um valor de previsão a cada grupo final, chamado de folha. A Figura~\ref{fig:boosting}, de \citeonline{chen2016xgboost}, mostra duas árvores desse tipo, que atribuem um valor a cada pessoa de um grupo. Observe a árvore 1 (\textit{tree1}): ela pergunta se a idade é menor que 15 anos (\textit{age} \(<\) 15) e, se sim, se a pessoa é do sexo masculino (\textit{is male?}). Cada pessoa termina em uma das três folhas, e todas as pessoas de uma mesma folha recebem o mesmo valor (\(+2\), \(+0{,}1\) ou \(-1\)).
 
-O impulsionamento por gradiente (\textit{gradient boosting}) contorna essa limitação combinando muitas árvores pequenas \cite{friedman2001greedy}. As árvores são construídas em sequência, uma por iteração, e todas são mantidas no modelo final. O procedimento é:
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.75\textwidth]{xgboost_chen2016_fig1_original.png}
+    \caption[Previsão do impulsionamento como soma de árvores]{Conjunto de duas árvores: a previsão para cada exemplo é a soma das previsões de cada árvore. Fonte: \citeonline{chen2016xgboost}.}
+    \label{fig:boosting}
+\end{figure}
+
+Como cada folha guarda um único valor, uma árvore pequena produz poucas previsões diferentes: com duas perguntas em sequência, no máximo quatro. Ela aproxima, em degraus, uma relação que pode variar de forma gradual. Para obter mais degraus, seria preciso fazer mais perguntas; mas cada pergunta divide os exemplos, e, em uma árvore grande, as folhas passam a ter tão poucos exemplos que seus valores refletem as particularidades dos dados de treino, e não um padrão que se repete em dados novos \cite{hastie2009elements}. Em vez de uma única árvore grande e complexa, o impulsionamento por gradiente (\textit{gradient boosting}) usa muitas árvores pequenas \cite{friedman2001greedy}. Elas são construídas em sequência, uma por iteração, e todas são mantidas no modelo final. O procedimento é:
 
 \begin{enumerate}
     \item começa-se com uma previsão inicial \(F_0\), igual para todos os exemplos (por exemplo, a média dos valores observados);
@@ -446,23 +453,16 @@ O impulsionamento por gradiente (\textit{gradient boosting}) contorna essa limit
     \item repetem-se os passos 2 a 4 por \(K\) iterações.
 \end{enumerate}
 
-Cada árvore, portanto, corrige o que as anteriores ainda erram, e a previsão final é a soma das respostas de todas as árvores. A Figura~\ref{fig:boosting} reproduz a figura de \citeonline{chen2016xgboost} que ilustra essa soma, com duas árvores que atribuem um valor a cada pessoa de um grupo. Observe a árvore 1 (\textit{tree1}): ela pergunta se a idade é menor que 15 anos (\textit{age} \(<\) 15) e, se sim, se a pessoa é do sexo masculino (\textit{is male?}); cada pessoa termina em uma folha, que guarda um valor (\(+2\), \(+0{,}1\) ou \(-1\)). A árvore 2 (\textit{tree2}) faz outra pergunta, se a pessoa usa o computador diariamente (\textit{Use Computer Daily}), com folhas \(+0{,}9\) e \(-0{,}9\). Na parte de baixo, a previsão para o menino é a soma das folhas em que ele caiu nas duas árvores, \(2+0{,}9=2{,}9\); para o avô, \(-1-0{,}9=-1{,}9\). As árvores não são escolhidas umas no lugar das outras, nem combinadas por média: todas são mantidas, e suas respostas são somadas. A Equação~\ref{eq:xgboost_aditivo} escreve essa soma de forma geral, incluindo a previsão inicial e a taxa de aprendizado, que na figura já estão embutidas nos valores das folhas.
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.75\textwidth]{xgboost_chen2016_fig1_original.png}
-    \caption[Previsão do impulsionamento como soma de árvores]{Conjunto de duas árvores: a previsão para cada exemplo é a soma das previsões de cada árvore. Fonte: \citeonline{chen2016xgboost}.}
-    \label{fig:boosting}
-\end{figure}
+A previsão, portanto, melhora a cada iteração: passa de \(F_0\) para \(F_1\), depois para \(F_2\), e assim por diante, porque cada nova árvore corrige o que as anteriores ainda erram. Isso não acontece substituindo uma árvore pela seguinte, nem tirando a média entre elas: o modelo final guarda todas as árvores e soma as suas respostas. É o que mostra a parte de baixo da Figura~\ref{fig:boosting}: a árvore 2 (\textit{tree2}) pergunta se a pessoa usa o computador diariamente (\textit{Use Computer Daily}), e a previsão para o menino é a soma das folhas em que ele caiu nas duas árvores, \(2+0{,}9=2{,}9\); para o avô, \(-1-0{,}9=-1{,}9\). Somando muitas árvores pequenas, o modelo obtém uma previsão com muitos valores diferentes, e cada árvore continua com poucas folhas e muitos exemplos em cada uma. A Equação~\ref{eq:xgboost_aditivo} escreve essa soma de forma geral, incluindo a previsão inicial e a taxa de aprendizado, que na figura já estão embutidas nos valores das folhas.
 
 \begin{equation}
     \hat{y}_i^{(K)} = F_0 + \eta\sum_{k=1}^{K} f_k(\mathbf{u}_i)
     \label{eq:xgboost_aditivo}
 \end{equation}
 
-\noindent onde \(\mathbf{u}_i\) é o vetor de atributos do exemplo \(i\), \(f_k\) é a árvore construída na iteração \(k\), \(f_k(\mathbf{u}_i)\) é o valor da folha em que o exemplo cai nessa árvore e \(\eta\) é a taxa de aprendizado, que faz cada árvore corrigir só uma parte do erro e torna o ajuste mais gradual. O termo ``gradiente'' vem do fato de que, para uma perda quadrática, o resíduo é a direção que mais reduz a perda; para outras perdas, as árvores ajustam o gradiente da perda em relação à previsão \cite{friedman2001greedy}. Para usar a série temporal nesse modelo, a janela de entrada da Seção~\ref{sec:janelas_variaveis_exogenas} é convertida no vetor \(\mathbf{u}_i\), listando lado a lado os valores de todas as variáveis em todos os instantes da janela.
+\noindent onde \(\mathbf{u}_i\) é o vetor de atributos do exemplo \(i\), \(f_k\) é a árvore construída na iteração \(k\), \(f_k(\mathbf{u}_i)\) é o valor da folha em que o exemplo cai nessa árvore e \(\eta\) é a taxa de aprendizado, que faz cada árvore corrigir só uma parte do erro e torna o ajuste mais gradual. O termo ``gradiente'' vem do fato de que, para uma perda quadrática, o resíduo é a direção que mais reduz a perda; para outras perdas, como a absoluta, as árvores ajustam o oposto do gradiente da perda em relação à previsão, que faz o papel do resíduo \cite{friedman2001greedy}. Para usar a série temporal nesse modelo, a janela de entrada da Seção~\ref{sec:janelas_variaveis_exogenas} é convertida no vetor \(\mathbf{u}_i\), listando lado a lado os valores de todas as variáveis em todos os instantes da janela.
 
-A Figura~\ref{fig:boosting} mostra o modelo pronto; a Tabela~\ref{tab:boosting_exemplo} mostra como as árvores são construídas uma após a outra. O exemplo tem três pessoas, de 20, 30 e 40 anos, cujo consumo diário de calorias é 1600, 1800 e 2000, e usa \(\eta=0{,}5\). A previsão inicial \(F_0\) é a média, 1800, e os resíduos são \(-200\), 0 e \(+200\). A árvore 1 separa a pessoa de 20 anos (folha \(-200\)) das demais (folha \(+100\), a média dos resíduos 0 e 200); somando metade desses valores, a previsão passa a 1700, 1850 e 1850. A árvore 2 é treinada com os novos resíduos, e assim por diante. Observe, na tabela, que as previsões se aproximam dos valores observados a cada iteração: a soma dos erros absolutos cai de 400 para 300 e depois para 150. Isso não significa que o erro de cada pessoa sempre diminua; o da pessoa de 30 anos passa de 0 para \(-50\) na primeira iteração, porque a árvore 1 a coloca na mesma folha da pessoa de 40 anos.
+A Figura~\ref{fig:boosting} mostra o modelo pronto; a Tabela~\ref{tab:boosting_exemplo} mostra como as árvores são construídas uma após a outra, com resíduos calculados como no passo 2. O exemplo tem três pessoas, de 20, 30 e 40 anos, cujo consumo diário de calorias é 1.600, 1.800 e 2.000, e usa \(\eta=0{,}5\). A previsão inicial \(F_0\) é a média, 1.800, e os resíduos são \(-200\), 0 e \(+200\). A árvore 1 separa a pessoa de 20 anos (folha \(-200\)) das demais (folha \(+100\), a média dos resíduos 0 e 200); somando metade desses valores, a previsão passa a 1.700, 1.850 e 1.850. A árvore 2 é treinada com os novos resíduos e separa a pessoa de 40 anos das demais; a árvore 3 repete essa divisão. Observe, na tabela, que as previsões se aproximam dos valores observados a cada iteração: a soma dos erros absolutos cai de 400 para 300 e depois para 150. Isso não significa que o erro de cada pessoa sempre diminua; o da pessoa de 30 anos passa de 0 para \(-50\) na primeira iteração, porque a árvore 1 a coloca na mesma folha da pessoa de 40 anos.
 
 \begin{table}[htbp]
     \centering
@@ -473,21 +473,21 @@ A Figura~\ref{fig:boosting} mostra o modelo pronto; a Tabela~\ref{tab:boosting_e
         \toprule
         & \textbf{20 anos} & \textbf{30 anos} & \textbf{40 anos} \\
         \midrule
-        Valor observado & 1600 & 1800 & 2000 \\
-        Previsão inicial \(F_0\) (média) & 1800 & 1800 & 1800 \\
+        Valor observado & 1.600 & 1.800 & 2.000 \\
+        Previsão inicial \(F_0\) (média) & 1.800 & 1.800 & 1.800 \\
         Resíduos usados pela árvore 1 & \(-200\) & 0 & \(+200\) \\
-        Previsão \(F_1\) & 1700 & 1850 & 1850 \\
+        Previsão \(F_1\) & 1.700 & 1.850 & 1.850 \\
         Resíduos usados pela árvore 2 & \(-100\) & \(-50\) & \(+150\) \\
-        Previsão \(F_2\) & 1662,5 & 1812,5 & 1925 \\
+        Previsão \(F_2\) & 1.662,5 & 1.812,5 & 1.925 \\
         Resíduos usados pela árvore 3 & \(-62{,}5\) & \(-12{,}5\) & \(+75\) \\
-        Previsão \(F_3\) & 1643,75 & 1793,75 & 1962,5 \\
+        Previsão \(F_3\) & 1.643,75 & 1.793,75 & 1.962,5 \\
         \bottomrule
     \end{tabular}
 \end{table}
 
 O modelo final guarda as três árvores e soma suas contribuições, como na Equação~\ref{eq:xgboost_aditivo}.
 
-O XGBoost (\textit{Extreme Gradient Boosting}) é uma implementação do impulsionamento por gradiente proposta por \citeonline{chen2016xgboost}. Ele segue o mesmo procedimento, mas acrescenta ao treinamento uma \emph{regularização}, uma penalidade para árvores complexas: cada nova árvore é escolhida minimizando o objetivo da Equação~\ref{eq:xgboost_objetivo}, e não apenas o erro.
+O XGBoost (\textit{Extreme Gradient Boosting}) é uma implementação do impulsionamento por gradiente proposta por \citeonline{chen2016xgboost}. Ele segue o mesmo procedimento, mas acrescenta ao treinamento uma \emph{regularização}, uma penalidade para árvores complexas: cada nova árvore é escolhida minimizando o objetivo da Equação~\ref{eq:xgboost_objetivo}, e não apenas o erro. Essa penalidade é uma das diferenças do XGBoost em relação ao impulsionamento por gradiente original: quando ela é zerada, o objetivo volta a ser o do método original \cite{chen2016xgboost}.
 
 \begin{equation}
     \mathcal{L}^{(K)}
@@ -500,7 +500,7 @@ O XGBoost (\textit{Extreme Gradient Boosting}) é uma implementação do impulsi
     \label{eq:xgboost_objetivo}
 \end{equation}
 
-\noindent onde \(\ell\) é a função de perda que compara o valor observado \(y_i\) com a previsão, \(T_k\) é o número de folhas da árvore \(k\), \(\mathbf{w}_k\) é o vetor de valores das folhas, \(\gamma\) penaliza cada folha adicional e \(\lambda\) penaliza valores grandes nas folhas. Na prática, uma divisão só é feita se reduzir a perda mais do que o custo \(\gamma\) da folha nova, e os valores das folhas ficam menores do que a média simples dos resíduos usada no exemplo acima. Com isso, as árvores ficam menos propensas a ajustar o ruído do treino em vez dos padrões gerais \cite{chen2016xgboost}.
+\noindent onde \(\ell\) é a função de perda que compara o valor observado \(y_i\) com a previsão, \(T_k\) é o número de folhas da árvore \(k\), \(\mathbf{w}_k\) é o vetor de valores das folhas, \(\gamma\) penaliza cada folha adicional e \(\lambda\) penaliza valores grandes nas folhas. Na prática, uma divisão só é feita se reduzir a perda mais do que o custo \(\gamma\) da folha nova, e os valores das folhas ficam menores do que a média simples dos resíduos usada no exemplo acima. Com isso, as árvores ficam menos propensas a ajustar o ruído do treino em vez dos padrões gerais \cite{chen2016xgboost}. Além dessa penalidade, o tamanho das árvores é limitado diretamente pela profundidade máxima, isto é, pelo número máximo de perguntas em sequência, um valor escolhido antes do treinamento.
 
 \section{Treinamento e Hiperparâmetros}
 \label{sec:otimizacao_hpo}
@@ -524,17 +524,17 @@ Os \emph{parâmetros} de um modelo, como os pesos de uma rede neural ou os valor
 
 \noindent onde \(\delta\) é o limite a partir do qual o erro deixa de ser tratado de forma quadrática. Cada perda tem um valor de previsão que a minimiza: a perda quadrática é minimizada pela média condicional, a perda absoluta pela mediana condicional e a perda de Huber por um valor intermediário \cite{gneiting2011making}. Como a mediana de uma distribuição assimétrica à direita, como a do PM2,5, fica abaixo da média, modelos treinados com perda absoluta ou de Huber tendem a subestimar valores altos. A perda também pode ser ponderada, atribuindo peso maior a determinados exemplos, na linha do aprendizado sensível ao custo \cite{elkan2001foundations}. Neste trabalho, a perda de Huber é a usada no treinamento das redes neurais, e uma perda absoluta ponderada é testada como alternativa.
 
-\paragraph{Busca de hiperparâmetros.} A busca de hiperparâmetros (\textit{Hyperparameter Optimization}, HPO) automatiza a escolha desses valores. Ajustá-los à mão é trabalhoso, porque muitos interagem entre si e cada teste exige um treinamento completo. Seja \(\kappa \in \mathcal{K}\) uma configuração de hiperparâmetros dentro do espaço de busca \(\mathcal{K}\), o conjunto de valores permitidos, e \(A(D_{treino};\kappa)\) o modelo treinado com essa configuração. Em uma validação simples, busca-se a configuração de menor erro de validação, como na Equação~\ref{eq:hpo_objetivo}.
+\paragraph{Busca de hiperparâmetros.} A busca de hiperparâmetros (\textit{Hyperparameter Optimization}, HPO) automatiza a escolha desses valores. Ajustá-los à mão é trabalhoso, porque muitos interagem entre si e cada teste exige um treinamento completo. Em uma validação simples, escolhe-se a configuração de menor erro de validação, como na Equação~\ref{eq:hpo_objetivo} \cite{feurer2019hyperparameter}.
 
 \begin{equation}
     \kappa^{*}
     =
     \arg\min_{\kappa \in \mathcal{K}}
-    \mathcal{L}_{val}\left(A(D_{treino};\kappa), D_{val}\right)
+    \mathcal{L}_{\mathrm{val}}\left(A(D_{\mathrm{treino}};\kappa),\, D_{\mathrm{val}}\right)
     \label{eq:hpo_objetivo}
 \end{equation}
 
-\noindent onde \(D_{treino}\) e \(D_{val}\) são os dados de treino e de validação, \(\mathcal{L}_{val}\) é o erro na validação e \(\kappa^{*}\) é a configuração escolhida. Em séries temporais, o erro de validação é substituído pela média entre as partições, \(\mathcal{L}_{CV}\), da Equação~\ref{eq:cv_temporal}.
+\noindent onde \(\kappa\) é uma configuração de hiperparâmetros, isto é, um valor para cada um deles; \(\mathcal{K}\) é o espaço de busca, o conjunto das configurações permitidas; \(A\) é o algoritmo de treinamento, que recebe os dados de treino \(D_{\mathrm{treino}}\) e a configuração \(\kappa\) e devolve o modelo ajustado; \(\mathcal{L}_{\mathrm{val}}(\cdot, D_{\mathrm{val}})\) é o erro desse modelo nos dados de validação \(D_{\mathrm{val}}\); \(\arg\min\) indica a configuração que torna esse erro o menor possível; e \(\kappa^{*}\) é a configuração escolhida. Em séries temporais, o erro de validação é substituído pela média entre as partições, \(\mathcal{L}_{\mathrm{CV}}\), da Equação~\ref{eq:cv_temporal}.
 
 O Optuna é uma ferramenta que realiza essa busca \cite{akiba2019optuna}. Cada \emph{tentativa} (\textit{trial}) treina o modelo com uma configuração e devolve seu erro; o amostrador \textit{Tree-structured Parzen Estimator} (TPE) usa as tentativas anteriores para propor configurações mais promissoras, em vez de sorteá-las ao acaso \cite{bergstra2011algorithms,optunaDocsTPE2026}. Como treinar cada tentativa até o fim custa caro, a busca trabalha com um \emph{orçamento}, a quantidade de recursos computacionais que ela pode gastar, medida em número de tentativas e em épocas de treinamento por tentativa. A \emph{poda} usa esse orçamento com mais eficiência, interrompendo cedo as tentativas pouco promissoras. O \textit{Hyperband} faz isso em etapas: treina muitas configurações por poucas épocas, mantém apenas a fração com menor erro e dá a elas mais épocas, repetindo o processo até que poucas configurações sejam treinadas até o fim \cite{li2018hyperband}. Por usar um orçamento limitado, a busca não garante encontrar a melhor configuração possível, apenas uma configuração boa dentro do espaço e do orçamento definidos.
 
