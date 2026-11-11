@@ -187,7 +187,7 @@ A Figura~\ref{fig:serie_temporal_componentes_sapo} mostra a decomposição aditi
     \label{fig:serie_temporal_componentes_sapo}
 \end{figure}
 
-A Tabela~\ref{tab:padroes_temporais_sapo} apresenta as autocorrelações (Equação~\ref{eq:autocorrelacao}), calculadas entre pares de horas medidas, e as amplitudes médias dos ciclos. Elas levam às três decisões:
+A Tabela~\ref{tab:padroes_temporais_sapo} apresenta as autocorrelações e as amplitudes dos ciclos. A autocorrelação em \(\tau\) horas é a correlação entre cada valor medido e o valor medido \(\tau\) horas antes, como na Equação~\ref{eq:autocorrelacao}, calculada apenas com os pares de horas em que os dois valores foram medidos, para que as lacunas e os valores preenchidos não interfiram. A amplitude de um ciclo é a diferença entre a maior e a menor média: por exemplo, calcula-se a média do PM2,5 em cada hora do dia, e a amplitude horária é a diferença entre a hora de maior média e a de menor média. Os resultados levam às três decisões:
 
 \begin{itemize}
     \item A autocorrelação do PM2,5 é 0,813 em 1 hora: o valor de uma hora é muito parecido com o da hora anterior. Por isso, repetir o último valor já é uma previsão razoável para as primeiras horas, e previsões ingênuas como essa são referências necessárias para saber se os modelos acrescentam algo.
@@ -209,22 +209,22 @@ A Tabela~\ref{tab:padroes_temporais_sapo} apresenta as autocorrelações (Equaç
         Autocorrelação em 48 h & 0,598 & 0,453 & Ainda há informação dois dias antes. \\
         Autocorrelação em 168 h & 0,461 & 0,360 & Repetição semanal mais fraca que a diária. \\
         Autocorrelação em 8760 h (um ano) & 0,04 & 0,14 & O mesmo dia do ano anterior quase não ajuda. \\
-        Amplitude média por hora do dia & 4,48 & 11,14 & Ciclo diário claro, mais intenso no PM10. \\
-        Amplitude média por dia da semana & 0,70 & 3,68 & Variação semanal pequena. \\
-        Amplitude média por mês & 8,52 & 12,95 & Concentrações maiores em setembro e outubro. \\
+        Amplitude por hora do dia & 4,48 & 11,14 & Ciclo diário claro, mais intenso no PM10. \\
+        Amplitude por dia da semana & 0,70 & 3,68 & Variação semanal pequena. \\
+        Amplitude por mês & 8,52 & 12,95 & Concentrações maiores em setembro e outubro. \\
         \bottomrule
     \end{tabular}%
     }
 \end{table}
 
-O perfil horário do PM2,5 tem as menores médias entre a madrugada e o início da tarde (mínimo de cerca de 10,3~\(\mu\)g/m\(^3\) às 13 h) e as maiores no fim da tarde (máximo de cerca de 14,8~\(\mu\)g/m\(^3\) às 18 h). Há também um padrão ao longo do ano. Na média de 2017 a 2020, setembro (14,9~\(\mu\)g/m\(^3\)) e outubro (18,0) são os meses de maior concentração, contra cerca de 10~\(\mu\)g/m\(^3\) nos meses chuvosos; setembro e outubro correspondem ao fim da estação seca na região, período de pouca chuva. O nível de cada ano, porém, muda muito, como mostrado na Seção~\ref{sec:dados}. Por isso, a autocorrelação de um ano é de apenas 0,04: o valor do mesmo dia do ano anterior quase não ajuda a prever, mesmo havendo um período do ano com concentrações mais altas. Os modelos recebem a posição no ano pelo mês e pelos termos periódicos anuais, e não pelo valor do ano anterior. Na decomposição da Figura~\ref{fig:serie_temporal_componentes_sapo}, essa variação ao longo do ano aparece na tendência, que é uma média de sete dias.
+As amplitudes mostram que a concentração tem um ciclo diário e uma variação ao longo do ano, e é por isso que os modelos recebem a hora do dia, o dia da semana e o mês como entradas. O perfil horário do PM2,5 tem as menores médias entre a madrugada e o início da tarde (mínimo de cerca de 10,3~\(\mu\)g/m\(^3\) às 13 h) e as maiores no fim da tarde (máximo de cerca de 14,8~\(\mu\)g/m\(^3\) às 18 h). Há também um padrão ao longo do ano. Na média de 2017 a 2020, setembro (14,9~\(\mu\)g/m\(^3\)) e outubro (18,0) são os meses de maior concentração, contra cerca de 10~\(\mu\)g/m\(^3\) nos meses chuvosos; setembro e outubro correspondem ao fim da estação seca na região, período de pouca chuva. O nível de cada ano, porém, muda muito, como mostrado na Seção~\ref{sec:dados}. Por isso, a autocorrelação de um ano é de apenas 0,04: o valor do mesmo dia do ano anterior quase não ajuda a prever, mesmo havendo um período do ano com concentrações mais altas. Os modelos recebem a posição no ano pelo mês e pelos termos periódicos anuais, e não pelo valor do ano anterior. Na decomposição da Figura~\ref{fig:serie_temporal_componentes_sapo}, essa variação ao longo do ano aparece na tendência, que é uma média de sete dias.
 
 \section{Horizonte de Previsão e Janela de Entrada}
 \label{sec:formulacao_tarefa}
 
 A previsão é multi-horizonte (Seção~\ref{sec:previsao_multi_horizonte}). Para cada instante de emissão \(t\), o modelo recebe as 48 horas anteriores (\(L=48\), de \(t-47\) a \(t\)) e prevê a concentração de PM2,5 para cada uma das 24 horas seguintes (\(H=24\), de \(t+1\) a \(t+24\)), como na janela deslizante da Figura~\ref{fig:janelamento}.
 
-O horizonte de 24 horas é uma escolha deste trabalho e corresponde a prever o dia seguinte. A janela de entrada de 48 horas cobre dois ciclos diários completos e inclui os valores de 24 e 48 horas antes, que ainda têm autocorrelação relevante (Tabela~\ref{tab:padroes_temporais_sapo}). Para verificar que as conclusões não dependem dessa escolha, a janela também foi variada em 24, 72 e 96 horas, comparando apenas o erro de validação.
+O horizonte de 24 horas é uma escolha deste trabalho e corresponde a prever o dia seguinte. A janela de entrada de 48 horas foi escolhida a partir dos padrões da Seção~\ref{sec:padroes_temporais}. A autocorrelação do PM2,5 ainda é alta em 24 e 48 horas (0,681 e 0,598) e cai em uma semana (0,461), o que indica que a informação mais útil está nos últimos dois dias (Tabela~\ref{tab:padroes_temporais_sapo}). Com 48 horas, a janela cobre dois ciclos diários completos e contém, para cada uma das 24 horas previstas, o valor medido na mesma hora do dia anterior e de dois dias antes. Janelas mais longas acrescentariam valores pouco relacionados com o futuro e aumentariam o número de entradas dos modelos. Para verificar a escolha, a janela também foi variada em 24, 72 e 96 horas, comparando apenas o erro de validação, de modo que o teste não participou da decisão (Tabela~\ref{tab:janela_validacao}, no Apêndice~\ref{ap:teste_historico}). Na LSTM direta, a janela de 48 horas teve o menor erro, e as demais o aumentaram em até 0,034~\(\mu\)g/m\(^3\). No XGBoost, o erro diminuiu um pouco com janelas maiores, de 2,80 com 48 horas para 2,77 com 96 horas, uma diferença de cerca de 1\% que não muda a comparação entre os modelos.
 
 \section{Pré-processamento}
 \label{sec:preprocessamento}
